@@ -10,6 +10,6 @@ export const handleError=(error:unknown)=>{
     return {errorMessage:error.message};
   }
   else{
-    return {errorMessage:"Something went wrong"}
+    return {errorMessage:"Something went wrong."}
   }
 }
