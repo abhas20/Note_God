@@ -1,11 +1,10 @@
-import { getUser } from "@/auth/server"
+import { getUser } from "@/auth/server";
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarHeader,
-  } from "@/components/ui/sidebar"
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel
+} from "@/components/ui/sidebar";
 import { prisma } from "@/db/prisma";
 import { Notes } from "@prisma/client";
 import Link from "next/link";

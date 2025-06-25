@@ -4,15 +4,11 @@ import { User } from "@supabase/supabase-js"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
+  DialogDescription, DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Label } from "@/components/ui/label"
 import { useRef, useState, useTransition, Fragment } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowUpIcon } from "lucide-react"

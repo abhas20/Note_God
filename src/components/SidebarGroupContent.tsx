@@ -31,7 +31,7 @@ export default function SidebarGroupContent({notes}:props) {
 
     const filteredNotes= searchText? fuse.search(searchText).map((result)=>result.item):availableNotes
 
-    const deleteNoteLocally=(noteId:String)=>{
+    const deleteNoteLocally=(noteId:string)=>{
       setAvailableNotes((prevNote)=>{
         return prevNote.filter((note) => note.id !== noteId)
       })

@@ -18,7 +18,6 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isUpdating, setUpdating] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
-  const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [newImgUrl, setNewImgUrl] = useState("");
 
@@ -37,7 +36,6 @@ export default function Page() {
           setUser(null);
         } else {
           setUser({ email: currUser.email, imgUrl: currUser.imgUrl });
-          setImgUrl(currUser.imgUrl);
           setNewImgUrl(currUser.imgUrl ?? "");
         }
       } catch (error) {
@@ -78,7 +76,6 @@ export default function Page() {
       }
 
       setUser({ email: updatedUser.email, imgUrl: updatedUser.imgUrl });
-      setImgUrl(updatedUser.imgUrl);
       toast.success("Profile updated successfully", { duration: 2000 });
     } catch (error) {
       const newError = handleError(error);

@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Loader2, Trash2 } from "lucide-react";
 import { useTransition } from "react";
@@ -21,7 +21,7 @@ import { deleteNoteAction } from "@/action/note";
 
 type Prop={
     noteId:string,
-    deletenoteLocally:(noteId:String)=>void;
+    deletenoteLocally:(noteId:string)=>void;
 }
 
 
