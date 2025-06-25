@@ -62,7 +62,7 @@ export const askAINoteAction=async(newQuestion:string[],response:string[])=>{
         })
         if(notes.length===0) return "You don't have notes yet"
 
-        const formatedNote=notes.map((note)=>
+        const formatedNote = notes.map((note: { note: string; createdAt: Date; updatedAt: Date }) =>
             `
             Text:${note.note}
             Created at:${note.createdAt}
