@@ -93,7 +93,7 @@ export default function Page() {
   return isLoading ? (
     <Loader2 className="mx-auto mt-20 animate-spin" />
   ) : user ? (
-    <Card className="mx-auto mt-10 max-w-sm rounded border border-red-200 p-4 text-center shadow">
+    <Card className="mx-auto mt-10 max-w-md p-6 shadow-lg w-full">
       <CardHeader>
         <CardTitle className="text-center text-3xl font-semibold">
           My Profile
@@ -105,7 +105,7 @@ export default function Page() {
           user.imgUrl ??
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9pU5Uo_89gxknb72fs5xpyJYH6_cGdC7FnQ&s"
         }
-        className="mx-auto mb-4 h-24 w-24 rounded-full object-cover"
+        className="mx-auto mb-4 h-24 w-24 rounded-full object-cover shadow-md border-amber-400 border-2"
         alt="Profile"
       />
 
@@ -148,7 +148,7 @@ export default function Page() {
         </Button>
       )}
 
-      <p className="text-lg font-semibold">{user.email}</p>
+      <p className="text-lg text-center font-semibold">{user.email}</p>
 
       <Button variant={"outline"} onClick={() => router.push("/")}>
         Go Back

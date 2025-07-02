@@ -47,11 +47,15 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
   if (noteIdParam !== noteId) return null;
 
   return (
+    <>
+    <h1 className="text-2xl">Hey take your notes:</h1>
     <Textarea
       value={noteText}
       onChange={handleUpdateNote}
-      className="mb-4 h-full max-w-4xl resize-none border p-4 placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-    />
+      placeholder="Type your note here..."
+      className="mb-4 max-w-4xl resize-none border p-4 placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-offset-2 h-100 focus-visible:ring-blue-500 focus-visible:ring-offset-blue-200 focus-visible:border-blue-500 focus-visible:outline-none text-lg md:text-xl lg:text-xl md:leading-8 lg:leading-10 font-mono bg-transparent text-gray-800 dark:text-gray-200"
+      />
+      </>
   );
 }
 
