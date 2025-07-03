@@ -33,7 +33,6 @@ export default function RootLayout({
             <div className="flex flex-col min-h-screen w-full">
             <Header/>
           <main className="flex flex-col pt-10 p-4">  {children}</main>
-          <SidebarTrigger />
           </div>
           <Toaster/>
           </SidebarProvider>

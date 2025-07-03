@@ -37,7 +37,7 @@ export default function NewNoteButton({user}:Props) {
       }
   }
 
-    console.log(user?.email);
+    // console.log(user?.email);
   return (
     <div>
      <Button onClick={handleNewNote} variant="secondary" className="w-24" disabled={loading}>{loading?<Loader2 className="animate-spin"/>: "New Note"}</Button>

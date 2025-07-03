@@ -15,15 +15,15 @@ export default async function Header() {
         
         {/* Left: Sidebar Trigger + Logo */}
         <div className="flex items-center gap-4">
-          <SidebarTrigger className="sm:hidden" />
+          <SidebarTrigger/>
           <Link href={"/"} className="flex items-center gap-4">
             <img
-              src="https://th.bing.com/th/id/OIP.SgBy5pmiLQHM-ngs1k0OTgHaHa?w=156&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+              src="./image.png"
               alt="notes"
               className="rounded-full border border-red size-10"
             />
             <h1 className="text-xl sm:text-3xl font-bold leading-6 sm:leading-8 text-primary">
-              Notes😎 <span className="block sm:inline ml-0 sm:ml-8">GOD ..</span>
+              NotesGOD
             </h1>
           </Link>
         </div>

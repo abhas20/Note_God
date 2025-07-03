@@ -24,7 +24,7 @@ export default function SidebarGroupContent({notes}:props) {
 
     const fuse=useMemo(()=>{
       return new Fuse(availableNotes,{
-        keys:["text"],
+        keys:["note"],
         threshold:0.4
       })
     },[availableNotes])
