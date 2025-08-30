@@ -22,7 +22,7 @@ export default function NoteGenerator({ onGenerated,onSaveNote }: NoteGeneratorP
 
   const [generationId, setGenerationId] = useState(0);
 
-  let textGenerated = usePollinationsText(
+  const textGenerated = usePollinationsText(
     submittedTopic,
        {
           model: "mistral",
@@ -48,7 +48,7 @@ useEffect(() => {
       // setSubmittedTopic(noteTopic.trim());
       setIsDisabled(true);
       setIsLoading(true);
-      setGenerationId(prev => prev + 1); // 👈 force re-trigger
+      setGenerationId(prev => prev + 1); 
       setSubmittedTopic(`${noteTopic.trim()} [${generationId}]`); 
 
   };
