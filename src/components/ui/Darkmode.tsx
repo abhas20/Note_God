@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@radix-ui/react-dropdown-menu"
 
 export default function DarkModeToggle() {
   const { setTheme } = useTheme()

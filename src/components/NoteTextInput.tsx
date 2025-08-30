@@ -2,9 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 import { Textarea } from "./ui/textarea";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useNote from "@/hooks/useNote";
 import { updateNoteAction } from "@/action/note";
+import NoteGenerator from "./NoteGenerator";
 
 
 type Props = {
@@ -44,18 +45,30 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
     }, 5000);
   };
 
+  const onSaveNote=(note:string)=>{
+    updateNoteAction(noteId,note)
+  }
+
   if (noteIdParam !== noteId) return null;
 
   return (
     <>
-    <h1 className="text-2xl">Hey take your notes:</h1>
-    <Textarea
-      value={noteText}
-      onChange={handleUpdateNote}
-      placeholder="Type your note here..."
-      className="mb-4 max-w-4xl resize-none border p-4 placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-offset-2 h-100 focus-visible:ring-blue-500 focus-visible:ring-offset-blue-200 focus-visible:border-blue-500 focus-visible:outline-none text-lg md:text-xl lg:text-xl md:leading-8 lg:leading-10 font-mono bg-transparent text-gray-800 dark:text-gray-200"
+      <h1 className="text-2xl font-bold">Hey take your notes:</h1>
+      <Textarea
+        value={noteText}
+        onChange={handleUpdateNote}
+        placeholder="Type your note here..."
+        className="placeholder:text-muted-foreground mb-4 h-100 max-w-4xl resize-none border bg-transparent p-4 font-mono text-lg text-gray-800 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-200 focus-visible:outline-none md:text-xl md:leading-8 lg:text-xl lg:leading-10 dark:text-gray-200"
       />
-      </>
+
+      <div className="my-6 flex w-full items-center">
+        <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+        <span className="mx-4 text-gray-500 dark:text-gray-400">or</span>
+        <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
+      </div>
+
+      <NoteGenerator onGenerated={setNoteText} onSaveNote={onSaveNote}/>
+    </>
   );
 }
 

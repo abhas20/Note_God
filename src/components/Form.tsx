@@ -77,6 +77,7 @@ export default function Form(type:Props) {
           <>
         <Label htmlFor="password">Password: </Label>
         <Input type="password" name="password" id="password" placeholder="Password" autoComplete="off" disabled={isPending} required/>
+        {isLogin && <p className="text-sm text-right"><Link href={"/auth/forgot-password"}>Forgot Password?</Link></p>}
           </>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">

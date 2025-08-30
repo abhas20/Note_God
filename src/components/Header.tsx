@@ -4,6 +4,7 @@ import DarkModeToggle from "./ui/Darkmode";
 import Logout from "./Logout";
 import { getUser } from "@/auth/server";
 import { SidebarTrigger } from "./ui/sidebar";
+import MoreOptions from "./MoreOptions";
 
 export default async function Header() {
   const user = await getUser();
@@ -32,6 +33,7 @@ export default async function Header() {
         <div className="flex flex-wrap justify-end items-center gap-3 sm:gap-4">
           {isUserLogged ? (
             <>
+              <MoreOptions/>
               <Logout />
               <Button asChild variant="outline">
                 <Link href="/profile">Profile</Link>
