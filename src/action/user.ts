@@ -67,7 +67,7 @@ export const getCurrentUser = async () => {
 
     const currUser = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { email: true, imgUrl: true }
+      select: { email: true, imgUrl: true, id:true }
     });
 
     return { currUser };
@@ -91,3 +91,36 @@ export const updateUserProfile = async (email: string, imgUrl: string | null) =>
     return handleError(error);
   }
 };
+
+
+export const forgetPassword=async (email:string)=>{
+    try {
+        const {auth} = await createClient();
+        const { data, error }=await auth.resetPasswordForEmail(email,{
+            redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`,
+        });
+        if (error) {
+            throw error;
+        }
+        return { errorMessage: null, data };
+    } 
+    catch (error) {
+        return handleError(error);
+    }
+
+}
+
+export const resetPassword=async (password:string)=>{
+    try {
+        const {auth} = await createClient();
+        const { data, error }=await auth.updateUser({
+            password:password,
+        })
+        if (error) {
+            throw error;
+        }
+        return { errorMessage: null };
+    } catch (error) {
+        return handleError(error);
+    }
+}
