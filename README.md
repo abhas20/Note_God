@@ -109,16 +109,15 @@ CREATE DATABASE note_god_db;
 
 ### 5. Supabase Setup
 
-1. Go to [Supabase](https://supabase.com/) and create a new project
+1. Go to Supabase and create a new project
 2. Get your project URL and anon key from the API settings
 3. Add these to your `.env.local` file
 4. Supabase will handle user authentication and real-time features
 
 ### 6. OpenAI API Setup
 
-1. Sign up at [OpenRouter](https://openrouter.ai/) (recommended) or [OpenAI](https://openai.com/)
-2. Generate an API key
-3. Add the key to your `.env.local` file as `OPENAI_API_KEY`
+1. Generate an API key of OpenAI
+2. Add the key to your `.env.local` file as `OPENAI_API_KEY`
 
 ### 7. Database Migration
 
@@ -300,9 +299,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🤝 Acknowledgments
 
 - [Next.js](https://nextjs.org/) for the amazing React framework
-- [Supabase](https://supabase.com/) for authentication and real-time features  
-- [OpenAI](https://openai.com/) for powerful language models
-- [Prisma](https://www.prisma.io/) for the excellent ORM
 - [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - [Radix UI](https://www.radix-ui.com/) for accessible components
 
