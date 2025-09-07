@@ -3,6 +3,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 
 export async function middleware(request: NextRequest) {
+  if (
+    request.nextUrl.pathname === "/auth/callback" ||
+    request.nextUrl.pathname === "/auth/auth-code-error"
+  ) {
+    return NextResponse.next();
+  }
+
   return await updateSession(request)
 }
 

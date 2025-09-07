@@ -45,7 +45,7 @@ export default function SelectNoteButton({note}:Prop) {
         <p className="w-full overflow-hidden truncate text-ellipsis whitespace-nowrap">
           {noteText}
         </p>
-        <p>{note.updatedAt?.toLocaleDateString()}</p>
+        <p>{note.createdAt?.toLocaleDateString()}</p>
       </Link>
       </SidebarMenuButton>
     

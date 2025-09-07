@@ -3,7 +3,7 @@
 import { createClient, getUser } from "@/auth/server";
 import { prisma } from "@/db/prisma";
 import { handleError } from "@/lib/utils";
-
+import { redirect } from "next/navigation";
 
 export const loginAction=async(email:string,password:string)=>{
     try {
@@ -20,6 +20,23 @@ export const loginAction=async(email:string,password:string)=>{
         return handleError(error);
     }
 }
+
+export const loginWithGoogle = async () => {
+  const { auth } = await createClient();
+  const redirectUrl = `${process.env.NEXT_PUBLIC_URL}/auth/callback`;
+
+  const { data, error } = await auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: redirectUrl },
+  });
+
+  if (error) throw error;
+
+  if (data?.url) {
+    redirect(data.url); // no return needed
+  }
+};
+
 
 export const logOut=async()=>{
     try {
@@ -41,16 +58,16 @@ export const signupAction=async(email:string,password:string)=>{
             email:email,
             password:password
         })
-        const userId=data.user?.id;
-        if(!userId) throw new Error(("User not found"))
-            // add user to database
-        await prisma.user.create({
-            data:{
-                id:userId,
-                email,
-                imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFU7U2h0umyF0P6E_yhTX45sGgPEQAbGaJ4g&s"
-            }
-        })
+        // const userId=data.user?.id;
+        // if(!userId) throw new Error(("User not found"))
+        //     // add user to database
+        // await prisma.user.create({
+        //     data:{
+        //         id:userId,
+        //         email,
+        //         imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFU7U2h0umyF0P6E_yhTX45sGgPEQAbGaJ4g&s"
+        //     }
+        // })
         if(error){
             throw error;
         }
