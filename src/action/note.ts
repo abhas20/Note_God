@@ -99,10 +99,10 @@ export const askAINoteAction=async(newQuestion:string[],response:string[])=>{
     }
   }
 
-  const completion=await openai.chat.completions.create({
-    model: 'openai/gpt-4o-mini-2024-07-18',
+  const completion = await openai.chat.completions.create({
+    model: "deepseek/deepseek-chat-v3.1:free",
     messages,
-  }) 
+  }); 
 //   console.log(completion.choices[0].message.content)
     return completion.choices[0].message.content || "I am sorry a problem has occured";
 
