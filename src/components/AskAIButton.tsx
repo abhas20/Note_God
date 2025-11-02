@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "./ui/button"
 import { useRef, useState, useTransition, Fragment } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowUpIcon } from "lucide-react"
 import { Textarea } from "./ui/textarea"
 import { askAINoteAction } from "@/action/note"
@@ -21,7 +21,7 @@ type Props={
 }
 
 export default function AskAIButton({user}:Props) {
-  console.log(user?.email);
+  // console.log(user?.email);
   const [open,setOpen] =useState(false);
   const [ questions, setQuestions] = useState("");
   const [ questionText, setQuestionText] = useState<string[]>([]);
@@ -43,6 +43,8 @@ export default function AskAIButton({user}:Props) {
     textRef.current?.focus();
   }
 
+  const noteId= useSearchParams().get("noteId") || ""
+  
   const handleSubmit=()=>{
     if(questions.trim()==="") return;
 
@@ -50,8 +52,9 @@ export default function AskAIButton({user}:Props) {
     setQuestionText(newQuestion)
     setQuestions("")
     setTimeout(scrollToBottom, 200);
+
     startTransition(async ()=>{
-      const responses = await askAINoteAction(newQuestion, response)
+      const responses = await askAINoteAction(newQuestion, response,noteId);
       // Ensure responses is a string before adding to state
       setResponse(prev => [...prev, typeof responses === "string" ? responses : JSON.stringify(responses)])
       setTimeout(scrollToBottom, 100);
