@@ -38,12 +38,12 @@ function MoreOptions() {
             <li className="cursor-pointer hover:underline">Visualize</li>
           </Link>
           <Link
-            href="/quiz"
+            href="/chatpdf"
             className="block no-underline hover:text-amber-400"
             onClick={handleToggle}
           >
             <li className="cursor-pointer hover:underline">
-              Generate Quizzes
+              Chat with PDFs
             </li>
           </Link>
           <Link
