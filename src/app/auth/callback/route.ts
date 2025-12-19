@@ -1,5 +1,4 @@
 import { createClient } from "@/auth/server";
-import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {

@@ -58,16 +58,6 @@ export const signupAction=async(email:string,password:string)=>{
             email:email,
             password:password
         })
-        // const userId=data.user?.id;
-        // if(!userId) throw new Error(("User not found"))
-        //     // add user to database
-        // await prisma.user.create({
-        //     data:{
-        //         id:userId,
-        //         email,
-        //         imgUrl:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFU7U2h0umyF0P6E_yhTX45sGgPEQAbGaJ4g&s"
-        //     }
-        // })
         if(error){
             throw error;
         }
