@@ -24,6 +24,7 @@ model User {
   imgUrl   String?
   Notes Notes[]
   Messages Messages[]
+  FileUploads FileUploads[]
 }
 
 model Messages{
@@ -33,4 +34,15 @@ model Messages{
   senderId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())  
+}
+
+
+model FileUploads {
+  id        String   @id @default(uuid())
+  fileName  String
+  fileUrl   String
+  uploader  User     @relation(fields: [uploaderId], references: [id])
+  uploaderId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }

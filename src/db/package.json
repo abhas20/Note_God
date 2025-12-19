@@ -1,0 +1,9 @@
+{
+  "name": "@note-god/db",
+  "version": "1.0.0",
+  "main": "./dist/prisma.js",
+  "types": "./dist/prisma.d.ts",
+  "scripts": {
+    "build": "tsc -p ."
+  }
+}
