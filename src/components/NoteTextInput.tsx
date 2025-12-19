@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import useNote from "@/hooks/useNote";
 import { updateNoteAction } from "@/action/note";
 import NoteGenerator from "./NoteGenerator";
+import NoteGeneratorScrap from "./NoteGeneratorScrap";
 
 
 type Props = {
@@ -67,7 +68,10 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
         <div className="flex-grow border-t border-gray-300 dark:border-gray-600" />
       </div>
 
-      <NoteGenerator onGenerated={setNoteText} onSaveNote={onSaveNote}/>
+      <div className="flex flex-col gap-4 md:flex-row">
+        <NoteGenerator onGenerated={setNoteText} onSaveNote={onSaveNote} />
+        <NoteGeneratorScrap/>
+      </div>
     </>
   );
 }

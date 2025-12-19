@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSideBar";
 import NoteProvider from "@/providers/NoteProvider";
+import { SocketProvider } from "@/providers/SocketProvider";
 
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <SocketProvider>
             <NoteProvider>
             <SidebarProvider>
               <AppSidebar/>
@@ -37,6 +39,7 @@ export default function RootLayout({
           <Toaster/>
           </SidebarProvider>
           </NoteProvider>
+          </SocketProvider>
           </ThemeProvider>
       </body>
     </html>
