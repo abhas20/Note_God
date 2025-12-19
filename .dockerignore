@@ -1,0 +1,23 @@
+# Ignore node modules,next and build output
+node_modules/
+socket-server/node_modules/
+dist/
+socket-server/dist/
+next/
+
+# Ignore Dockerfile and .dockerignore (to prevent copying into the image)
+dockerfile
+Dockerfile
+.dockerignore
+
+# Ignore version control directories
+.git/
+.gitignore
+
+# Ignore other unnecessary directories and files
+*.md
+README.md
+
+# Ignore environment files
+.env
+.env.local
