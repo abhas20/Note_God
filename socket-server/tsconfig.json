@@ -1,0 +1,74 @@
+// {
+//   // Visit https://aka.ms/tsconfig to read more about this file
+//   "compilerOptions": {
+//     // File Layout
+//     // "rootDir": ".",
+//     "outDir": "./dist",
+//     "baseUrl": ".",
+
+//     // Environment Settings
+//     // See also https://aka.ms/tsconfig/module
+//     "module": "es2022",
+//     "target": "esnext",
+//     // "types": [],
+//     "moduleResolution": "bundler",
+//     // For nodejs:
+//     "lib": ["esnext"],
+//     "types": ["node"],
+//     // and npm install -D @types/node
+
+//     // Other Outputs
+//     "sourceMap": true,
+//     "declaration": true,
+//     "declarationMap": true,
+//     "paths": {
+//       "@db/*": ["../db/*"]
+//     },
+
+//     // Stricter Typechecking Options
+//     "noUncheckedIndexedAccess": true,
+//     "exactOptionalPropertyTypes": true,
+//     "allowSyntheticDefaultImports": true,
+
+//     // Style Options
+//     // "noImplicitReturns": true,
+//     // "noImplicitOverride": true,
+//     // "noUnusedLocals": true,
+//     // "noUnusedParameters": true,
+//     // "noFallthroughCasesInSwitch": true,
+//     // "noPropertyAccessFromIndexSignature": true,
+
+//     // Recommended Options
+//     "strict": true,
+//     "jsx": "react-jsx",
+//     "verbatimModuleSyntax": true,
+//     "isolatedModules": true,
+//     "noUncheckedSideEffectImports": true,
+//     "moduleDetection": "force",
+//     "skipLibCheck": true,
+//   },
+//   "include": ["index.ts", "app.ts", "prisma.config.ts", "services/**/*.ts", "*.ts"],
+//   "exclude": ["node_modules", "dist"]
+// }
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "module": "nodenext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"],
+    "sourceMap": true,
+    "declaration": true,
+    "paths": {
+      "@db/*": ["../db/dist/*"]
+    },
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["*.ts", "services/**/*.ts", "app.ts", "index.ts"],
+  "exclude": ["node_modules", "dist", "../db"]
+}
