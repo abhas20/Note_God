@@ -73,7 +73,7 @@ class SocketServer{
                     console.error("Received empty message from Redis");
                     return;
                 }
-                console.log("Message received from Redis:", JSON.parse(message));
+                // console.log("Message received from Redis:", JSON.parse(message));
                 this.io.emit("message", message);
             }
         })

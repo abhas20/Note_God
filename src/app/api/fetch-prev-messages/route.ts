@@ -1,13 +1,13 @@
 import { prisma } from "@/db/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 
-export async function GET(req:NextRequest) {
+export async function GET() {
     
     try {
 
         const res=await prisma.messages.findMany({
             orderBy:{
-                updatedAt:"desc",
+                updatedAt:"asc",
             },
             take:15,
             include:{
