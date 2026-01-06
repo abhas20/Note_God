@@ -2,20 +2,52 @@ import { getUser } from "@/auth/server"
 import AskAIButton from "@/components/AskAIButton";
 import NewNoteButton from "@/components/NewNoteButton";
 import NoteTextInput from "@/components/NoteTextInput";
+import EditorSkeleton from "@/components/Skeletons/EditorSkeleton";
 import Typewriter from "@/components/Typewriter";
 import { prisma } from "@/db/prisma";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 
 type props={
-  searchParams: Promise<{ [key: string]:string | string [] | undefined}>
+  searchParams: { [key: string]:string | string [] | undefined} //removed
+  // | Promise<{ [key: string]:string | string [] | undefined}> 
 }
 
 async function Home({searchParams}:props) {
   const user =await getUser();
-  const noteIdParam=(await searchParams).noteId
 
-  const notesId=Array.isArray(noteIdParam)?noteIdParam![0]:noteIdParam||"";
+  if(!user){
+    redirect("/login")
+  }
+  // const noteIdParam=searchParams.noteId
+  const noteIdParam=(await searchParams).noteId
+  let notesId = Array.isArray(noteIdParam)
+    ? noteIdParam![0]
+    : noteIdParam || "";
   console.log(noteIdParam);
+
+  if(!notesId){
+    const latestNote=await prisma.notes.findFirst({
+      where:{authId:user?.id},
+      orderBy:{createdAt:"desc"}
+    })
+    if(latestNote){
+      redirect(`/?noteId=${latestNote.id}`)
+    }
+
+    const newNote=await prisma.notes.create({
+      data:{
+        authId:user?.id,
+        note:"",
+      }
+    });
+
+    redirect(`/?noteId=${newNote.id}`)
+  }
+  
+
+  
 
   const note=await prisma.notes.findFirst({
     where:{id:notesId, authId: user?.id}
@@ -39,7 +71,9 @@ async function Home({searchParams}:props) {
       <AskAIButton user={user}/>
       <NewNoteButton user={user}/>
       </div>
-    <NoteTextInput noteId={notesId} startingNote={note?.note || ""} />
+    <Suspense fallback={<EditorSkeleton/>}>
+      <NoteTextInput noteId={notesId} startingNote={note?.note || ""} />
+    </Suspense>
     </div>
   )
 }

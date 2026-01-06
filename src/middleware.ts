@@ -90,43 +90,46 @@ export async function updateSession(request: NextRequest) {
   const {searchParams,pathname}=new URL(request.url)
   if (!searchParams.get("noteId") && pathname === "/"){
 
-     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    //  const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
 
-       if (user) {
-      // Try fetching the latest note
-      try {
-        const {newNoteId} = await fetch(
-          `${process.env.NEXT_PUBLIC_URL}/api/fetch-latest-note?userId=${user.id}`,
+    //    if (user) {
+    //   // Try fetching the latest note
+    //   try {
+    //     const {newNoteId} = await fetch(
+    //       `${process.env.NEXT_PUBLIC_URL}/api/fetch-latest-note?userId=${user.id}`,
 
-        ).then((res) => res.json());
+    //     ).then((res) => res.json());
   
-        if (newNoteId) {
-          const url = request.nextUrl.clone();
-          url.searchParams.set("noteId", newNoteId);
-          return NextResponse.redirect(url);
-        }
-        else{
-        // If no note exists, create one
-        const createNote = await fetch(
-          `${process.env.NEXT_PUBLIC_URL}/api/create-new-note?userId=${user.id}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-          }
-        );
-        const { noteId: createdNoteId } = await createNote.json();
+    //     if (newNoteId) {
+    //       const url = request.nextUrl.clone();
+    //       url.searchParams.set("noteId", newNoteId);
+    //       return NextResponse.redirect(url);
+    //     }
+    //     else{
+    //     // If no note exists, create one
+    //     const createNote = await fetch(
+    //       `${process.env.NEXT_PUBLIC_URL}/api/create-new-note?userId=${user.id}`,
+    //       {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" }
+    //       }
+    //     );
+    //     const { noteId: createdNoteId } = await createNote.json();
   
-        const url = request.nextUrl.clone();
-        url.searchParams.set("noteId", createdNoteId);
-        return NextResponse.redirect(url);
-      }
-      } 
-      catch (error) {
-          console.log(error)  
-      }
-      }
+    //     const url = request.nextUrl.clone();
+    //     url.searchParams.set("noteId", createdNoteId);
+    //     return NextResponse.redirect(url);
+    //   }
+    //   } 
+    //   catch (error) {
+    //       console.log(error)  
+    //   }
+    //   }
+
+
+      return NextResponse.next();
     }
 
 
