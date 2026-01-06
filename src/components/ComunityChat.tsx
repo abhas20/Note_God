@@ -6,9 +6,10 @@ import { useState } from "react";
 
 interface ComunityChatProps {
   handleSendMessage: (message: string) => void;
+  isLoading?: boolean;
 }
 
-function ComunityChat({ handleSendMessage }: ComunityChatProps) {
+function ComunityChat({ handleSendMessage,isLoading }: ComunityChatProps) {
   const [message, setMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -16,8 +17,26 @@ function ComunityChat({ handleSendMessage }: ComunityChatProps) {
   };
 
   const handleClick = () => {
-    handleSendMessage(message);
-    setMessage("");
+    if (!message.trim()) return;
+    try {
+      isLoading = true;
+      handleSendMessage(message);
+      setMessage("");
+      
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessage(""); 
+    }
+    finally {
+      isLoading = false;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleClick();
+    }
   };
 
   return (
@@ -26,21 +45,18 @@ function ComunityChat({ handleSendMessage }: ComunityChatProps) {
         placeholder="Type your message here..."
         className="mb-0 w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         onChange={handleChange}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleClick();
-          }
-        }}
+        onKeyDown={handleKeyDown}
         value={message}
+        disabled={isLoading}
+        rows={3}
       />
       <Button
         variant={"secondary"}
         onClick={handleClick}
-        disabled={!message.trim()}
+        disabled={!message.trim() || isLoading}
         className="hover:bg-secondary-foreground hover:text-secondary border border-gray-300 p-3"
       >
-        Send
+        {isLoading ? "Sending..." : "Send Message"}
       </Button>
     </div>
   );
