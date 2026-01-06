@@ -21,14 +21,14 @@ export async function GET() {
             }
         })
 
-        const formatMessages=res.map((msg)=>({
-            content:msg.content,
-            senderId:msg.senderId,
-            email:msg.sender.email,
-            imgUrl:msg.sender.imgUrl,
-            createdAt:msg.createdAt,
-            updatedAt:msg.updatedAt
-        }))
+        const formatMessages = res.map((msg) => ({
+          id: msg.id,
+          content: msg.content,
+          senderId: msg.senderId,
+          createdAt: msg.createdAt,
+          updatedAt: msg.updatedAt,
+          sender: msg.sender,
+        }));
 
         return NextResponse.json({messages:formatMessages}, {status:200});
         

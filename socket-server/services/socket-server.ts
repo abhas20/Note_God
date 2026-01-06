@@ -1,87 +1,83 @@
 import { Server } from "socket.io";
 import {Redis} from 'ioredis';
-// import {prisma} from "@db/prisma.js";
 
-const pub= new Redis({
+const RedisConfig = {
     host: process.env.REDIS_HOST || "localhost",  //when not using docker
     // host: process.env.REDIS_HOST || "redis",   //when using docker
     port: Number(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || "psswrd",
-})
-const sub= new Redis({
-    host: process.env.REDIS_HOST || "localhost",  //when not using docker
-    // host: "redis",   //when using docker
-    port: Number(process.env.REDIS_PORT) || 6379,
-    password: process.env.REDIS_PASSWORD || "psswrd",
-})
+};
+
+const pub= new Redis(RedisConfig);
+const sub= new Redis(RedisConfig);
 
 //psswrd
 
 pub.on("error", (err) => console.error("Redis Pub error:", err));
 sub.on("error", (err) => console.error("Redis Sub error:", err));
 
-class SocketServer{
-    private _io: Server; // Socket.IO server instance
-    // private prisma: any;
-    constructor(){
-        console.log("Socket server is initializing...");
-        this._io = new Server({
-          cors: {
-            origin: ["http://localhost:3000"],
-            credentials: true,
-          },
-        });
-        console.log("Socket server initialized successfully.");
-        sub.subscribe("MESSAGES", (err, count) => {
-          if (err) {
-            console.error("Failed to subscribe:", err);
-          } else {
-            console.log(`Subscribed successfully to ${count} channel(s).`);
-          }
-        });
-    }
-    public initServer() {
-        this._io.on("connection", (socket) => {
-            console.log(`New client connected: ${socket.id}`);
+class SocketServer {
+  private _io: Server; // Socket.IO server instance
+  // private prisma: any;
+  constructor() {
+    console.log("Socket server is initializing...");
+    this._io = new Server({
+      cors: {
+        origin: process.env.FRONTEND_URL
+          ? [process.env.FRONTEND_URL]
+          : ["http://localhost:3000"],
+        credentials: true,
+      },
+    });
 
-            // Handle disconnection
-            socket.on("disconnect", () => {
-                console.log(`Client disconnected: ${socket.id}`);
-            });
-            socket.on("send:message", async({content, senderId,email,imgUrl}
-                :{content:string, senderId:string, email:string, imgUrl:string | null}) => {
-                try {
-                    if (!content || !senderId) {
-                        console.error("Invalid message data:");
-                        return;
-                    }
-                    // console.log("Message created and published:", content, senderId);
-                    await pub.publish("MESSAGES",JSON.stringify({content,senderId,email,imgUrl}));
+    this.setupRedisSubscriptions();
 
-                    console.log(content, senderId);
-                    
-                } catch (error) {
-                    console.error("Error creating message:", error);
-                    
-                }
-            })
-        });
+    console.log("Socket server initialized.");
+  }
 
-        sub.on("message",(channel, message)=>{
-            if(channel==="MESSAGES"){
-                if (!message) {
-                    console.error("Received empty message from Redis");
-                    return;
-                }
-                // console.log("Message received from Redis:", JSON.parse(message));
-                this.io.emit("message", message);
-            }
-        })
-    }
+  private setupRedisSubscriptions() {
+    sub.subscribe("MESSAGES", "DELETE_MESSAGES", (err, count) => {
+      if (err) console.error("Failed to subscribe:", err);
+      else console.log(`Subscribed successfully to ${count} channels.`);
+    });
 
-    get io(): Server {
-        return this._io;
-    }
+    sub.on("message", (channel, message) => {
+      if (!message) return;
+
+      try {
+        const parsedMessage = JSON.parse(message);
+
+        if (channel === "MESSAGES") {
+          console.log("Broadcasting new message to clients");
+          this._io.emit("message", parsedMessage);
+        }
+         else if (channel === "DELETE_MESSAGES") {
+          console.log("Broadcasting delete event to clients");
+          this._io.emit("delete:message", parsedMessage);
+        }
+      } 
+      catch (error) {
+        console.error("Socket Server error parsing Redis message:", error);
+      }
+    });
+  }
+
+  public initServer() {
+    this._io.on("connection", (socket) => {
+      console.log(`New client connected: ${socket.id}`);
+
+      // Handle disconnection
+      socket.on("disconnect", () => {
+        console.log(`Client disconnected: ${socket.id}`);
+      });
+    
+    });
+
+  }
+
+  get io(): Server {
+    return this._io;
+  }
 }
 
 export default SocketServer;

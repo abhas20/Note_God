@@ -1,89 +1,110 @@
 'use client';
-import { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import {io, Socket} from 'socket.io-client';
 
 interface SocketProviderProps {
   children: React.ReactNode;
 }
 
+interface Sender {
+  id: string;
+  email: string;
+  imgUrl?: string | null;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  senderId: string;
+  sender: Sender;
+  createdAt: string;
+}
+
 interface ISocketContextType {
-    sendMessage:(message:string,senderID:string, email:string, imgUrl:string | null )=>void
-    messages:any[];
+    sendMessage:(message:string,senderID:string )=>Promise<void>
+    deleteMessage:(messageId:string,senderID:string)=>Promise<void>
+    messages:Message[];
+    setMessages:React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 export const SocketContext= createContext<ISocketContextType | null>(null);
 
 export const SocketProvider:React.FC<SocketProviderProps> = ({children}:SocketProviderProps)=>{
     const [socket, setSocket] = useState<Socket>();
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
-    const sendMessage: ISocketContextType["sendMessage"] = useCallback(
-      (
-        message: string,
-        senderID: string,
-        email: string,
-        imgUrl: string | null,
-      ) => {
-        console.log(`Sending message: ${message} from sender: ${senderID}`);
-        if (socket) {
-          socket.emit("send:message", {
-            content: message,
-            senderId: senderID,
-            email,
-            imgUrl,
+    const sendMessage = useCallback(
+      async (content: string, senderID: string) => {
+        try {
+          const response = await fetch("/api/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content, senderId: senderID }),
           });
-          console.log(`Message sent: ${message}`);
-        } else {
-          console.error("Socket is not connected");
+
+          if (!response.ok) throw new Error("Failed to send message");
+
+        } catch (error) {
+          console.error("Error sending message:", error);
         }
       },
-      [socket],
+      [],
     );
 
-    const recieiveMessage=useCallback(async (message:any)=>{
-      
-        console.log("Received message:", message);
-        const parsedMessage = JSON.parse(message);
-        setMessages((prevMessages) => [...prevMessages, parsedMessage]);
-        
+    
+    const deleteMessage = useCallback(
+      async (messageId: string, senderID: string) => {
         try {
-          const response = await fetch('/api/save-message', {
-            method: 'POST',
-            headers:{
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              content: parsedMessage.content,
-              senderId: parsedMessage.senderId
-            })
-          })
-
-          if (!response.ok) {
-            throw new Error('Failed to save message');
-          }
+          const response = await fetch("/api/messages", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messageId, senderId: senderID }),
+          });
+          
+          if (!response.ok) throw new Error("Failed to delete message");
         } catch (error) {
-          console.log("Error in saving messages",error);
+          console.error("Error deleting message:", error);
         }
-        
-    },[]);
+      },
+      [],
+    );
+
+    // Receive message from socket
+    const onMessageReceived = useCallback((message: Message) => {
+      console.log("Real-time message received:", message);
+
+      setMessages((prev) => [...prev, message]);
+    }, []);
+
+    const onDeleteReceived = useCallback((payload: { messageId: string }) => {
+      console.log("Real-time delete received:", payload);
+
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== payload.messageId),
+      );
+    }, []);
+
+    const socketServerUrl = process.env.SOCKET_SERVER_URL || "http://localhost:4000";
 
     useEffect(()=>{
-        const _socket= io("http://localhost:4000",{
+        const _socket= io(socketServerUrl,{
             withCredentials: true,
         })
-        _socket.on("message", recieiveMessage);
+        _socket.on("message", onMessageReceived);
+        _socket.on("delete:message", onDeleteReceived);
         setSocket(_socket);
 
         return ()=>{
-            _socket.disconnect();
-            _socket.off("message", recieiveMessage);
-            console.log("Socket disconnected");
-            setSocket(undefined);
+          _socket.off("message", onMessageReceived);
+          _socket.off("delete:message", onDeleteReceived);
+          console.log("Socket disconnected");
+          setSocket(undefined);
+          _socket.disconnect();
         }
-    },[]);
+    },[onMessageReceived,onDeleteReceived]);
 
     return(
-        <SocketContext.Provider value={{sendMessage,messages}}>
+        <SocketContext.Provider value={{sendMessage,deleteMessage,messages,setMessages}}>
             {children}
         </SocketContext.Provider>
     )
