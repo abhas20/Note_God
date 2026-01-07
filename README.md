@@ -11,13 +11,18 @@
 - **Responsive Design**: Optimized for desktop and mobile devices
 
 ### AI-Powered Features
-- **AI Note Generation**: Generate comprehensive notes on any topic using advanced AI
+- **AI Note Generation**: Generate comprehensive notes on any topic using advanced AI models (OpenAI, Gemini)
 - **Interactive Q&A**: Ask questions about your notes and get intelligent responses
 - **Content Analysis**: AI-powered insights and suggestions for your content
 - **Smart Formatting**: Automatic formatting and structure suggestions
+- **PDF Chat (RAG)**: Upload PDF documents and chat with them using Retrieval Augmented Generation
+- **AI Image Generation**: Create stunning images from text prompts using Pollinations API
 
 ### Advanced Capabilities
-- **Real-time Collaboration**: Live updates and synchronization
+- **Real-time Collaboration**: Live updates and synchronization via Socket.IO
+- **Community Chat**: Real-time messaging and collaboration with other users
+- **Vector Search**: Semantic search across your notes using Qdrant vector database
+- **Background Processing**: Asynchronous file processing with BullMQ workers
 - **Search & Filter**: Powerful search functionality across all your notes
 - **Theme Support**: Dark/light mode toggle for comfortable viewing
 - **Export Options**: Various export formats for your notes
@@ -25,26 +30,34 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Next.js 15.2.3** - React framework with App Router
+- **Next.js 15.2.8** - React framework with App Router
 - **React 19** - Latest React with modern features
 - **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
+- **Tailwind CSS 4** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
 - **Lucide React** - Beautiful icons
+- **Socket.IO Client** - Real-time bidirectional communication
 
-### Backend & Database
+### Backend & Infrastructure
 - **Prisma ORM** - Type-safe database client
 - **PostgreSQL** - Robust relational database
 - **Supabase** - Authentication and real-time features
+- **Socket.IO Server** - Real-time WebSocket server
+- **Redis** - In-memory data store for caching and queuing
+- **BullMQ** - Background job processing and task queue
+- **Qdrant** - Vector database for semantic search and RAG
 
 ### AI Integration
-- **OpenAI API** (via OpenRouter) - Advanced language models
-- **Pollinations API** - AI text generation for notes
+- **Google Gemini** - Alternative AI model support
+- **LangChain** - Framework for building AI applications
+- **Pollinations API** - AI image generation from text prompts
+- **RAG (Retrieval Augmented Generation)** - PDF document chat functionality
 
 ### Development Tools
 - **ESLint** - Code linting and formatting
 - **Prettier** - Code formatting
 - **Turbopack** - Fast bundler for development
+- **Docker & Docker Compose** - Containerization and orchestration
 
 ## 📋 Prerequisites
 
@@ -68,30 +81,17 @@ cd Note_God
 
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
 ```
 
 ### 3. Environment Configuration
 
-Create a `.env.local` file in the root directory and add the following environment variables:
+Create a `.env` file in the root directory and add run the command:
 
 ```env
-# Database Configuration
-DB_URL="postgresql://username:password@localhost:5432/note_god_db"
-
-# Supabase Configuration (for Authentication)
-SUPABASE_URL="your_supabase_project_url"
-SUPABASE_ANON_KEY="your_supabase_anon_key"
-
-# OpenAI API Configuration (via OpenRouter)
-OPENAI_API_KEY="your_openrouter_api_key"
-
-# Application URL (for password reset emails)
-NEXT_PUBLIC_URL="http://localhost:3000"
+cp .env.example .env
 ```
+
+**Note**: If using Docker Compose, some URLs will need to be adjusted (see Docker deployment section).
 
 ### 4. Database Setup
 
@@ -104,22 +104,71 @@ CREATE DATABASE note_god_db;
 3. Update the `DB_URL` in your `.env.local` file
 
 #### Option B: Cloud PostgreSQL (Recommended)
-- Use services like **Supabase**, **Neon**, **PlanetScale**, or **Railway**
+- Use services like **Supabase** or **Neon**
 - Copy the connection string to your `DB_URL` environment variable
 
 ### 5. Supabase Setup
 
 1. Go to Supabase and create a new project
 2. Get your project URL and anon key from the API settings
-3. Add these to your `.env.local` file
+3. Add these to your `.env` file
 4. Supabase will handle user authentication and real-time features
 
-### 6. OpenAI API Setup
+### 6. Additional Services Setup (Required for Full Functionality)
 
-1. Generate an API key of OpenAI
-2. Add the key to your `.env.local` file as `OPENAI_API_KEY`
+#### Redis Setup
+Redis is required for background job processing and real-time features.
 
-### 7. Database Migration
+**Local Installation**:
+```bash
+# macOS
+brew install redis
+brew services start redis
+
+# Ubuntu/Debian
+sudo apt-get install redis-server
+sudo systemctl start redis
+
+# Windows (via WSL or download from Redis website)
+```
+
+**Docker (Recommended)**:
+```bash
+docker run -d -p 6379:6379 --name redis redis:alpine
+```
+
+#### Qdrant Setup
+Qdrant is required for vector search and PDF chat functionality.
+
+**Docker (Recommended)**:
+```bash
+docker run -d -p 6333:6333 --name qdrant qdrant/qdrant:latest
+```
+
+Or use the provided Docker Compose (see deployment section).
+
+#### Gemini API
+1. Get an API key from Google AI Studio (https://makersuite.google.com/app/apikey)
+2. Add `GEMINI_API_KEY` to your `.env` file
+
+### 7. Socket Server Setup
+
+The socket server handles real-time communication. It needs its own `.env` file:
+
+Create `.env` file in the `socket-server` directory:
+```env
+cd socket-server
+cp .env.example .env
+```
+
+Start the socket server in a separate terminal:
+```bash
+cd socket-server
+npm install
+npm run dev
+```
+
+### 8. Database Migration
 
 Run Prisma migrations to set up your database schema:
 
@@ -129,14 +178,27 @@ npm run migrate
 npx prisma generate && npx prisma migrate dev
 ```
 
-### 8. Start Development Server
+### 9. Start Development Server
 
+**Main Application**:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+```
+
+**Worker Process** (in a separate terminal for background jobs):
+```bash
+npm run dev:workers
+```
+
+**Or run both together**:
+```bash
+npm run all
+```
+
+### 10. Run using Docker(Optional)
+**Ensure env files are created**
+```
+docker compose up --build -d
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
@@ -148,30 +210,51 @@ Note_God/
 ├── src/
 │   ├── action/          # Server actions
 │   │   ├── note.ts      # Note-related actions
-│   │   └── user.ts      # User-related actions
+│   │   ├── user.ts      # User-related actions
+│   │   └── rag.ts       # RAG and file upload actions
 │   ├── app/             # Next.js App Router pages
 │   │   ├── api/         # API routes
+│   │   │   ├── create-new-note/  # Create notes
+│   │   │   ├── query-rag/        # RAG query endpoint
+│   │   │   ├── messages/         # Chat messages
+│   │   │   └── ...               # Other API routes
 │   │   ├── auth/        # Authentication pages
 │   │   ├── login/       # Login page
 │   │   ├── signup/      # Signup page
 │   │   ├── profile/     # User profile
+│   │   ├── chatpdf/     # PDF chat interface
+│   │   ├── visualise/   # AI image generation
 │   │   └── page.tsx     # Home page
 │   ├── auth/            # Authentication utilities
 │   │   └── server.ts    # Server-side auth functions
 │   ├── components/      # React components
 │   │   ├── ui/          # Base UI components
-│   │   ├── AskAIButton.tsx       # AI Q&A functionality
-│   │   ├── NewNoteButton.tsx     # Create new notes
-│   │   ├── NoteGenerator.tsx     # AI note generation
-│   │   └── NoteTextInput.tsx     # Note editor
+│   │   ├── AskAIButton.tsx        # AI Q&A functionality
+│   │   ├── NewNoteButton.tsx      # Create new notes
+│   │   ├── NoteGenerator.tsx      # AI note generation
+│   │   ├── NoteTextInput.tsx      # Note editor
+│   │   ├── ComunityChat.tsx       # Community chat UI
+│   │   ├── Visualise.tsx          # Image generation UI
+│   │   ├── FileLayout.tsx         # PDF file management
+│   │   └── AppSideBar.tsx         # Application sidebar
 │   ├── db/              # Database configuration
 │   │   ├── prisma.ts    # Prisma client
 │   │   └── schema.prisma # Database schema
 │   ├── hooks/           # Custom React hooks
 │   ├── lib/             # Utility functions
+│   ├── worker/          # Background workers
+│   │   └── fileProcessor.ts  # File processing worker
+│   ├── providers/       # React context providers
+│   ├── middleware.ts    # Next.js middleware
 │   └── style/           # Global styles
-├── openai/              # OpenAI configuration
+├── socket-server/       # Real-time Socket.IO server
+│   ├── app.ts           # Socket server application
+│   ├── services/        # Socket services
+│   └── package.json     # Socket server dependencies
+├── ai/                  # AI configuration
 ├── public/              # Static assets
+├── docker-compose.yml   # Docker Compose configuration
+├── Dockerfile           # Application Docker image
 ├── package.json         # Dependencies and scripts
 ├── tailwind.config.js   # Tailwind CSS configuration
 ├── tsconfig.json        # TypeScript configuration
@@ -181,57 +264,45 @@ Note_God/
 ## 📚 Available Scripts
 
 - `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build the application for production
+- `npm run dev:workers` - Start background worker process for file processing
+- `npm run all` - Run both dev server and workers concurrently
+- `npm run build` - Build the application for production (includes Prisma migrations)
 - `npm start` - Start the production server
 - `npm run lint` - Run ESLint for code linting
 - `npm run format` - Format code with Prettier
 - `npm run migrate` - Run Prisma database migrations
 
-## 🔌 API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/logout` - User logout
-
-### Notes Management
-- `POST /api/create-new-note` - Create a new note
-- `PUT /api/notes/[id]` - Update existing note
-- `DELETE /api/notes/[id]` - Delete a note
-- `GET /api/notes` - Get user's notes
-
-### AI Features
-- `POST /api/ai/generate-note` - Generate AI notes
-- `POST /api/ai/ask-question` - Ask questions about notes
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Docker Compose Deployment (Recommended)
 
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically with each push to main branch
+The easiest way to deploy Note God is using Docker Compose, which sets up all services:
 
-### Manual Deployment
+1. **Create Environment Files**:
 
+Ensure `.env` in the root directory and `.env` in the `socket-server` directory:
+
+2. **Start All Services**:
 ```bash
-# Build the application
-npm run build
-
-# Start production server
-npm start
+docker-compose up -d
 ```
 
-### Environment Variables for Production
+This will start:
+- Main Next.js application (port 3000)
+- Background workers for file processing
+- Socket.IO server (port 4000)
+- Redis (port 6379)
+- Qdrant vector database (port 6333)
 
-Make sure to set all environment variables in your deployment platform:
+3. **View Logs**:
+```bash
+docker-compose logs -f
+```
 
-```env
-DB_URL=your_production_database_url
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
-OPENAI_API_KEY=your_openai_key
-NEXT_PUBLIC_URL=https://your-domain.com
+4. **Stop Services**:
+```bash
+docker-compose down
 ```
 
 ## 🎯 Getting Started Guide
@@ -243,16 +314,11 @@ NEXT_PUBLIC_URL=https://your-domain.com
 3. **Try AI Features**: 
    - Use "Ask AI to generate Notes" for automated content creation
    - Use "Ask AI Help" to get insights about your notes
-4. **Organize**: Create multiple notes for different topics
-5. **Search**: Use the search functionality to find specific content
-
-### For Developers
-
-1. **Explore the Codebase**: Start with `src/app/page.tsx` for the main interface
-2. **Understanding Actions**: Check `src/action/` for server-side functions
-3. **Database Schema**: Review `src/db/schema.prisma` for data models
-4. **AI Integration**: See `src/components/NoteGenerator.tsx` and `src/components/AskAIButton.tsx`
-5. **Authentication Flow**: Examine `src/auth/server.ts` and related components
+4. **Upload PDFs**: Navigate to the "Chat with PDF" section to upload documents and ask questions
+5. **Generate Images**: Use the "Visualise" feature to create AI-generated images from text prompts
+6. **Community Chat**: Connect with other users through real-time messaging
+7. **Organize**: Create multiple notes for different topics
+8. **Search**: Use the search functionality to find specific content
 
 ## 🔒 Security Features
 
@@ -279,8 +345,52 @@ npx prisma db push
 
 **AI Features Not Working**
 ```bash
-# Verify your OpenAI API key
+# Verify your OpenAI or Gemini API key
 # Check if you have sufficient API credits
+```
+
+**Redis Connection Error**
+```bash
+# Ensure Redis is running:
+redis-cli ping
+# Should return: PONG
+
+# Or start Redis:
+brew services start redis  # macOS
+sudo systemctl start redis  # Linux
+docker start redis  # Docker
+```
+
+**Qdrant Connection Error**
+```bash
+# Check if Qdrant is running:
+curl http://localhost:6333/health
+# Should return: {"title":"qdrant - vector search engine","version":"..."}
+
+# Or start Qdrant:
+docker start qdrant
+```
+
+**Socket Server Not Connecting**
+```bash
+# Verify socket server is running on port 4000
+# Check SOCKET_SERVER_URL in environment variables
+# Ensure Redis is accessible to socket server
+```
+
+**Worker Process Not Running**
+```bash
+# Start workers separately:
+npm run dev:workers
+
+# Check Redis connection for BullMQ
+```
+
+**PDF Upload/Chat Issues**
+```bash
+# Ensure Qdrant is running and accessible
+# Verify QDRANT_URL in environment variables
+# Check worker process is running for file processing
 ```
 
 ### Getting Help
@@ -290,7 +400,9 @@ If you encounter issues:
 1. Check the console for error messages
 2. Verify all environment variables are set correctly
 3. Ensure your database is properly configured
-4. Check that all APIs (Supabase, OpenAI) are accessible
+4. Check that all services (Redis, Qdrant, Socket server) are running
+5. Verify APIs (Supabase, Gemini) are accessible
+6. Review Docker logs if using Docker Compose: `docker-compose logs -f`
 
 ## 📝 License
 
@@ -301,6 +413,26 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Next.js](https://nextjs.org/) for the amazing React framework
 - [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - [Radix UI](https://www.radix-ui.com/) for accessible components
+- [Supabase](https://supabase.com/) for authentication and database
+- [Google Gemini](https://ai.google.dev/) for advanced AI capabilities
+- [Socket.IO](https://socket.io/) for real-time communication
+
+## 🌟 Key Features Highlights
+
+### 📄 PDF Chat with RAG
+Upload any PDF document and have intelligent conversations about its content. The system uses Retrieval Augmented Generation (RAG) with Qdrant vector database for semantic search.
+
+### 🎨 AI Image Generation
+Transform your ideas into stunning visuals using the Pollinations API. Generate images from text prompts with customizable parameters.
+
+### 💬 Real-time Community Chat
+Connect with other users through WebSocket-powered real-time messaging. All messages are synchronized instantly across all connected clients.
+
+### 🔄 Background Processing
+Heavy tasks like PDF processing and vector embeddings run asynchronously using BullMQ workers, ensuring the UI remains responsive.
+
+### 🔍 Vector Search
+Leverage Qdrant's vector database for semantic search across your notes and documents, finding relevant content even when exact keywords don't match.
 
 ---
 
