@@ -6,53 +6,56 @@ import { Input } from "./ui/input";
 import { usePollinationsText } from "@pollinations/react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 
 type NoteGeneratorProps = {
   onGenerated: (text: string) => void;
- onSaveNote: (text :string)=> void;
+  onSaveNote: (text: string) => void;
 };
 
-export default function NoteGenerator({ onGenerated,onSaveNote }: NoteGeneratorProps) {
+export default function NoteGenerator({
+  onGenerated,
+  onSaveNote,
+}: NoteGeneratorProps) {
   const [noteTopic, setNoteTopic] = useState("");
   const [submittedTopic, setSubmittedTopic] = useState<string>("");
-  const [isDisabled,setIsDisabled] = useState<boolean>(false);
-  const [isLoading,setIsLoading] = useState<boolean>(false);
-  const [open,setOpen] =useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const [generationId, setGenerationId] = useState(0);
 
-  const textGenerated = usePollinationsText(
-    submittedTopic,
-       {
-          model: "mistral",
-          seed: 50,
-          systemPrompt:
-          `You are an AI assistant who can generate notes on a given topic and
+  const textGenerated = usePollinationsText(submittedTopic, {
+    model: "mistral",
+    seed: 50,
+    systemPrompt: `You are an AI assistant who can generate notes on a given topic and
           make sure that your answers are not too verbose and you speak succinctly. 
-          Your responses MUST be formatted in clean, pointed paragraphs WITHOUT using markdown.`
-        }
-  );
+          Your responses MUST be formatted in clean, pointed paragraphs WITHOUT using markdown.`,
+  });
 
-useEffect(() => {
-  if (isLoading && textGenerated !== null) {
-    setIsDisabled(false);
-    setIsLoading(false); 
-    // console.log(textGenerated)
-  }
-}, [textGenerated]);
-
+  useEffect(() => {
+    if (isLoading && textGenerated !== null) {
+      setIsDisabled(false);
+      setIsLoading(false);
+      // console.log(textGenerated)
+    }
+  }, [textGenerated]);
 
   const handleGenerateNote = () => {
-    if (!noteTopic.trim() || noteTopic.trim()===submittedTopic) return;
-      // setSubmittedTopic(noteTopic.trim());
-      setIsDisabled(true);
-      setIsLoading(true);
-      setGenerationId(prev => prev + 1); 
-      setSubmittedTopic(`${noteTopic.trim()} [${generationId}]`); 
-
+    if (!noteTopic.trim() || noteTopic.trim() === submittedTopic) return;
+    // setSubmittedTopic(noteTopic.trim());
+    setIsDisabled(true);
+    setIsLoading(true);
+    setGenerationId((prev) => prev + 1);
+    setSubmittedTopic(`${noteTopic.trim()} [${generationId}]`);
   };
-
 
   const handleSaveNote = () => {
     if (!textGenerated || !submittedTopic) return;
@@ -62,25 +65,20 @@ useEffect(() => {
     onSaveNote(textGenerated);
     setNoteTopic("");
     setOpen(false);
-    toast.success("Note saved successfully!",{
+    toast.success("Note saved successfully!", {
       duration: 3000,
       position: "top-right",
     });
-  }
+  };
 
-  
-
-  const handleOpen=(isOpen:boolean)=>{
-      if(isOpen){
-        setNoteTopic("");
-        setSubmittedTopic("");
-        setIsDisabled(false);
-      }
-      setOpen(isOpen)
-    
-  }
-
-
+  const handleOpen = (isOpen: boolean) => {
+    if (isOpen) {
+      setNoteTopic("");
+      setSubmittedTopic("");
+      setIsDisabled(false);
+    }
+    setOpen(isOpen);
+  };
 
   return (
     <Dialog onOpenChange={handleOpen} open={open}>

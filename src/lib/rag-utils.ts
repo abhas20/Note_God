@@ -1,12 +1,15 @@
 import { Document } from "@langchain/core/documents";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import fs from "fs";
-import {PDFParse} from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import { QdrantClient } from "@qdrant/js-client-rest";
-import { QdrantVectorStore } from '@langchain/qdrant'
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { QdrantVectorStore } from "@langchain/qdrant";
+import {
+  ChatGoogleGenerativeAI,
+  GoogleGenerativeAIEmbeddings,
+} from "@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 import path from "path";
 
 dotenv.config();
@@ -20,11 +23,10 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-
 export const pdfLoader = async (filePath: string) => {
   console.log("📄 Reading file from disk...");
   const dataBuffer = fs.readFileSync(filePath);
-  const parser:PDFParse = new PDFParse({data:dataBuffer});
+  const parser: PDFParse = new PDFParse({ data: dataBuffer });
 
   console.log("🧩 Parsing PDF structure...");
 
@@ -44,8 +46,8 @@ export const pdfLoader = async (filePath: string) => {
         metadata: {
           source: filePath,
           fileName: path.basename(filePath),
-          pdf_numpages: totalPages, 
-          loc: { pageNumber: i }, 
+          pdf_numpages: totalPages,
+          loc: { pageNumber: i },
           type: "pdf",
         },
       }),
@@ -72,19 +74,12 @@ export const textSplitter = async (
   return docs;
 };
 
-
-
 export const addToVectorEmbedding = async (docs: Document[]) => {
-
-  await QdrantVectorStore.fromDocuments(
-    docs,
-    embeddings,
-    {
-      collectionName: "note_god_collection",
-      url: process.env.QDRANT_URL || "http://localhost:6333",
-      client: client,
-    },
-  );
+  await QdrantVectorStore.fromDocuments(docs, embeddings, {
+    collectionName: "note_god_collection",
+    url: process.env.QDRANT_URL || "http://localhost:6333",
+    client: client,
+  });
 
   // await vectorStore.addDocuments(docs);
   console.log("✅ Documents added successfully!");
@@ -109,80 +104,81 @@ export const queryVectorStore = async (query: string) => {
     },
   );
 
-  console.log(`Searching for: "${query}"...`)
+  console.log(`Searching for: "${query}"...`);
 
-  const results = await vectorStore.asRetriever({
-    k: 4,
-    searchType: "mmr",
-    searchKwargs:{
-      fetchK:10,
-      lambda:0.7,
-    }
-  }).invoke(query);
+  const results = await vectorStore
+    .asRetriever({
+      k: 4,
+      searchType: "mmr",
+      searchKwargs: {
+        fetchK: 10,
+        lambda: 0.7,
+      },
+    })
+    .invoke(query);
 
   return results;
-}
-
+};
 
 export const askQuestion = async (question: string) => {
-    const gemini = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-flash",
-      apiKey: process.env.GEMINI_API_KEY!,
-      temperature: 0.4,
-    })
+  const gemini = new ChatGoogleGenerativeAI({
+    model: "gemini-2.5-flash",
+    apiKey: process.env.GEMINI_API_KEY!,
+    temperature: 0.4,
+  });
 
-    const results = await queryVectorStore(question);
+  const results = await queryVectorStore(question);
 
-    if (!results.length) {
-      return {
-        data: "I am sorry, I couldn't find any relevant notes.",
-        source: [],
-      };
-    }
-
-    const context = results.map((doc, index) => `Context ${index + 1}:\n${doc.pageContent}`).join("\n\n");
-    const SYSTEM_PROMPT = `You are an AI assistant that helps users by answering questions based on the provided context from their personal notes. Use the context to provide accurate and relevant answers. If the context does not contain the answer, respond with "I'm sorry, I don't have that information."`;
-
-    const messages = [
-      new SystemMessage( SYSTEM_PROMPT ),
-      new HumanMessage(`Context:\n${context}\n\nQuestion: ${question}`),
-    ]
-    console.log("🤖 Asking Gemini...");
-
-    const response = await gemini.invoke(messages);
+  if (!results.length) {
     return {
-      data:response.content,
-      source:results.map((doc)=>({
-        pageContent:doc.pageContent,
-        metadata:doc.metadata,
-      }))
+      data: "I am sorry, I couldn't find any relevant notes.",
+      source: [],
     };
-}
+  }
 
+  const context = results
+    .map((doc, index) => `Context ${index + 1}:\n${doc.pageContent}`)
+    .join("\n\n");
+  const SYSTEM_PROMPT = `You are an AI assistant that helps users by answering questions based on the provided context from their personal notes. Use the context to provide accurate and relevant answers. If the context does not contain the answer, respond with "I'm sorry, I don't have that information."`;
 
-export const deleteVectorData = async (fileName:string) => {
+  const messages = [
+    new SystemMessage(SYSTEM_PROMPT),
+    new HumanMessage(`Context:\n${context}\n\nQuestion: ${question}`),
+  ];
+  console.log("🤖 Asking Gemini...");
+
+  const response = await gemini.invoke(messages);
+  return {
+    data: response.content,
+    source: results.map((doc) => ({
+      pageContent: doc.pageContent,
+      metadata: doc.metadata,
+    })),
+  };
+};
+
+export const deleteVectorData = async (fileName: string) => {
   console.log("Deleting vectors for file:", fileName);
 
   try {
     const collectionName = "note_god_collection";
-    
-    const {status} = await client.delete(collectionName, {
-              filter: {
-                must: [
-                  {
-                    key: "metadata.fileName",
-                    match:{
-                      value: fileName,
-                    },
-                  },
-                ],
-              },
-            });
+
+    const { status } = await client.delete(collectionName, {
+      filter: {
+        must: [
+          {
+            key: "metadata.fileName",
+            match: {
+              value: fileName,
+            },
+          },
+        ],
+      },
+    });
 
     console.log("✅ Vectors deleted successfully!");
-    return {status};
-    
+    return { status };
   } catch (error) {
-      console.log("Error in deleting:",error);
+    console.log("Error in deleting:", error);
   }
 };

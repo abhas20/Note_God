@@ -8,7 +8,6 @@ import { AppSidebar } from "@/components/AppSideBar";
 import NoteProvider from "@/providers/NoteProvider";
 import { SocketProvider } from "@/providers/SocketProvider";
 
-
 export const metadata: Metadata = {
   title: "Note_God",
   description: "Full stack notes app ",
@@ -22,25 +21,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-      <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SocketProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SocketProvider>
             <NoteProvider>
-            <SidebarProvider>
-              <AppSidebar/>
-            <div className="flex flex-col min-h-screen w-full">
-            <Header/>
-          <main className="flex flex-col pt-10 p-4">  {children}</main>
-          </div>
-          <Toaster/>
-          </SidebarProvider>
-          </NoteProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <div className="flex min-h-screen w-full flex-col">
+                  <Header />
+                  <main className="flex flex-col p-4 pt-10"> {children}</main>
+                </div>
+                <Toaster />
+              </SidebarProvider>
+            </NoteProvider>
           </SocketProvider>
-          </ThemeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

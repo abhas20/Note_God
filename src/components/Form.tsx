@@ -11,15 +11,15 @@ import Link from "next/link";
 import { toast, Toaster } from "sonner";
 import { loginAction, loginWithGoogle, signupAction } from "@/action/user";
 
-type Props={
-    type:string,
-}
+type Props = {
+  type: string;
+};
 
-export default function Form(type:Props) {
-  const isLogin=type.type==="login";
-  const router=useRouter();
+export default function Form(type: Props) {
+  const isLogin = type.type === "login";
+  const router = useRouter();
 
-  const [isPending,startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const handleSubmit = (formData: FormData) => {
     startTransition(async () => {
       const email = formData.get("email") as string;
@@ -60,7 +60,6 @@ export default function Form(type:Props) {
     });
   };
 
-
   const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       role="img"
@@ -72,21 +71,21 @@ export default function Form(type:Props) {
       <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.62 1.9-4.63 1.9-3.87 0-7-3.13-7-7s3.13-7 7-7c2.18 0 3.66.86 4.54 1.73l2.64-2.58C18.01 1.02 15.48 0 12.48 0c-6.9 0-12.5 5.6-12.5 12.5s5.6 12.5 12.5 12.5c7.25 0 12.13-4.87 12.13-12.5 0-.8-.08-1.55-.2-2.32h-11.9z" />
     </svg>
   );
-  
-// type GoogleLoginResponse = {
-//   errorMessage?: string | null;
-//   data?: {
-//     url?: string;
-//     [key: string]: any;
-//   };
-//   url?: string;
-// };
 
-const handleGoogleLogin = () => {
-        startTransition( () => {
-           loginWithGoogle();
-        });
-};
+  // type GoogleLoginResponse = {
+  //   errorMessage?: string | null;
+  //   data?: {
+  //     url?: string;
+  //     [key: string]: any;
+  //   };
+  //   url?: string;
+  // };
+
+  const handleGoogleLogin = () => {
+    startTransition(() => {
+      loginWithGoogle();
+    });
+  };
 
   return (
     <div>
@@ -163,7 +162,7 @@ const handleGoogleLogin = () => {
           {isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <GoogleIcon className="mr-2 h-4 w-4 text-foreground" />
+            <GoogleIcon className="text-foreground mr-2 h-4 w-4" />
           )}
           Sign In with Google
         </Button>

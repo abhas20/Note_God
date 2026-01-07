@@ -57,7 +57,6 @@ export const deleteNoteAction = async (noteId: string) => {
 //   const user = await getUser();
 //   if (!user) throw new Error("you must be logged in to ask ai questios");
 
-
 //   const notesCount = await prisma.notes.count({
 //     where: { authId: user.id },
 //   });
@@ -112,8 +111,6 @@ export const deleteNoteAction = async (noteId: string) => {
 //   //   console.log(completion.choices[0].message.content)
 //   return completion.choices[0].message.content || "I am sorry a problem has occured";
 // };
-
-
 
 export const askAINoteAction = async (
   newQuestion: string[],

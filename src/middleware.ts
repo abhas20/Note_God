@@ -1,6 +1,5 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
-
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   if (
@@ -10,27 +9,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return await updateSession(request)
+  return await updateSession(request);
 }
 
 export const config = {
-    /*
-     * Runs middleware on all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
+  /*
+   * Runs middleware on all request paths except for the ones starting with:
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   */
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-}
-
+};
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
-  })
-
+  });
 
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
@@ -38,21 +35,22 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value}) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
           supabaseResponse = NextResponse.next({
             request,
-          })
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+            supabaseResponse.cookies.set(name, value, options),
+          );
         },
       },
-    }
-  )
-
+    },
+  );
 
   // const currPath = request.nextUrl;
   // const isResetPasswordRoute = currPath.pathname.startsWith('/auth/reset-password');
@@ -67,8 +65,8 @@ export async function updateSession(request: NextRequest) {
   //   if(!user) return NextResponse.redirect(new URL("/login",process.env.NEXT_PUBLIC_URL))
   // }
   const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const AuthRoute =
     request.nextUrl.pathname === "/login" ||
@@ -83,13 +81,13 @@ export async function updateSession(request: NextRequest) {
   // If the user is not authenticated and the request is not for an auth route
   // middleware works for both server and client components
   if (!user && !AuthRoute && !request.nextUrl.pathname.startsWith("/api")) {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_URL));
+    return NextResponse.redirect(
+      new URL("/login", process.env.NEXT_PUBLIC_URL),
+    );
   }
 
-
-  const {searchParams,pathname}=new URL(request.url)
-  if (!searchParams.get("noteId") && pathname === "/"){
-
+  const { searchParams, pathname } = new URL(request.url);
+  if (!searchParams.get("noteId") && pathname === "/") {
     //  const {
     //   data: { user },
     // } = await supabase.auth.getUser();
@@ -101,7 +99,7 @@ export async function updateSession(request: NextRequest) {
     //       `${process.env.NEXT_PUBLIC_URL}/api/fetch-latest-note?userId=${user.id}`,
 
     //     ).then((res) => res.json());
-  
+
     //     if (newNoteId) {
     //       const url = request.nextUrl.clone();
     //       url.searchParams.set("noteId", newNoteId);
@@ -117,22 +115,19 @@ export async function updateSession(request: NextRequest) {
     //       }
     //     );
     //     const { noteId: createdNoteId } = await createNote.json();
-  
+
     //     const url = request.nextUrl.clone();
     //     url.searchParams.set("noteId", createdNoteId);
     //     return NextResponse.redirect(url);
     //   }
-    //   } 
+    //   }
     //   catch (error) {
-    //       console.log(error)  
+    //       console.log(error)
     //   }
     //   }
 
+    return NextResponse.next();
+  }
 
-      return NextResponse.next();
-    }
-
-
-
-  return supabaseResponse
+  return supabaseResponse;
 }

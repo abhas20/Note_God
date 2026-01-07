@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useSearchParams } from "next/navigation";
 import { Textarea } from "./ui/textarea";
@@ -7,7 +7,6 @@ import useNote from "@/hooks/useNote";
 import { updateNoteAction } from "@/action/note";
 import NoteGenerator from "./NoteGenerator";
 import NoteGeneratorScrap from "./NoteGeneratorScrap";
-
 
 type Props = {
   noteId: string;
@@ -46,9 +45,9 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
     }, 5000);
   };
 
-  const onSaveNote=(note:string)=>{
-    updateNoteAction(noteId,note)
-  }
+  const onSaveNote = (note: string) => {
+    updateNoteAction(noteId, note);
+  };
 
   if (noteIdParam !== noteId) return null;
 
@@ -70,9 +69,8 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
 
       <div className="flex flex-col gap-4 md:flex-row">
         <NoteGenerator onGenerated={setNoteText} onSaveNote={onSaveNote} />
-        <NoteGeneratorScrap/>
+        <NoteGeneratorScrap />
       </div>
     </>
   );
 }
-

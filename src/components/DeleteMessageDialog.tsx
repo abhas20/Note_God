@@ -18,7 +18,10 @@ interface DeleteMessageDialogProps {
   isDeleting?: boolean;
 }
 
-export function DeleteMessageDialog({ onConfirm,isDeleting }: DeleteMessageDialogProps) {
+export function DeleteMessageDialog({
+  onConfirm,
+  isDeleting,
+}: DeleteMessageDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

@@ -42,18 +42,14 @@ function MoreOptions() {
             className="block no-underline hover:text-amber-400"
             onClick={handleToggle}
           >
-            <li className="cursor-pointer hover:underline">
-              Chat with PDFs
-            </li>
+            <li className="cursor-pointer hover:underline">Chat with PDFs</li>
           </Link>
           <Link
             href="/chat"
             className="block no-underline hover:text-amber-400"
             onClick={handleToggle}
           >
-            <li className="cursor-pointer hover:underline">
-              Community Chat
-            </li>
+            <li className="cursor-pointer hover:underline">Community Chat</li>
           </Link>
         </ul>
       )}

@@ -9,7 +9,7 @@ interface ComunityChatProps {
   isLoading?: boolean;
 }
 
-function ComunityChat({ handleSendMessage,isLoading }: ComunityChatProps) {
+function ComunityChat({ handleSendMessage, isLoading }: ComunityChatProps) {
   const [message, setMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -22,12 +22,10 @@ function ComunityChat({ handleSendMessage,isLoading }: ComunityChatProps) {
       isLoading = true;
       handleSendMessage(message);
       setMessage("");
-      
     } catch (error) {
       console.error("Error sending message:", error);
-      setMessage(""); 
-    }
-    finally {
+      setMessage("");
+    } finally {
       isLoading = false;
     }
   };

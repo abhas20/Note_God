@@ -5,12 +5,14 @@
 ## 🚀 Features
 
 ### Core Functionality
+
 - **Smart Note Creation**: Create and organize notes with a clean, intuitive interface
 - **Real-time Editing**: Seamless note editing experience with auto-save capabilities
 - **User Authentication**: Secure user registration, login, and profile management
 - **Responsive Design**: Optimized for desktop and mobile devices
 
 ### AI-Powered Features
+
 - **AI Note Generation**: Generate comprehensive notes on any topic using advanced AI models (OpenAI, Gemini)
 - **Interactive Q&A**: Ask questions about your notes and get intelligent responses
 - **Content Analysis**: AI-powered insights and suggestions for your content
@@ -19,6 +21,7 @@
 - **AI Image Generation**: Create stunning images from text prompts using Pollinations API
 
 ### Advanced Capabilities
+
 - **Real-time Collaboration**: Live updates and synchronization via Socket.IO
 - **Community Chat**: Real-time messaging and collaboration with other users
 - **Vector Search**: Semantic search across your notes using Qdrant vector database
@@ -30,6 +33,7 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 15.2.8** - React framework with App Router
 - **React 19** - Latest React with modern features
 - **TypeScript** - Type-safe development
@@ -39,6 +43,7 @@
 - **Socket.IO Client** - Real-time bidirectional communication
 
 ### Backend & Infrastructure
+
 - **Prisma ORM** - Type-safe database client
 - **PostgreSQL** - Robust relational database
 - **Supabase** - Authentication and real-time features
@@ -48,12 +53,14 @@
 - **Qdrant** - Vector database for semantic search and RAG
 
 ### AI Integration
+
 - **Google Gemini** - Alternative AI model support
 - **LangChain** - Framework for building AI applications
 - **Pollinations API** - AI image generation from text prompts
 - **RAG (Retrieval Augmented Generation)** - PDF document chat functionality
 
 ### Development Tools
+
 - **ESLint** - Code linting and formatting
 - **Prettier** - Code formatting
 - **Turbopack** - Fast bundler for development
@@ -96,14 +103,18 @@ cp .env.example .env
 ### 4. Database Setup
 
 #### Option A: Local PostgreSQL
+
 1. Install PostgreSQL on your system
 2. Create a new database:
+
 ```sql
 CREATE DATABASE note_god_db;
 ```
+
 3. Update the `DB_URL` in your `.env.local` file
 
 #### Option B: Cloud PostgreSQL (Recommended)
+
 - Use services like **Supabase** or **Neon**
 - Copy the connection string to your `DB_URL` environment variable
 
@@ -117,9 +128,11 @@ CREATE DATABASE note_god_db;
 ### 6. Additional Services Setup (Required for Full Functionality)
 
 #### Redis Setup
+
 Redis is required for background job processing and real-time features.
 
 **Local Installation**:
+
 ```bash
 # macOS
 brew install redis
@@ -133,14 +146,17 @@ sudo systemctl start redis
 ```
 
 **Docker (Recommended)**:
+
 ```bash
 docker run -d -p 6379:6379 --name redis redis:alpine
 ```
 
 #### Qdrant Setup
+
 Qdrant is required for vector search and PDF chat functionality.
 
 **Docker (Recommended)**:
+
 ```bash
 docker run -d -p 6333:6333 --name qdrant qdrant/qdrant:latest
 ```
@@ -148,6 +164,7 @@ docker run -d -p 6333:6333 --name qdrant qdrant/qdrant:latest
 Or use the provided Docker Compose (see deployment section).
 
 #### Gemini API
+
 1. Get an API key from Google AI Studio (https://makersuite.google.com/app/apikey)
 2. Add `GEMINI_API_KEY` to your `.env` file
 
@@ -156,12 +173,14 @@ Or use the provided Docker Compose (see deployment section).
 The socket server handles real-time communication. It needs its own `.env` file:
 
 Create `.env` file in the `socket-server` directory:
+
 ```env
 cd socket-server
 cp .env.example .env
 ```
 
 Start the socket server in a separate terminal:
+
 ```bash
 cd socket-server
 npm install
@@ -181,22 +200,27 @@ npx prisma generate && npx prisma migrate dev
 ### 9. Start Development Server
 
 **Main Application**:
+
 ```bash
 npm run dev
 ```
 
 **Worker Process** (in a separate terminal for background jobs):
+
 ```bash
 npm run dev:workers
 ```
 
 **Or run both together**:
+
 ```bash
 npm run all
 ```
 
 ### 10. Run using Docker(Optional)
+
 **Ensure env files are created**
+
 ```
 docker compose up --build -d
 ```
@@ -272,7 +296,6 @@ Note_God/
 - `npm run format` - Format code with Prettier
 - `npm run migrate` - Run Prisma database migrations
 
-
 ## 🚀 Deployment
 
 ### Docker Compose Deployment (Recommended)
@@ -284,11 +307,13 @@ The easiest way to deploy Note God is using Docker Compose, which sets up all se
 Ensure `.env` in the root directory and `.env` in the `socket-server` directory:
 
 2. **Start All Services**:
+
 ```bash
 docker-compose up -d
 ```
 
 This will start:
+
 - Main Next.js application (port 3000)
 - Background workers for file processing
 - Socket.IO server (port 4000)
@@ -296,11 +321,13 @@ This will start:
 - Qdrant vector database (port 6333)
 
 3. **View Logs**:
+
 ```bash
 docker-compose logs -f
 ```
 
 4. **Stop Services**:
+
 ```bash
 docker-compose down
 ```
@@ -311,7 +338,7 @@ docker-compose down
 
 1. **Sign Up**: Create an account using email and password
 2. **Create Your First Note**: Click "New Note" to start writing
-3. **Try AI Features**: 
+3. **Try AI Features**:
    - Use "Ask AI to generate Notes" for automated content creation
    - Use "Ask AI Help" to get insights about your notes
 4. **Upload PDFs**: Navigate to the "Chat with PDF" section to upload documents and ask questions
@@ -332,24 +359,28 @@ docker-compose down
 ### Common Issues
 
 **Database Connection Error**
+
 ```bash
 # Verify your database URL and run:
 npx prisma db push
 ```
 
 **Supabase Auth Issues**
+
 ```bash
 # Check your Supabase URL and keys in .env.local
 # Ensure your Supabase project is active
 ```
 
 **AI Features Not Working**
+
 ```bash
 # Verify your OpenAI or Gemini API key
 # Check if you have sufficient API credits
 ```
 
 **Redis Connection Error**
+
 ```bash
 # Ensure Redis is running:
 redis-cli ping
@@ -362,6 +393,7 @@ docker start redis  # Docker
 ```
 
 **Qdrant Connection Error**
+
 ```bash
 # Check if Qdrant is running:
 curl http://localhost:6333/health
@@ -372,6 +404,7 @@ docker start qdrant
 ```
 
 **Socket Server Not Connecting**
+
 ```bash
 # Verify socket server is running on port 4000
 # Check SOCKET_SERVER_URL in environment variables
@@ -379,6 +412,7 @@ docker start qdrant
 ```
 
 **Worker Process Not Running**
+
 ```bash
 # Start workers separately:
 npm run dev:workers
@@ -387,6 +421,7 @@ npm run dev:workers
 ```
 
 **PDF Upload/Chat Issues**
+
 ```bash
 # Ensure Qdrant is running and accessible
 # Verify QDRANT_URL in environment variables
@@ -420,18 +455,23 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🌟 Key Features Highlights
 
 ### 📄 PDF Chat with RAG
+
 Upload any PDF document and have intelligent conversations about its content. The system uses Retrieval Augmented Generation (RAG) with Qdrant vector database for semantic search.
 
 ### 🎨 AI Image Generation
+
 Transform your ideas into stunning visuals using the Pollinations API. Generate images from text prompts with customizable parameters.
 
 ### 💬 Real-time Community Chat
+
 Connect with other users through WebSocket-powered real-time messaging. All messages are synchronized instantly across all connected clients.
 
 ### 🔄 Background Processing
+
 Heavy tasks like PDF processing and vector embeddings run asynchronously using BullMQ workers, ensuring the UI remains responsive.
 
 ### 🔍 Vector Search
+
 Leverage Qdrant's vector database for semantic search across your notes and documents, finding relevant content even when exact keywords don't match.
 
 ---

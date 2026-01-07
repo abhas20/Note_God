@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { getCurrentUser, updateUserProfile } from "@/action/user";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,10 @@ export default function Page() {
 
         const { currUser } = response;
         if (!currUser) {
-          toast.error("Error", { description: "No user found.", duration: 2000 });
+          toast.error("Error", {
+            description: "No user found.",
+            duration: 2000,
+          });
           setUser(null);
         } else {
           setUser({ email: currUser.email, imgUrl: currUser.imgUrl });
@@ -93,7 +96,7 @@ export default function Page() {
   return isLoading ? (
     <Loader2 className="mx-auto mt-20 animate-spin" />
   ) : user ? (
-    <Card className="mx-auto mt-10 max-w-md p-6 shadow-lg w-full">
+    <Card className="mx-auto mt-10 w-full max-w-md p-6 shadow-lg">
       <CardHeader>
         <CardTitle className="text-center text-3xl font-semibold">
           My Profile
@@ -105,7 +108,7 @@ export default function Page() {
           user.imgUrl ??
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9pU5Uo_89gxknb72fs5xpyJYH6_cGdC7FnQ&s"
         }
-        className="mx-auto mb-4 h-24 w-24 rounded-full object-cover shadow-md border-amber-400 border-2"
+        className="mx-auto mb-4 h-24 w-24 rounded-full border-2 border-amber-400 object-cover shadow-md"
         alt="Profile"
       />
 
@@ -148,7 +151,7 @@ export default function Page() {
         </Button>
       )}
 
-      <p className="text-lg text-center font-semibold">{user.email}</p>
+      <p className="text-center text-lg font-semibold">{user.email}</p>
 
       <Button variant={"outline"} onClick={() => router.push("/")}>
         Go Back

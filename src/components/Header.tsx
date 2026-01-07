@@ -11,29 +11,28 @@ export default async function Header() {
   const isUserLogged = user !== null;
 
   return (
-    <header className="bg-popover text-primary p-4 shadow-amber-200 shadow-2xl hover:shadow-orange-400 rounded-2xl">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        
+    <header className="bg-popover text-primary rounded-2xl p-4 shadow-2xl shadow-amber-200 hover:shadow-orange-400">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Left: Sidebar Trigger + Logo */}
         <div className="flex items-center gap-4">
-          <SidebarTrigger/>
+          <SidebarTrigger />
           <Link href={"/"} className="flex items-center gap-4">
             <img
               src="./image.png"
               alt="notes"
-              className="rounded-full border border-red size-10"
+              className="border-red size-10 rounded-full border"
             />
-            <h1 className="text-xl sm:text-3xl font-bold leading-6 sm:leading-8 text-primary">
+            <h1 className="text-primary text-xl leading-6 font-bold sm:text-3xl sm:leading-8">
               NotesGOD
             </h1>
           </Link>
         </div>
 
         {/* Right: Buttons */}
-        <div className="flex flex-wrap justify-end items-center gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
           {isUserLogged ? (
             <>
-              <MoreOptions/>
+              <MoreOptions />
               <Logout />
               <Button asChild variant="outline">
                 <Link href="/profile">Profile</Link>

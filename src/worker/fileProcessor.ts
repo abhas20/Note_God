@@ -1,9 +1,8 @@
-
-import {Worker} from 'bullmq';
-import fs from 'fs';
-import path from 'path';
-import { createAdminClient } from '@/auth/admin';
-import { addToVectorEmbedding, pdfLoader, textSplitter } from '@/lib/rag-utils';
+import { Worker } from "bullmq";
+import fs from "fs";
+import path from "path";
+import { createAdminClient } from "@/auth/admin";
+import { addToVectorEmbedding, pdfLoader, textSplitter } from "@/lib/rag-utils";
 import "dotenv/config";
 
 console.log(process.env.REDIS_HOST);
@@ -16,11 +15,11 @@ const worker = new Worker(
     const client = await createAdminClient();
     const { storage } = client;
 
-    const {data,error} = await storage.from("User_pdfs").download(filePath);
-    console.log(data)
+    const { data, error } = await storage.from("User_pdfs").download(filePath);
+    console.log(data);
     if (error) {
-        console.log("Error downloading file in worker:", error);
-        throw error;
+      console.log("Error downloading file in worker:", error);
+      throw error;
     }
 
     const tempDir = path.join(process.cwd(), "tmp");
@@ -32,7 +31,6 @@ const worker = new Worker(
 
     console.log(`✅ File downloaded to ${tempFilePath}`);
 
-    
     // Load the PDF document
     const documents = await pdfLoader(tempFilePath);
     console.log(`Loaded ${documents.length} document pages`);
@@ -40,7 +38,6 @@ const worker = new Worker(
     // Split the document into text chunks
     const chunks = await textSplitter(documents);
     console.log(`Created ${chunks.length} text chunks`);
-
 
     // Add chunks to vector embedding store
     console.log("---ADDING to VecDB---");
@@ -50,7 +47,6 @@ const worker = new Worker(
     // Clean up the temporary file
     fs.unlinkSync(tempFilePath);
     console.log(`🧹 Temporary file ${tempFilePath} deleted`);
-    
   },
   {
     connection: {

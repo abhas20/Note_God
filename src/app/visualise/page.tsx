@@ -1,12 +1,12 @@
-import Visualise from '@/components/Visualise'
-import React from 'react'
+import Visualise from "@/components/Visualise";
+import React from "react";
 
 function Visualisepage() {
   return (
     <div>
-      <Visualise/>
+      <Visualise />
     </div>
-  )
+  );
 }
 
-export default Visualisepage
+export default Visualisepage;

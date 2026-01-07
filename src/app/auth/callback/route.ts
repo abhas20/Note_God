@@ -17,7 +17,8 @@ export async function GET(request: Request) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
-      const { data: userData, error: getuserError } = await supabase.auth.getUser();
+      const { data: userData, error: getuserError } =
+        await supabase.auth.getUser();
       if (getuserError || !userData.user) {
         return NextResponse.redirect(`${origin}/auth/auth-code-error`);
       }
@@ -54,4 +55,3 @@ export async function GET(request: Request) {
   // return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
-

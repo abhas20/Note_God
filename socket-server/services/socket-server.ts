@@ -1,15 +1,15 @@
 import { Server } from "socket.io";
-import {Redis} from 'ioredis';
+import { Redis } from "ioredis";
 
 const RedisConfig = {
-    host: process.env.REDIS_HOST || "localhost",  //when not using docker
-    // host: process.env.REDIS_HOST || "redis",   //when using docker
-    port: Number(process.env.REDIS_PORT) || 6379,
-    password: process.env.REDIS_PASSWORD || "psswrd",
+  host: process.env.REDIS_HOST || "localhost", //when not using docker
+  // host: process.env.REDIS_HOST || "redis",   //when using docker
+  port: Number(process.env.REDIS_PORT) || 6379,
+  password: process.env.REDIS_PASSWORD || "psswrd",
 };
 
-const pub= new Redis(RedisConfig);
-const sub= new Redis(RedisConfig);
+const pub = new Redis(RedisConfig);
+const sub = new Redis(RedisConfig);
 
 //psswrd
 
@@ -50,13 +50,11 @@ class SocketServer {
         if (channel === "MESSAGES") {
           console.log("Broadcasting new message to clients");
           this._io.emit("message", parsedMessage);
-        }
-         else if (channel === "DELETE_MESSAGES") {
+        } else if (channel === "DELETE_MESSAGES") {
           console.log("Broadcasting delete event to clients");
           this._io.emit("delete:message", parsedMessage);
         }
-      } 
-      catch (error) {
+      } catch (error) {
         console.error("Socket Server error parsing Redis message:", error);
       }
     });
@@ -70,9 +68,7 @@ class SocketServer {
       socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
       });
-    
     });
-
   }
 
   get io(): Server {
@@ -81,5 +77,5 @@ class SocketServer {
 }
 
 export default SocketServer;
-// npx prisma generate --schema=../../src/db/schema.prisma   
+// npx prisma generate --schema=../../src/db/schema.prisma
 // npx prisma migrate dev --name init --schema=../../src/db/schema.prisma(not need if done before)
