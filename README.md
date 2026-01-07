@@ -48,7 +48,6 @@
 - **Qdrant** - Vector database for semantic search and RAG
 
 ### AI Integration
-- **OpenAI API** - GPT models for text generation
 - **Google Gemini** - Alternative AI model support
 - **LangChain** - Framework for building AI applications
 - **Pollinations API** - AI image generation from text prompts
@@ -82,43 +81,14 @@ cd Note_God
 
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
 ```
 
 ### 3. Environment Configuration
 
-Create a `.env.local` file in the root directory and add the following environment variables:
+Create a `.env` file in the root directory and add run the command:
 
 ```env
-# Database Configuration
-DB_URL="postgresql://username:password@localhost:5432/note_god_db"
-
-# Supabase Configuration (for Authentication)
-SUPABASE_URL="your_supabase_project_url"
-SUPABASE_ANON_KEY="your_supabase_anon_key"
-
-# OpenAI API Configuration
-OPENAI_API_KEY="your_openai_api_key"
-
-# Gemini API Key (for alternative AI models)
-GEMINI_API_KEY="your_gemini_api_key_here"
-
-# Application URL (for password reset emails)
-NEXT_PUBLIC_URL="http://localhost:3000"
-
-# Socket Server URL (for real-time features)
-SOCKET_SERVER_URL="http://localhost:4000"
-
-# Redis Configuration (for BullMQ and caching)
-REDIS_HOST="localhost"
-REDIS_PORT="6379"
-REDIS_PASSWORD="your_redis_password_here"
-
-# Qdrant Vector Database URL (for RAG and semantic search)
-QDRANT_URL="http://localhost:6333"
+cp .env.example .env
 ```
 
 **Note**: If using Docker Compose, some URLs will need to be adjusted (see Docker deployment section).
@@ -134,22 +104,17 @@ CREATE DATABASE note_god_db;
 3. Update the `DB_URL` in your `.env.local` file
 
 #### Option B: Cloud PostgreSQL (Recommended)
-- Use services like **Supabase**, **Neon**, **PlanetScale**, or **Railway**
+- Use services like **Supabase** or **Neon**
 - Copy the connection string to your `DB_URL` environment variable
 
 ### 5. Supabase Setup
 
 1. Go to Supabase and create a new project
 2. Get your project URL and anon key from the API settings
-3. Add these to your `.env.local` file
+3. Add these to your `.env` file
 4. Supabase will handle user authentication and real-time features
 
-### 6. OpenAI API Setup
-
-1. Generate an API key from OpenAI (https://platform.openai.com/api-keys)
-2. Add the key to your `.env.local` file as `OPENAI_API_KEY`
-
-### 7. Additional Services Setup (Required for Full Functionality)
+### 6. Additional Services Setup (Required for Full Functionality)
 
 #### Redis Setup
 Redis is required for background job processing and real-time features.
@@ -182,30 +147,28 @@ docker run -d -p 6333:6333 --name qdrant qdrant/qdrant:latest
 
 Or use the provided Docker Compose (see deployment section).
 
-#### Gemini API (Optional)
-If you want to use Google's Gemini models:
+#### Gemini API
 1. Get an API key from Google AI Studio (https://makersuite.google.com/app/apikey)
-2. Add `GEMINI_API_KEY` to your `.env.local` file
+2. Add `GEMINI_API_KEY` to your `.env` file
 
-### 8. Socket Server Setup
+### 7. Socket Server Setup
 
 The socket server handles real-time communication. It needs its own `.env` file:
 
 Create `.env` file in the `socket-server` directory:
 ```env
-REDIS_HOST="localhost"
-REDIS_PORT="6379"
-REDIS_PASSWORD="your_redis_password_here"
+cd socket-server
+cp .env.example .env
 ```
 
 Start the socket server in a separate terminal:
 ```bash
 cd socket-server
 npm install
-npm start
+npm run dev
 ```
 
-### 9. Database Migration
+### 8. Database Migration
 
 Run Prisma migrations to set up your database schema:
 
@@ -215,15 +178,11 @@ npm run migrate
 npx prisma generate && npx prisma migrate dev
 ```
 
-### 10. Start Development Server
+### 9. Start Development Server
 
 **Main Application**:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
 **Worker Process** (in a separate terminal for background jobs):
@@ -234,6 +193,12 @@ npm run dev:workers
 **Or run both together**:
 ```bash
 npm run all
+```
+
+### 10. Run using Docker(Optional)
+**Ensure env files are created**
+```
+docker compose up --build -d
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
@@ -286,7 +251,7 @@ Note_God/
 │   ├── app.ts           # Socket server application
 │   ├── services/        # Socket services
 │   └── package.json     # Socket server dependencies
-├── openai/              # OpenAI configuration
+├── ai/                  # AI configuration
 ├── public/              # Static assets
 ├── docker-compose.yml   # Docker Compose configuration
 ├── Dockerfile           # Application Docker image
@@ -307,38 +272,6 @@ Note_God/
 - `npm run format` - Format code with Prettier
 - `npm run migrate` - Run Prisma database migrations
 
-## 🔌 API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/forgot-password` - Request password reset
-- `POST /api/auth/reset-password` - Reset user password
-
-### Notes Management
-- `POST /api/create-new-note` - Create a new note
-- `PUT /api/notes/[id]` - Update existing note
-- `DELETE /api/notes/[id]` - Delete a note
-- `GET /api/notes` - Get user's notes
-- `GET /api/fetch-latest-note` - Fetch the most recent note
-
-### AI Features
-- `POST /api/ai/generate-note` - Generate AI notes
-- `POST /api/ai/ask-question` - Ask questions about notes
-- `POST /api/query-rag` - Query uploaded PDF documents using RAG
-
-### File Management & Chat
-- `POST /api/upload-file` - Upload PDF files for RAG
-- `GET /api/files` - Get user's uploaded files
-- `DELETE /api/delete-files` - Delete uploaded files
-- `POST /api/messages` - Send chat messages
-- `GET /api/messages` - Get chat messages
-- `GET /api/fetch-prev-messages` - Fetch previous chat messages
-- `POST /api/save-message` - Save a chat message
-
-### Image Generation
-- `POST /api/download-image` - Download generated images
 
 ## 🚀 Deployment
 
@@ -348,27 +281,7 @@ The easiest way to deploy Note God is using Docker Compose, which sets up all se
 
 1. **Create Environment Files**:
 
-Create `.env` in the root directory:
-```env
-DB_URL="postgresql://username:password@localhost:5432/note_god_db"
-SUPABASE_URL="your_supabase_url"
-SUPABASE_ANON_KEY="your_supabase_key"
-OPENAI_API_KEY="your_openai_key"
-GEMINI_API_KEY="your_gemini_key"
-NEXT_PUBLIC_URL="http://localhost:3000"
-SOCKET_SERVER_URL="http://socket-server:4000"
-REDIS_HOST="redis"
-REDIS_PORT="6379"
-REDIS_PASSWORD="your_redis_password"
-QDRANT_URL="http://qdrant:6333"
-```
-
-Create `.env` in the `socket-server` directory:
-```env
-REDIS_HOST="redis"
-REDIS_PORT="6379"
-REDIS_PASSWORD="your_redis_password"
-```
+Ensure `.env` in the root directory and `.env` in the `socket-server` directory:
 
 2. **Start All Services**:
 ```bash
@@ -392,52 +305,6 @@ docker-compose logs -f
 docker-compose down
 ```
 
-### Vercel Deployment
-
-For deploying just the Next.js application (requires external Redis and Qdrant):
-
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically with each push to main branch
-
-**Note**: You'll need to separately host:
-- PostgreSQL database (Supabase, Neon, etc.)
-- Redis instance (Upstash, Redis Cloud, etc.)
-- Qdrant instance (Qdrant Cloud or self-hosted)
-- Socket server (separate deployment or service)
-
-### Manual Deployment
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm start
-
-# In separate terminals, also start:
-npm run dev:workers  # Background workers
-cd socket-server && npm start  # Socket server
-```
-
-### Environment Variables for Production
-
-Make sure to set all environment variables in your deployment platform:
-
-```env
-DB_URL=your_production_database_url
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
-OPENAI_API_KEY=your_openai_key
-GEMINI_API_KEY=your_gemini_key
-NEXT_PUBLIC_URL=https://your-domain.com
-SOCKET_SERVER_URL=https://your-socket-server-url
-REDIS_HOST=your_redis_host
-REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
-QDRANT_URL=your_qdrant_url
-```
-
 ## 🎯 Getting Started Guide
 
 ### For New Users
@@ -452,19 +319,6 @@ QDRANT_URL=your_qdrant_url
 6. **Community Chat**: Connect with other users through real-time messaging
 7. **Organize**: Create multiple notes for different topics
 8. **Search**: Use the search functionality to find specific content
-
-### For Developers
-
-1. **Explore the Codebase**: Start with `src/app/page.tsx` for the main interface
-2. **Understanding Actions**: Check `src/action/` for server-side functions
-3. **Database Schema**: Review `src/db/schema.prisma` for data models
-4. **AI Integration**: 
-   - See `src/components/NoteGenerator.tsx` for note generation
-   - Check `src/components/AskAIButton.tsx` for Q&A features
-   - Review RAG implementation in `src/action/rag.ts`
-5. **Authentication Flow**: Examine `src/auth/server.ts` and related components
-6. **Real-time Features**: Explore `socket-server/` for WebSocket implementation
-7. **Background Jobs**: Check `src/worker/fileProcessor.ts` for async processing
 
 ## 🔒 Security Features
 
@@ -547,7 +401,7 @@ If you encounter issues:
 2. Verify all environment variables are set correctly
 3. Ensure your database is properly configured
 4. Check that all services (Redis, Qdrant, Socket server) are running
-5. Verify APIs (Supabase, OpenAI, Gemini) are accessible
+5. Verify APIs (Supabase, Gemini) are accessible
 6. Review Docker logs if using Docker Compose: `docker-compose logs -f`
 
 ## 📝 License
@@ -560,13 +414,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - [Radix UI](https://www.radix-ui.com/) for accessible components
 - [Supabase](https://supabase.com/) for authentication and database
-- [OpenAI](https://openai.com/) for powerful AI models
 - [Google Gemini](https://ai.google.dev/) for advanced AI capabilities
-- [Pollinations](https://pollinations.ai/) for AI image generation
-- [Qdrant](https://qdrant.tech/) for vector database
 - [Socket.IO](https://socket.io/) for real-time communication
-- [Prisma](https://www.prisma.io/) for type-safe database access
-- [LangChain](https://www.langchain.com/) for AI application framework
 
 ## 🌟 Key Features Highlights
 
