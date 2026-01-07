@@ -10,8 +10,7 @@ import { Suspense } from "react";
 
 
 type props={
-  searchParams: { [key: string]:string | string [] | undefined} //removed
-  // | Promise<{ [key: string]:string | string [] | undefined}> 
+  searchParams: Promise<{ [key: string]:string | string [] | undefined}> 
 }
 
 async function Home({searchParams}:props) {
