@@ -10,17 +10,13 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:prettier/recommended",
-  ),
+  ...compat.extends("next/core-web-vitals", "next/typescript","plugin:prettier/recommended"),
   {
     rules: {
       "react/no-unescaped-entities": "off",
       "@typescript-eslint/no-unused-vars": "off",
-      "prettier/prettier": [
-        "error",
+      "prettier/prettier":[
+        'error',
         {
           endOfLine: "auto",
           singleQuote: true,
@@ -28,8 +24,8 @@ const eslintConfig = [
           trailingComma: "all",
           printWidth: 80,
           tabWidth: 2,
-        },
-      ],
+        }
+      ]
     },
   },
 ];
