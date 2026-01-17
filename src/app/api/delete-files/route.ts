@@ -1,12 +1,23 @@
 import { deleteUserFile } from "@/action/rag";
+import { getUser } from "@/auth/server";
 import { deleteVectorData } from "@/lib/rag-utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(req: NextRequest) {
+
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json(
+      { message: "Unauthorized", success: false },
+      { status: 401 },
+    );
+  }
+
   const { fileId, fileName } = await req.json();
+  const userId = user.id;
 
   try {
-    const resVec = await deleteVectorData(fileName);
+    const resVec = await deleteVectorData(fileName,userId);
     console.log(resVec);
     if (resVec?.status === "acknowledged") {
       console.log("Vector data deleted successfully for file:", fileName);

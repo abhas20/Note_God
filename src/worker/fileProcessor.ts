@@ -32,7 +32,7 @@ const worker = new Worker(
     console.log(`✅ File downloaded to ${tempFilePath}`);
 
     // Load the PDF document
-    const documents = await pdfLoader(tempFilePath);
+    const documents = await pdfLoader(tempFilePath,userId);
     console.log(`Loaded ${documents.length} document pages`);
 
     // Split the document into text chunks

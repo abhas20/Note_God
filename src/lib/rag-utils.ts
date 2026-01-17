@@ -23,7 +23,7 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-export const pdfLoader = async (filePath: string) => {
+export const pdfLoader = async (filePath: string, userId:string) => {
   console.log("📄 Reading file from disk...");
   const dataBuffer = fs.readFileSync(filePath);
   const parser: PDFParse = new PDFParse({ data: dataBuffer });
@@ -45,6 +45,7 @@ export const pdfLoader = async (filePath: string) => {
         pageContent: pageResult.text,
         metadata: {
           source: filePath,
+          userId: userId,
           fileName: path.basename(filePath),
           pdf_numpages: totalPages,
           loc: { pageNumber: i },
@@ -85,7 +86,7 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
   console.log("✅ Documents added successfully!");
 };
 
-export const queryVectorStore = async (query: string) => {
+export const queryVectorStore = async (query: string, userId:string) => {
   const client = new QdrantClient({
     url: process.env.QDRANT_URL || "http://localhost:6333",
   });
@@ -104,7 +105,7 @@ export const queryVectorStore = async (query: string) => {
     },
   );
 
-  console.log(`Searching for: "${query}"...`);
+  console.log(`Searching for: "${query}" for ${userId}...`);
 
   const results = await vectorStore
     .asRetriever({
@@ -114,20 +115,30 @@ export const queryVectorStore = async (query: string) => {
         fetchK: 10,
         lambda: 0.7,
       },
+      filter:{
+        must: [
+          {
+            key: "metadata.userId",
+            match: {
+              value: userId,
+            },
+          }
+        ]
+      }
     })
     .invoke(query);
 
   return results;
 };
 
-export const askQuestion = async (question: string) => {
+export const askQuestion = async (question: string,userId:string) => {
   const gemini = new ChatGoogleGenerativeAI({
     model: "gemini-2.5-flash",
     apiKey: process.env.GEMINI_API_KEY!,
     temperature: 0.4,
   });
 
-  const results = await queryVectorStore(question);
+  const results = await queryVectorStore(question,userId);
 
   if (!results.length) {
     return {
@@ -157,7 +168,7 @@ export const askQuestion = async (question: string) => {
   };
 };
 
-export const deleteVectorData = async (fileName: string) => {
+export const deleteVectorData = async (fileName: string,userId:string) => {
   console.log("Deleting vectors for file:", fileName);
 
   try {
@@ -172,6 +183,12 @@ export const deleteVectorData = async (fileName: string) => {
               value: fileName,
             },
           },
+          {
+            key: "metadata.userId",
+            match: {
+              value: userId,
+            },
+          }
         ],
       },
     });
