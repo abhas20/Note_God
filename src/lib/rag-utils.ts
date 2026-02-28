@@ -11,6 +11,7 @@ import {
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import dotenv from "dotenv";
 import path from "path";
+import {TaskType} from '@google/generative-ai';
 
 dotenv.config();
 
@@ -19,8 +20,10 @@ const client = new QdrantClient({
 });
 
 const embeddings = new GoogleGenerativeAIEmbeddings({
-  model: "text-embedding-004",
+  // model: "text-embedding-004",
+  model: "gemini-embedding-001",
   apiKey: process.env.GEMINI_API_KEY!,
+  taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
 
 export const pdfLoader = async (filePath: string, userId:string) => {
@@ -76,25 +79,77 @@ export const textSplitter = async (
 };
 
 export const addToVectorEmbedding = async (docs: Document[]) => {
-  await QdrantVectorStore.fromDocuments(docs, embeddings, {
-    collectionName: "note_god_collection",
-    url: process.env.QDRANT_URL || "http://localhost:6333",
-    client: client,
-  });
+  try {
+    console.log(`Attempting to add ${docs.length} chunks to Qdrant...`);
 
-  // await vectorStore.addDocuments(docs);
-  console.log("✅ Documents added successfully!");
+    if (!docs || docs.length === 0) {
+      console.error("❌ No documents provided to insert!");
+      return;
+    }
+
+    // ✅ Filter out empty or whitespace-only chunks
+    const cleanDocs = docs.filter((doc) => doc.pageContent.trim().length > 20);
+    console.log(`📦 Clean chunks after filtering: ${cleanDocs.length}`);
+
+    const BATCH_SIZE = 10;
+    let vectorStore: QdrantVectorStore | null = null;
+
+    for (let i = 0; i < cleanDocs.length; i += BATCH_SIZE) {
+      const batch = cleanDocs.slice(i, i + BATCH_SIZE);
+      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(cleanDocs.length / BATCH_SIZE);
+
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          if (!vectorStore) {
+            // Create collection on first batch
+            vectorStore = await QdrantVectorStore.fromDocuments(
+              batch,
+              embeddings,
+              {
+                collectionName: "note_god_collection",
+                url: process.env.QDRANT_URL || "http://localhost:6333",
+                client: client,
+              },
+            );
+          } else {
+            await vectorStore.addDocuments(batch);
+          }
+
+          console.log(`✅ Batch ${batchNum}/${totalBatches} added`);
+          break; // success, exit retry loop
+        } catch (err) {
+          retries--;
+          console.warn(
+            `⚠️ Batch ${batchNum} failed, retrying... (${retries} left)`,
+          );
+          await new Promise((res) => setTimeout(res, 1000));
+
+          if (retries === 0) {
+            console.error(
+              `❌ Skipping batch ${batchNum} after 3 failed attempts`,
+            );
+          }
+        }
+      }
+
+      await new Promise((res) => setTimeout(res, 700));
+    }
+
+    console.log("✅ All documents added successfully!");
+  } catch (error) {
+    console.error("❌ Failed to add documents to Qdrant:", error);
+    throw error;
+  }
 };
+
 
 export const queryVectorStore = async (query: string, userId:string) => {
   const client = new QdrantClient({
     url: process.env.QDRANT_URL || "http://localhost:6333",
   });
 
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-    model: "text-embedding-004",
-    apiKey: process.env.GEMINI_API_KEY!,
-  });
 
   const vectorStore = await QdrantVectorStore.fromExistingCollection(
     embeddings,

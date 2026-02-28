@@ -32,6 +32,7 @@ function ChatwithPdfpage() {
   const [Pdffiles, setPdffiles] = useState<FileUploads[]>([]);
 
   const bottomEndRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     bottomEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,6 +76,9 @@ function ChatwithPdfpage() {
     } finally {
       setUploading(false);
       setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -126,6 +130,7 @@ function ChatwithPdfpage() {
           <div className="flex gap-2">
             <Input
               type="file"
+              ref={fileInputRef}
               accept="application/pdf"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />

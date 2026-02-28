@@ -13,6 +13,12 @@ export async function POST(req: NextRequest) {
     }
     const userId = user.id;
     const { question } = await req.json();
+    if(!question || question.trim() === ""){
+      return NextResponse.json(
+        { message: "Question is required", success: false },
+        { status: 400 },
+      );
+    }
     console.log("Received RAG query:", question);
     const answer = await askQuestion(question,userId);
     return NextResponse.json({ answer });

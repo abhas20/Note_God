@@ -30,23 +30,29 @@ const worker = new Worker(
     fs.writeFileSync(tempFilePath, fileBuffer);
 
     console.log(`✅ File downloaded to ${tempFilePath}`);
-
-    // Load the PDF document
-    const documents = await pdfLoader(tempFilePath,userId);
-    console.log(`Loaded ${documents.length} document pages`);
-
-    // Split the document into text chunks
-    const chunks = await textSplitter(documents);
-    console.log(`Created ${chunks.length} text chunks`);
-
-    // Add chunks to vector embedding store
-    console.log("---ADDING to VecDB---");
-    await addToVectorEmbedding(chunks);
-    console.log("✅ Chunks added to vector embedding store");
-
-    // Clean up the temporary file
-    fs.unlinkSync(tempFilePath);
-    console.log(`🧹 Temporary file ${tempFilePath} deleted`);
+    
+    try {
+      // Load the PDF document
+      const documents = await pdfLoader(tempFilePath,userId);
+      console.log(`Loaded ${documents.length} document pages`);
+  
+      // Split the document into text chunks
+      const chunks = await textSplitter(documents);
+      console.log(`Created ${chunks.length} text chunks`);
+  
+      // Add chunks to vector embedding store
+      console.log("---ADDING to VecDB---");
+      await addToVectorEmbedding(chunks);
+      console.log("✅ Chunks added to vector embedding store");
+  
+    } catch (error) {
+      console.log(error);
+    }
+    finally{
+      // Clean up the temporary file
+      fs.unlinkSync(tempFilePath);
+      console.log(`🧹 Temporary file ${tempFilePath} deleted`);
+    }
   },
   {
     connection: {

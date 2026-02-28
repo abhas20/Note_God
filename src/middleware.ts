@@ -24,6 +24,64 @@ export const config = {
   ],
 };
 
+// export async function updateSession(request: NextRequest) {
+//   let supabaseResponse = NextResponse.next({
+//     request,
+//   });
+
+//   const supabase = createServerClient(
+//     process.env.SUPABASE_URL!,
+//     process.env.SUPABASE_ANON_KEY!,
+//     {
+//       cookies: {
+//         getAll() {
+//           return request.cookies.getAll();
+//         },
+//         setAll(cookiesToSet) {
+//           cookiesToSet.forEach(({ name, value }) =>
+//             request.cookies.set(name, value),
+//           );
+//           supabaseResponse = NextResponse.next({
+//             request,
+//           });
+//           cookiesToSet.forEach(({ name, value, options }) =>
+//             supabaseResponse.cookies.set(name, value, options),
+//           );
+//         },
+//       },
+//     },
+//   );
+
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   const AuthRoute =
+//     request.nextUrl.pathname === "/login" ||
+//     request.nextUrl.pathname === "/signup" ||
+//     request.nextUrl.pathname === "/auth/forgot-password";
+
+//   if (AuthRoute) {
+//     if (user) {
+//       return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_URL));
+//     }
+//   }
+//   // If the user is not authenticated and the request is not for an auth route
+//   // middleware works for both server and client components
+//   if (!user && !AuthRoute && !request.nextUrl.pathname.startsWith("/api")) {
+//     return NextResponse.redirect(
+//       new URL("/login", process.env.NEXT_PUBLIC_URL),
+//     );
+//   }
+
+//   const { searchParams, pathname } = new URL(request.url);
+//   if (!searchParams.get("noteId") && pathname === "/") {
+//     return NextResponse.next();
+//   }
+
+//   return supabaseResponse;
+// }
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -52,82 +110,30 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // const currPath = request.nextUrl;
-  // const isResetPasswordRoute = currPath.pathname.startsWith('/auth/reset-password');
-
-  // const public_routes=["/login", "/signup", "/auth/forgot-password"]
-  // const isPublicRoute = public_routes.some(route => currPath.pathname.startsWith(route));
-
-  // if(!isPublicRoute){
-  //    const {
-  //     data: { user },
-  //   } = await supabase.auth.getUser();
-  //   if(!user) return NextResponse.redirect(new URL("/login",process.env.NEXT_PUBLIC_URL))
-  // }
+  // This refreshes the session if needed
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const AuthRoute =
+  const isAuthRoute =
     request.nextUrl.pathname === "/login" ||
     request.nextUrl.pathname === "/signup" ||
     request.nextUrl.pathname === "/auth/forgot-password";
 
-  if (AuthRoute) {
-    if (user) {
-      return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_URL));
-    }
-  }
-  // If the user is not authenticated and the request is not for an auth route
-  // middleware works for both server and client components
-  if (!user && !AuthRoute && !request.nextUrl.pathname.startsWith("/api")) {
-    return NextResponse.redirect(
-      new URL("/login", process.env.NEXT_PUBLIC_URL),
-    );
+  // 1. If logged in and trying to access an auth route, redirect to home
+  if (isAuthRoute && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
-  const { searchParams, pathname } = new URL(request.url);
-  if (!searchParams.get("noteId") && pathname === "/") {
-    //  const {
-    //   data: { user },
-    // } = await supabase.auth.getUser();
-
-    //    if (user) {
-    //   // Try fetching the latest note
-    //   try {
-    //     const {newNoteId} = await fetch(
-    //       `${process.env.NEXT_PUBLIC_URL}/api/fetch-latest-note?userId=${user.id}`,
-
-    //     ).then((res) => res.json());
-
-    //     if (newNoteId) {
-    //       const url = request.nextUrl.clone();
-    //       url.searchParams.set("noteId", newNoteId);
-    //       return NextResponse.redirect(url);
-    //     }
-    //     else{
-    //     // If no note exists, create one
-    //     const createNote = await fetch(
-    //       `${process.env.NEXT_PUBLIC_URL}/api/create-new-note?userId=${user.id}`,
-    //       {
-    //         method: "POST",
-    //         headers: { "Content-Type": "application/json" }
-    //       }
-    //     );
-    //     const { noteId: createdNoteId } = await createNote.json();
-
-    //     const url = request.nextUrl.clone();
-    //     url.searchParams.set("noteId", createdNoteId);
-    //     return NextResponse.redirect(url);
-    //   }
-    //   }
-    //   catch (error) {
-    //       console.log(error)
-    //   }
-    //   }
-
-    return NextResponse.next();
+  // 2. If NOT logged in, NOT on an auth route, and NOT calling an API, redirect to login
+  if (!user && !isAuthRoute && !request.nextUrl.pathname.startsWith("/api")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
+  // 3. Always return the supabaseResponse so cookies are properly set
   return supabaseResponse;
 }

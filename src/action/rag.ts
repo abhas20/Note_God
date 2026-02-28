@@ -10,14 +10,11 @@ export const uploadFileToDB = async (file: File) => {
     const { storage } = await createClient();
     const user = await getUser();
     if (!user) throw new Error("you must be logged in to upload a file");
-    if (file) {
-      if (file.size > 18 * 1024 * 1024) {
-        throw new Error("File size exceeds 18MB limit");
-      }
-      if (file.type !== "application/pdf") {
-        throw new Error("Only PDF files are allowed");
-      }
-    }
+    if (!file) throw new Error("No file provided");
+    if (file.size > 10 * 1024 * 1024)
+      throw new Error("File size exceeds 10MB limit");
+    if (file.type !== "application/pdf")
+      throw new Error("Only PDF files are allowed");
 
     const timestamp = Date.now();
     const uniquePath = `${user.id}/${timestamp}-${file.name}`;
@@ -105,6 +102,6 @@ export const deleteUserFile = async (fileId: string) => {
 
     return { success: true, errorMessage: null };
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };
