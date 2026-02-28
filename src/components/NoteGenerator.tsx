@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { makeNoteAction } from "@/action/note";
 
 type NoteGeneratorProps = {
   onGenerated: (text: string) => void;
@@ -24,60 +25,43 @@ export default function NoteGenerator({
   onGenerated,
   onSaveNote,
 }: NoteGeneratorProps) {
+  const [open, setOpen] = useState(false);
   const [noteTopic, setNoteTopic] = useState("");
-  const [submittedTopic, setSubmittedTopic] = useState<string>("");
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [textGenerated, setTextGenerated] = useState("");
+  const isDisabled = isLoading;
 
-  const [generationId, setGenerationId] = useState(0);
-
-  const textGenerated = usePollinationsText(submittedTopic, {
-    model: "mistral",
-    seed: 50,
-    systemPrompt: `You are an AI assistant who can generate notes on a given topic and
-          make sure that your answers are not too verbose and you speak succinctly. 
-          Your responses MUST be formatted in clean, pointed paragraphs WITHOUT using markdown.`,
-  });
-
-  useEffect(() => {
-    if (isLoading && textGenerated !== null) {
-      setIsDisabled(false);
+  const handleOpen = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setNoteTopic("");
+      setTextGenerated("");
       setIsLoading(false);
-      // console.log(textGenerated)
     }
-  }, [textGenerated]);
+  };
 
-  const handleGenerateNote = () => {
-    if (!noteTopic.trim() || noteTopic.trim() === submittedTopic) return;
-    // setSubmittedTopic(noteTopic.trim());
-    setIsDisabled(true);
-    setIsLoading(true);
-    setGenerationId((prev) => prev + 1);
-    setSubmittedTopic(`${noteTopic.trim()} [${generationId}]`);
+  const handleGenerateNote = async () => {
+    try {
+      setIsLoading(true);
+      setTextGenerated("");
+      const response = await makeNoteAction(noteTopic);
+      setTextGenerated(response || "No notes generated.");
+      onGenerated(response || "");
+      
+    }
+    catch (error) {
+      toast.error(
+        "An error occurred while generating notes. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveNote = () => {
-    if (!textGenerated || !submittedTopic) return;
-
-    setIsDisabled(true);
-    onGenerated(textGenerated);
     onSaveNote(textGenerated);
-    setNoteTopic("");
-    setOpen(false);
-    toast.success("Note saved successfully!", {
-      duration: 3000,
-      position: "top-right",
-    });
-  };
-
-  const handleOpen = (isOpen: boolean) => {
-    if (isOpen) {
-      setNoteTopic("");
-      setSubmittedTopic("");
-      setIsDisabled(false);
-    }
-    setOpen(isOpen);
+    toast.success("Note saved successfully!");
+    handleOpen(false);
   };
 
   return (
@@ -87,7 +71,8 @@ export default function NoteGenerator({
           Ask AI to generate Notes
         </Button>
       </DialogTrigger>
-      <DialogContent className="custom-scrollbar flex h-[85vh] max-w-4xl flex-col overflow-y-auto">
+
+      <DialogContent className="flex h-[85vh] max-w-4xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Create Notes with AI</DialogTitle>
           <DialogDescription>
@@ -96,14 +81,17 @@ export default function NoteGenerator({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
-          <p>Preview: </p>
-          <span className="mt-2 block text-sm text-gray-500">
+        {/* Scrollable Preview Section */}
+        <div className="custom-scrollbar flex-1 overflow-y-auto pr-2">
+          <p className="font-medium">Preview:</p>
+
+          <div className="mt-2 text-sm whitespace-pre-wrap text-gray-500">
             {isLoading ? "Thinking..." : textGenerated}
-          </span>
+          </div>
         </div>
 
-        <div className="mt-auto flex cursor-text flex-col gap-2 rounded-lg border p-4">
+        {/* Fixed Bottom Input Section */}
+        <div className="bg-background sticky bottom-0 mt-3 flex flex-col gap-2 rounded-lg border p-4">
           <Input
             placeholder="Write the topic to generate auto notes (example: climate change)"
             value={noteTopic}
@@ -122,7 +110,7 @@ export default function NoteGenerator({
             }}
           />
 
-          <div className="flex items-end justify-end space-x-4 align-middle">
+          <div className="flex items-end justify-end space-x-4">
             <Button
               onClick={handleGenerateNote}
               disabled={isDisabled || !noteTopic.trim()}
@@ -140,6 +128,7 @@ export default function NoteGenerator({
                 </>
               )}
             </Button>
+
             <Button
               onClick={handleSaveNote}
               disabled={isDisabled || !textGenerated}

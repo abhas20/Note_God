@@ -49,68 +49,6 @@ export const deleteNoteAction = async (noteId: string) => {
   }
 };
 
-// export const askAINoteAction = async (
-//   newQuestion: string[],
-//   response: string[],
-//   noteId: string,
-// ) => {
-//   const user = await getUser();
-//   if (!user) throw new Error("you must be logged in to ask ai questios");
-
-//   const notesCount = await prisma.notes.count({
-//     where: { authId: user.id },
-//   });
-
-//   const currNote = await prisma.notes.findFirst({
-//     where: { id: noteId, authId: user.id },
-//     select: { note: true, createdAt: true, updatedAt: true },
-//   });
-//   if (notesCount === 0 || !currNote) return "You don't have notes yet";
-
-//   const formatedNote = `
-//             Total Available Notes:${notesCount}
-//             User's Currently Opened Note:${currNote.note}
-//             Created At:${currNote.createdAt.toDateString()}
-//             Updated At:${currNote.updatedAt.toDateString()}
-//             `.trim();
-
-//   // console.log(formatedNote)
-//   const messages: ChatCompletionMessageParam[] = [
-//     {
-//       role: "developer",
-//       content: `
-//           You are a helpful assistant that answers questions about a user's notes.
-//           Assume all questions are related to the user's notes.
-//           Make sure that your answers are not too verbose and you speak succinctly.
-//           Your responses MUST be formatted in clean, valid HTML with proper structure.
-//           Use tags like <p>, <strong>, <em>, <ul>, <ol>, <li>, <h1> to <h6>, and <br> when appropriate.
-//           Do NOT wrap the entire response in a single <p> tag unless it's a single paragraph.
-//           Avoid inline styles, JavaScript, or custom attributes and use of markdown syntax.
-
-//           Rendered like this in JSX:
-//           <p dangerouslySetInnerHTML={{ __html: YOUR_RESPONSE }} />
-
-//           Here are the user's notes:
-//           ${formatedNote}
-//           `,
-//     },
-//   ];
-
-//   for (let i = 0; i < newQuestion.length; i++) {
-//     messages.push({ role: "user", content: newQuestion[i] });
-//     if (response.length > i) {
-//       messages.push({ role: "assistant", content: response[i] });
-//     }
-//   }
-
-//     const completion = await openai.chat.completions.create({
-//       model: "deepseek/deepseek-chat-v3.1:free",
-//       messages,
-//     });
-
-//   //   console.log(completion.choices[0].message.content)
-//   return completion.choices[0].message.content || "I am sorry a problem has occured";
-// };
 
 export const askAINoteAction = async (
   newQuestion: string[],
@@ -190,3 +128,86 @@ export const askAINoteAction = async (
     return "<p>Sorry, the AI could not generate a response.</p>";
   }
 };
+
+
+export const makeNoteAction = async (topic: string) => {
+  const user = await getUser();
+  if (!user) throw new Error("you must be logged in to make ai notes");
+
+  const systemMessage = `
+        You are an expert note-taking assistant.
+        Create detailed and organized notes on the given topic.
+        Use clear headings, subheadings, bullet points, and numbered lists.
+        Ensure accuracy and depth in the content.
+        Do NOT use markdown or include scripts, styles, or attributes.
+    `.trim();
+
+  try {
+    const completion = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      config: {
+        systemInstruction: systemMessage,
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `Create comprehensive notes on the topic: ${topic}` }],
+        },
+      ],
+    });
+
+    const aiGeneratedNote = completion.text ?? "<p>Sorry, something went wrong.</p>";
+
+    return aiGeneratedNote;
+  }
+  catch (error) {
+    console.log("Make Note AI error: ", error);
+    handleError(error);
+    return "<p>Sorry, the AI could not generate the notes.</p>";
+  }
+}
+
+export async function generateImagePrompt(noteId : string) {
+
+  const user = await getUser();
+  if (!user) throw new Error("you must be logged in to generate image prompts");
+
+  const currNote = await prisma.notes.findFirst({
+    where: { id: noteId, authId: user.id },
+    select: { note: true },
+  });
+  if (!currNote) return "You don't have notes yet";
+
+  const systemMessage =
+    `You are an expert image prompt generator.
+     Create a detailed and vivid image prompt based on the user's notes.
+     Keep the prompt concise, ideally under 30 words.
+     The prompt should be descriptive and suitable for AI image generation models.
+     Respond ONLY with the image prompt text, without any additional commentary.
+     Here are the user's notes:
+     ${currNote.note}`.trim();
+
+  try {
+    const completion = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      config: {
+        systemInstruction: systemMessage,
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: "Generate an image prompt based on my notes." }],
+        },
+      ],
+    });
+    console.log(completion.text);
+
+    return completion.text ?? "A beautiful landscape with mountains and a river.";
+  }
+  catch (error) {
+    console.log("Image Prompt AI error: ", error);
+    handleError(error);
+    return "A beautiful landscape with mountains and a river.";
+  }
+  
+}
