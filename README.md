@@ -220,9 +220,16 @@ npm run all
 ### 10. Run using Docker(Optional)
 
 **Ensure env files are created**
+- (For Development)
 
 ```
-docker compose up --build -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+```
+
+- (For Production)
+
+```
+docker-compose up --build -d
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.

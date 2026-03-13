@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  note-god:
+    command: sh -c "npx prisma generate && npm run dev"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next 
+
+  workers:
+    # Switch back to tsx for development
+    command: npm run dev:workers
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  socket-server:
+    # Switch back to nodemon
+    command: npm run dev
+    volumes:
+      - ./socket-server:/app
+      - /app/node_modules
