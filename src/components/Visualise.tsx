@@ -13,7 +13,6 @@ import { DownloadIcon, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { InferenceClient } from "@huggingface/inference";
 
-const hfClient = new InferenceClient(process.env.NEXT_PUBLIC_HF_API_TOKEN!);
 const HF_MODELS = {
   "flux-fast": "black-forest-labs/FLUX.1-schnell",
   "sdxl": "stabilityai/stable-diffusion-xl-base-1.0",
@@ -35,24 +34,6 @@ function sanitizeFilename(name: string) {
   return s || "visualisation";
 }
 
-function toBlobFromResult(result: any, defaultMime = "image/png"): Blob {
-  // If it's already a Blob
-  if (result instanceof Blob) return result;
-
-  // ArrayBuffer
-  if (result instanceof ArrayBuffer) return new Blob([result], { type: defaultMime });
-
-  // TypedArray (Uint8Array etc.)
-  // if (ArrayBuffer.isView(result)) return new Blob([result.buffer], { type: defaultMime });
-
-  // Sometimes payload is { data: Uint8Array } or similar
-  if (result && (result.data instanceof Uint8Array || ArrayBuffer.isView(result.data))) {
-    const view = result.data;
-    return new Blob([view.buffer || view], { type: defaultMime });
-  }
-
-  throw new Error("Unsupported image result type");
-}
 
 export default function Visualise() {
   const [parameter, setParameter] = useState<ImgParameter>({
@@ -89,30 +70,35 @@ export default function Visualise() {
     setImageUrl(null);
 
     try {
-      const result = await hfClient.textToImage({
-        model: HF_MODELS[parameter.model],
-        inputs: `Explain ${prompt} in a detailed and visually descriptive manner.`,
-        parameters: {
+      // Send the request to your CUSTOM NEXT.JS BACKEND
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: HF_MODELS[parameter.model as keyof typeof HF_MODELS],
+          prompt: `Explain ${prompt} in a detailed and visually descriptive manner.`,
           width: parameter.width,
           height: parameter.height,
-          num_inference_steps: parameter.model==="lightning"? 5 : 25,
-          negative_prompt: "blurry, low quality, deformed, distorted, disfigured",
-        },
-        provider: "hf-inference",
+          num_inference_steps: parameter.model === "lightning" ? 5 : 25,
+        }),
       });
 
-      if (!result) throw new Error("Empty response from image API");
-      console.log(result);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to generate image");
+      }
 
-      const blob = toBlobFromResult(result, "image/png"); 
+      // Automatically convert the server response into an image blob!
+      const blob = await response.blob(); 
       const objUrl = URL.createObjectURL(blob);
+      
       previousUrlRef.current = objUrl;
       setImageUrl(objUrl);
 
       toast.success("Image generated successfully!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generation error:", error);
-      toast.error("Failed to generate image");
+      toast.error(error.message || "Failed to generate image");
     } finally {
       setIsLoading(false);
     }

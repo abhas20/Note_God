@@ -2,8 +2,8 @@ import { Server } from "socket.io";
 import { Redis } from "ioredis";
 
 const RedisConfig = {
-  host: process.env.REDIS_HOST || "localhost", //when not using docker
-  // host: process.env.REDIS_HOST || "redis",   //when using docker
+  // host: process.env.REDIS_HOST || "localhost", //when not using docker
+  host: process.env.REDIS_HOST || "redis",   //when using docker
   port: Number(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || "psswrd",
 };

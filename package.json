@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "npx prisma generate && npx prisma migrate deploy && next build",
-    "build:worker": "npx tsc src/worker/fileProcessor.ts --outDir dist/worker",
+    "start:worker": "npx tsx src/worker/fileProcessor.ts",
     "dev:workers": "tsx src/worker/fileProcessor.ts",
     "all": "npm run dev & npm run dev:workers",
     "start": "next start",

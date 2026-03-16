@@ -4,6 +4,7 @@ socket-server/node_modules/
 dist/
 socket-server/dist/
 next/
+.next/
 
 # Ignore Dockerfile and .dockerignore (to prevent copying into the image)
 dockerfile
