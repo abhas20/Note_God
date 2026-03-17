@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SOCKET_SERVER_URL=${NEXT_PUBLIC_SOCKET_SERVER_URL}
     container_name: note-god
     ports:
       - "3000:3000"

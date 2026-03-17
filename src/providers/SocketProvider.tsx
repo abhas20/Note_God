@@ -80,7 +80,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   }, []);
 
   const socketServerUrl =
-    process.env.SOCKET_SERVER_URL || "http://localhost:4000";
+    process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || "http://localhost:4000";
 
   useEffect(() => {
     const _socket = io(socketServerUrl, {

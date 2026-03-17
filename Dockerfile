@@ -14,12 +14,15 @@ ENV REDIS_PORT=6379
 ENV REDIS_PASSWORD="psswrd"
 ENV GEMINI_API_KEY="dummy_key"
 ENV QDRANT_URL="http://qdrant:6333"
-ENV HF_API_TOKRN="dummy_token"
+ENV HF_API_TOKEN="dummy_token"
+
+ARG NEXT_PUBLIC_SOCKET_SERVER_URL
+ENV NEXT_PUBLIC_SOCKET_SERVER_URL=$NEXT_PUBLIC_SOCKET_SERVER_URL
 
 # 1. Generate Prisma Client
 RUN npx prisma generate
 
-# 2. CHANGED: Run Next.js build directly (skips the migrate deploy step)
+# 2.Next.js build  
 RUN npx next build
 
 # 3. Build your worker
