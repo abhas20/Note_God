@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { InferenceClient } from "@huggingface/inference";
 import { generateImagePrompt } from "@/action/note";
 
-const hfClient = new InferenceClient(process.env.NEXT_PUBLIC_HF_API_TOKEN!);
 
 const HF_MODELS = {
   "flux-fast": "black-forest-labs/FLUX.1-schnell",
@@ -37,26 +36,6 @@ function sanitizeFilename(name: string) {
   return s || "visualisation";
 }
 
-function toBlobFromResult(result: any, defaultMime = "image/png"): Blob {
-  // If it's already a Blob
-  if (result instanceof Blob) return result;
-
-  // ArrayBuffer
-  if (result instanceof ArrayBuffer)
-    return new Blob([result], { type: defaultMime });
-
-  if (
-    result &&
-    (result.data instanceof Uint8Array || ArrayBuffer.isView(result.data))
-  ) {
-    const view = result.data;
-    return new Blob([view.buffer || view], { type: defaultMime });
-  }
-
-  throw new Error("Unsupported image result type");
-}
-
-
 
 export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
 
@@ -65,42 +44,56 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
     const [isGenerating, setIsGenerating] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>("");
 
-    const handleGenerateImage = async()=>{
-        setIsGenerating(true);
-        setImageUrl("");
-        try {
-            const imgPrompt = await generateImagePrompt(noteId);
-            if(!imgPrompt){
-                toast.error("Failed to generate image prompt from note.");
-                setIsGenerating(false);
-                return;
-            }
-            setPrompt(imgPrompt);
+    useEffect(() => {
+    return () => {
+      if (imageUrl && imageUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
 
-            const response = await hfClient.textToImage({
-                model: HF_MODELS[model],
-                inputs: imgPrompt,
-                parameters: {
-                    guidance_scale: 7.5,
-                    num_inference_steps: 50,
-                },
-                provider: "hf-inference",
-            });
-            
-            const blob = toBlobFromResult(response);
-            const url = URL.createObjectURL(blob);
-            setImageUrl(url);
-        }
-        catch (error) {
-            console.error("Image generation error:", error);
-            toast.error("Failed to generate image. Please try again.");
-        }
-        finally {
-            setIsGenerating(false);
-        }
+  const handleGenerateImage = async () => {
+    setIsGenerating(true);
+    setImageUrl("");
+
+    try {
+      const imgPrompt = await generateImagePrompt(noteId);
+      if (!imgPrompt) {
+        toast.error("Failed to generate image prompt from note.");
+        setIsGenerating(false);
+        return;
+      }
+      setPrompt(imgPrompt);
+
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: HF_MODELS[model as keyof typeof HF_MODELS],
+          prompt: imgPrompt,
+          width: 512,
+          height: 512,
+          num_inference_steps: model === "lightning" ? 5 : 50,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to generate image on server");
+      }
+
+      // Convert the server's binary response directly to a blob URL
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setImageUrl(url);
+
+    } catch (error: any) {
+      console.error("Image generation error:", error);
+      toast.error(error.message || "Failed to generate image. Please try again.");
+    } finally {
+      setIsGenerating(false);
     }
-
-
+  };
 
   const handleDownloadImage = () => {
     if (!imageUrl) return;
