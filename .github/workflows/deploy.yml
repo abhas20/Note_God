@@ -5,30 +5,30 @@ on:
     branches:
       - main
 
-  jobs:
-    deploy:
-      runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Deploy to AWS EC2
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_USERNAME }}
-            key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
 
-            script: |
-              # Navigate to the application directory
-              cd /home/ubuntu/Note_God
+          script: |
+            # Navigate to the application directory
+            cd /home/ubuntu/Note_God
 
-              # Pull the latest changes from the repository
-              git pull origin main
+            # Pull the latest changes from the repository
+            git pull origin main
 
-              #Docker build and run commands
-              docker compose up -d --build
+            #Docker build and run commands
+            docker compose up -d --build
 
-              # Clean up unused Docker images
-              docker image prune -f
+            # Clean up unused Docker images
+            docker image prune -f
