@@ -1,53 +1,53 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { Card, CardContent } from "./ui/card";
-import { FileText, Loader2, TrashIcon } from "lucide-react";
-import { Button } from "./ui/button";
-import { FileUploads } from "@prisma/client";
-import { toast } from "sonner";
+import React, { useState } from 'react'
+import { Card, CardContent } from './ui/card'
+import { FileText, Loader2, TrashIcon } from 'lucide-react'
+import { Button } from './ui/button'
+import { FileUploads } from '@prisma/client'
+import { toast } from 'sonner'
 
 type Props = {
-  files: FileUploads[];
-  fetchFiles?: () => Promise<void>;
-};
+  files: FileUploads[]
+  fetchFiles?: () => Promise<void>
+}
 
 const FileLayout = ({ files, fetchFiles }: Props) => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handleDeleteFiles = async (file: FileUploads) => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await fetch("/api/delete-files", {
-        method: "DELETE",
+      const response = await fetch('/api/delete-files', {
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           fileId: file.id,
-          fileName: file.fileName.substring(file.fileName.indexOf("/") + 1),
+          fileName: file.fileName.substring(file.fileName.indexOf('/') + 1),
         }),
-      });
+      })
 
       if (response.ok) {
         console.log(
-          "File and vectors deleted successfully for file:",
+          'File and vectors deleted successfully for file:',
           file.fileName,
-        );
-        toast.success("File deleted successfully");
-        await fetchFiles?.();
+        )
+        toast.success('File deleted successfully')
+        await fetchFiles?.()
       } else {
-        const data = await response.json();
-        console.log("Error in deleting file:", data.errorMessage);
-        toast.error("Error in deleting file: " + data.errorMessage);
+        const data = await response.json()
+        console.log('Error in deleting file:', data.errorMessage)
+        toast.error('Error in deleting file: ' + data.errorMessage)
       }
     } catch (error) {
-      console.log("File Cannot be deleted");
-      toast.error("Error in deleting file");
+      console.log('File Cannot be deleted', error)
+      toast.error('Error in deleting file')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,8 +65,8 @@ const FileLayout = ({ files, fetchFiles }: Props) => {
               <div className="truncate">
                 <p className="text-foreground truncate text-sm font-medium">
                   {file.fileName.substring(
-                    file.fileName.indexOf("/") + 15,
-                  )}{" "}
+                    file.fileName.indexOf('/') + 15,
+                  )}{' '}
                 </p>
               </div>
             </div>
@@ -78,7 +78,7 @@ const FileLayout = ({ files, fetchFiles }: Props) => {
               asChild
               className="shrink-0"
               onClick={async () => {
-                await handleDeleteFiles(file);
+                await handleDeleteFiles(file)
               }}
             >
               {loading ? (
@@ -91,7 +91,7 @@ const FileLayout = ({ files, fetchFiles }: Props) => {
         </Card>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default FileLayout;
+export default FileLayout

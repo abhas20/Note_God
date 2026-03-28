@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,43 +9,43 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "./ui/button";
-import { Loader2, Trash2 } from "lucide-react";
-import { useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
-import { deleteNoteAction } from "@/action/note";
+} from '@/components/ui/alert-dialog'
+import { Button } from './ui/button'
+import { Loader2, Trash2 } from 'lucide-react'
+import { useTransition } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
+import { deleteNoteAction } from '@/action/note'
 
 type Prop = {
-  noteId: string;
-  deletenoteLocally: (noteId: string) => void;
-};
+  noteId: string
+  deletenoteLocally: (noteId: string) => void
+}
 
 export default function DeleteNoteButton({ noteId, deletenoteLocally }: Prop) {
-  const router = useRouter();
-  const noteIdParam = useSearchParams().get("noteId") || "";
+  const router = useRouter()
+  const noteIdParam = useSearchParams().get('noteId') || ''
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
   const handleDeleteNote = () => {
     startTransition(async () => {
-      const { errorMessage } = await deleteNoteAction(noteId);
+      const { errorMessage } = await deleteNoteAction(noteId)
 
       if (!errorMessage) {
-        toast.success("Deleted", {
-          description: "Note Deleted Successfully",
+        toast.success('Deleted', {
+          description: 'Note Deleted Successfully',
           duration: 3000,
-        });
-        deletenoteLocally(noteId);
-        if (noteId === noteIdParam) router.replace("/");
+        })
+        deletenoteLocally(noteId)
+        if (noteId === noteIdParam) router.replace('/')
       } else {
-        toast.success("Error", {
+        toast.success('Error', {
           description: errorMessage,
           duration: 3000,
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <AlertDialog>
@@ -71,10 +71,10 @@ export default function DeleteNoteButton({ noteId, deletenoteLocally }: Prop) {
             onClick={handleDeleteNote}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-24"
           >
-            {isPending ? <Loader2 className="animate-spin" /> : "DELETE"}
+            {isPending ? <Loader2 className="animate-spin" /> : 'DELETE'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

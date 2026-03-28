@@ -10,5 +10,5 @@ export default function AuthCodeErrorPage() {
         Back to login
       </a>
     </div>
-  );
+  )
 }

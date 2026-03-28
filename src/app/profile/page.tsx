@@ -1,97 +1,98 @@
-"use client";
+'use client'
 
-import { getCurrentUser, updateUserProfile } from "@/action/user";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { handleError } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { getCurrentUser, updateUserProfile } from '@/action/user'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import { handleError } from '@/lib/utils'
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 type User = {
-  email: string;
-  imgUrl: string | null;
-};
+  email: string
+  imgUrl: string | null
+}
 
 export default function Page() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isUpdating, setUpdating] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [editMode, setEditMode] = useState(false);
-  const [newImgUrl, setNewImgUrl] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isUpdating, setUpdating] = useState<boolean>(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [newImgUrl, setNewImgUrl] = useState('')
 
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const response = await getCurrentUser();
-        if ("errorMessage" in response) throw new Error(response.errorMessage);
+        const response = await getCurrentUser()
+        if ('errorMessage' in response) throw new Error(response.errorMessage)
 
-        const { currUser } = response;
+        const { currUser } = response
         if (!currUser) {
-          toast.error("Error", {
-            description: "No user found.",
+          toast.error('Error', {
+            description: 'No user found.',
             duration: 2000,
-          });
-          setUser(null);
+          })
+          setUser(null)
         } else {
-          setUser({ email: currUser.email, imgUrl: currUser.imgUrl });
-          setNewImgUrl(currUser.imgUrl ?? "");
+          setUser({ email: currUser.email, imgUrl: currUser.imgUrl })
+          setNewImgUrl(currUser.imgUrl ?? '')
         }
       } catch (error) {
-        const newError = handleError(error);
-        toast.error("Error", {
+        const newError = handleError(error)
+        toast.error('Error', {
           description: newError.errorMessage,
           duration: 2000,
-        });
-        console.error(error);
+        })
+        console.error(error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchUser();
-  }, []);
+    fetchUser()
+  }, [])
 
   const handleImgUpdate = async () => {
-    if (!user) return;
+    if (!user) return
 
     if (user.imgUrl === newImgUrl) {
-      setEditMode(false);
-      return; // No change
+      setEditMode(false)
+      return // No change
     }
 
-    setUpdating(true);
+    setUpdating(true)
     try {
-      const response = await updateUserProfile(user.email, newImgUrl);
-      if ("errorMessage" in response) throw new Error(response.errorMessage);
+      const response = await updateUserProfile(user.email, newImgUrl)
+      if ('errorMessage' in response) throw new Error(response.errorMessage)
 
-      const { updatedUser } = response;
+      const { updatedUser } = response
       if (!updatedUser) {
-        toast.error("Error", {
-          description: "Failed to update user profile.",
+        toast.error('Error', {
+          description: 'Failed to update user profile.',
           duration: 2000,
-        });
-        return;
+        })
+        return
       }
 
-      setUser({ email: updatedUser.email, imgUrl: updatedUser.imgUrl });
-      toast.success("Profile updated successfully", { duration: 2000 });
+      setUser({ email: updatedUser.email, imgUrl: updatedUser.imgUrl })
+      toast.success('Profile updated successfully', { duration: 2000 })
     } catch (error) {
-      const newError = handleError(error);
-      toast.error("Error", {
+      const newError = handleError(error)
+      toast.error('Error', {
         description: newError.errorMessage,
         duration: 2000,
-      });
-      console.error(error);
+      })
+      console.error(error)
     } finally {
-      setUpdating(false);
-      setEditMode(false);
+      setUpdating(false)
+      setEditMode(false)
     }
-  };
+  }
 
   return isLoading ? (
     <Loader2 className="mx-auto mt-20 animate-spin" />
@@ -103,10 +104,10 @@ export default function Page() {
         </CardTitle>
       </CardHeader>
 
-      <img
+      <Image
         src={
           user.imgUrl ??
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9pU5Uo_89gxknb72fs5xpyJYH6_cGdC7FnQ&s"
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9pU5Uo_89gxknb72fs5xpyJYH6_cGdC7FnQ&s'
         }
         className="mx-auto mb-4 h-24 w-24 rounded-full border-2 border-amber-400 object-cover shadow-md"
         alt="Profile"
@@ -127,13 +128,13 @@ export default function Page() {
               onClick={handleImgUpdate}
               disabled={isUpdating}
             >
-              {isUpdating ? "Saving..." : "Save"}
+              {isUpdating ? 'Saving...' : 'Save'}
             </Button>
             <Button
               variant="outline"
               onClick={() => {
-                setEditMode(false);
-                setNewImgUrl(user?.imgUrl ?? ""); // Reset to original
+                setEditMode(false)
+                setNewImgUrl(user?.imgUrl ?? '') // Reset to original
               }}
               disabled={isUpdating}
             >
@@ -153,16 +154,16 @@ export default function Page() {
 
       <p className="text-center text-lg font-semibold">{user.email}</p>
 
-      <Button variant={"outline"} onClick={() => router.push("/")}>
+      <Button variant={'outline'} onClick={() => router.push('/')}>
         Go Back
       </Button>
     </Card>
   ) : (
     <div className="mx-auto mt-10 max-w-sm rounded border p-4 text-center shadow">
       <p className="text-lg font-semibold">No user found.</p>
-      <Button variant={"outline"} onClick={() => router.push("/")}>
+      <Button variant={'outline'} onClick={() => router.push('/')}>
         Go Back
       </Button>
     </div>
-  );
+  )
 }

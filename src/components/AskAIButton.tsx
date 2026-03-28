@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { User } from "@supabase/supabase-js";
+import { User } from '@supabase/supabase-js'
 import {
   Dialog,
   DialogContent,
@@ -8,88 +8,88 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "./ui/button";
-import { useRef, useState, useTransition, Fragment } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowUpIcon } from "lucide-react";
-import { Textarea } from "./ui/textarea";
-import { askAINoteAction } from "@/action/note";
-import "@/style/ai-response.css";
+} from '@/components/ui/dialog'
+import { Button } from './ui/button'
+import { useRef, useState, useTransition, Fragment } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ArrowUpIcon } from 'lucide-react'
+import { Textarea } from './ui/textarea'
+import { askAINoteAction } from '@/action/note'
+import '@/style/ai-response.css'
 
 type Props = {
-  user: User | null;
-};
+  user: User | null
+}
 
 export default function AskAIButton({ user }: Props) {
   // console.log(user?.email);
-  const [open, setOpen] = useState(false);
-  const [questions, setQuestions] = useState("");
-  const [questionText, setQuestionText] = useState<string[]>([]);
-  const [response, setResponse] = useState<string[]>([]);
+  const [open, setOpen] = useState(false)
+  const [questions, setQuestions] = useState('')
+  const [questionText, setQuestionText] = useState<string[]>([])
+  const [response, setResponse] = useState<string[]>([])
 
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
-  const textRef = useRef<HTMLTextAreaElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const handleInput = () => {
-    const textArea = textRef.current;
-    if (!textArea) return;
-    textArea.style.height = "auto";
-    textArea.style.height = `${textArea.scrollHeight}px`;
-  };
+    const textArea = textRef.current
+    if (!textArea) return
+    textArea.style.height = 'auto'
+    textArea.style.height = `${textArea.scrollHeight}px`
+  }
   const handleClickInput = () => {
-    textRef.current?.focus();
-  };
+    textRef.current?.focus()
+  }
 
-  const noteId = useSearchParams().get("noteId") || "";
+  const noteId = useSearchParams().get('noteId') || ''
 
   const handleSubmit = () => {
-    if (questions.trim() === "") return;
+    if (questions.trim() === '') return
 
-    const newQuestion = [...questionText, questions];
-    setQuestionText(newQuestion);
-    setQuestions("");
-    setTimeout(scrollToBottom, 200);
+    const newQuestion = [...questionText, questions]
+    setQuestionText(newQuestion)
+    setQuestions('')
+    setTimeout(scrollToBottom, 200)
 
     startTransition(async () => {
-      const responses = await askAINoteAction(newQuestion, response, noteId);
+      const responses = await askAINoteAction(newQuestion, response, noteId)
       // Ensure responses is a string before adding to state
       setResponse((prev) => [
         ...prev,
-        typeof responses === "string" ? responses : JSON.stringify(responses),
-      ]);
-      setTimeout(scrollToBottom, 100);
-    });
-  };
+        typeof responses === 'string' ? responses : JSON.stringify(responses),
+      ])
+      setTimeout(scrollToBottom, 100)
+    })
+  }
   const scrollToBottom = () => {
     contentRef.current?.scrollTo({
       top: contentRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  };
+      behavior: 'smooth',
+    })
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
     }
-  };
+  }
 
   const handleOpen = (isOpen: boolean) => {
     if (!user) {
-      router.push("/login");
+      router.push('/login')
     } else {
       if (isOpen) {
-        setQuestions("");
-        setQuestionText([]);
-        setResponse([]);
+        setQuestions('')
+        setQuestionText([])
+        setResponse([])
       }
-      setOpen(isOpen);
+      setOpen(isOpen)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
@@ -133,8 +133,8 @@ export default function AskAIButton({ user }: Props) {
             placeholder="Ask me anything..."
             className="placeholder:text-muted-foreground resize-none rounded-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{
-              minHeight: "0",
-              lineHeight: "normal",
+              minHeight: '0',
+              lineHeight: 'normal',
             }}
             rows={1}
             onInput={handleInput}
@@ -152,5 +152,5 @@ export default function AskAIButton({ user }: Props) {
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

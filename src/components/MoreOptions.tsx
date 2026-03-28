@@ -1,15 +1,15 @@
-"use client";
-import React, { useState } from "react";
-import { Button } from "./ui/button";
-import { LoaderPinwheel } from "lucide-react";
-import Link from "next/link";
+'use client'
+import React, { useState } from 'react'
+import { Button } from './ui/button'
+import { LoaderPinwheel } from 'lucide-react'
+import Link from 'next/link'
 
 function MoreOptions() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
-  };
+    setIsOpen((prev) => !prev)
+  }
 
   return (
     <div className="relative">
@@ -21,7 +21,7 @@ function MoreOptions() {
         className="flex items-center justify-center"
       >
         <LoaderPinwheel
-          className={`transition-transform duration-300 ${isOpen ? "rotate-90" : "rotate-0"}`}
+          className={`transition-transform duration-300 ${isOpen ? 'rotate-90' : 'rotate-0'}`}
         />
       </Button>
 
@@ -54,7 +54,7 @@ function MoreOptions() {
         </ul>
       )}
     </div>
-  );
+  )
 }
 
-export default MoreOptions;
+export default MoreOptions

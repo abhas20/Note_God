@@ -1,11 +1,10 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { usePollinationsText } from "@pollinations/react";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from 'react'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -13,56 +12,53 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { makeNoteAction } from "@/action/note";
+} from './ui/dialog'
+import { makeNoteAction } from '@/action/note'
 
 type NoteGeneratorProps = {
-  onGenerated: (text: string) => void;
-  onSaveNote: (text: string) => void;
-};
+  onGenerated: (text: string) => void
+  onSaveNote: (text: string) => void
+}
 
 export default function NoteGenerator({
   onGenerated,
   onSaveNote,
 }: NoteGeneratorProps) {
-  const [open, setOpen] = useState(false);
-  const [noteTopic, setNoteTopic] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [textGenerated, setTextGenerated] = useState("");
-  const isDisabled = isLoading;
+  const [open, setOpen] = useState(false)
+  const [noteTopic, setNoteTopic] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [textGenerated, setTextGenerated] = useState('')
+  const isDisabled = isLoading
 
   const handleOpen = (isOpen: boolean) => {
-    setOpen(isOpen);
+    setOpen(isOpen)
     if (!isOpen) {
-      setNoteTopic("");
-      setTextGenerated("");
-      setIsLoading(false);
+      setNoteTopic('')
+      setTextGenerated('')
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGenerateNote = async () => {
     try {
-      setIsLoading(true);
-      setTextGenerated("");
-      const response = await makeNoteAction(noteTopic);
-      setTextGenerated(response || "No notes generated.");
-      onGenerated(response || "");
-      
-    }
-    catch (error) {
-      toast.error(
-        "An error occurred while generating notes. Please try again.",
-      );
+      setIsLoading(true)
+      setTextGenerated('')
+      const response = await makeNoteAction(noteTopic)
+      setTextGenerated(response || 'No notes generated.')
+      onGenerated(response || '')
+    } catch (error) {
+      toast.error('An error occurred while generating notes. Please try again.')
+      console.error('Error in generating notes:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSaveNote = () => {
-    onSaveNote(textGenerated);
-    toast.success("Note saved successfully!");
-    handleOpen(false);
-  };
+    onSaveNote(textGenerated)
+    toast.success('Note saved successfully!')
+    handleOpen(false)
+  }
 
   return (
     <Dialog onOpenChange={handleOpen} open={open}>
@@ -86,7 +82,7 @@ export default function NoteGenerator({
           <p className="font-medium">Preview:</p>
 
           <div className="mt-2 text-sm whitespace-pre-wrap text-gray-500">
-            {isLoading ? "Thinking..." : textGenerated}
+            {isLoading ? 'Thinking...' : textGenerated}
           </div>
         </div>
 
@@ -99,13 +95,13 @@ export default function NoteGenerator({
             onChange={(e) => setNoteTopic(e.target.value)}
             className="placeholder:text-muted-foreground border-background resize-none rounded-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{
-              minHeight: "0",
-              lineHeight: "normal",
+              minHeight: '0',
+              lineHeight: 'normal',
             }}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleGenerateNote();
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleGenerateNote()
               }
             }}
           />
@@ -139,5 +135,5 @@ export default function NoteGenerator({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

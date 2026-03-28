@@ -1,6 +1,6 @@
-import Form from "@/components/Form";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import React from "react";
+import Form from '@/components/Form'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import React from 'react'
 
 export default function page() {
   return (
@@ -14,5 +14,5 @@ export default function page() {
         <Form type="signup" />
       </Card>
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   AlertDialog,
@@ -10,12 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+} from '@/components/ui/alert-dialog'
+import { Trash2 } from 'lucide-react'
 
 interface DeleteMessageDialogProps {
-  onConfirm: () => void;
-  isDeleting?: boolean;
+  onConfirm: () => void
+  isDeleting?: boolean
 }
 
 export function DeleteMessageDialog({
@@ -71,11 +71,11 @@ export function DeleteMessageDialog({
                 ></path>
               </svg>
             ) : (
-              "DELETE"
+              'DELETE'
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { Button } from "./ui/button";
+import { Button } from './ui/button'
 import {
   Dialog,
   DialogContent,
@@ -6,13 +6,26 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { Input } from "./ui/input";
-import { useState } from "react";
+} from './ui/dialog'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import { Input } from './ui/input'
+import { useState } from 'react'
 
 export default function NoteGeneratorScrap() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const handleGenerateNotes = async () => {
+    setIsLoading(true)
+    try {
+      // Simulate API call to generate notes
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Handle the response and update state as needed
+    } catch (error) {
+      console.error('Error generating notes:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <Dialog>
@@ -40,18 +53,18 @@ export default function NoteGeneratorScrap() {
             placeholder="Write the topic to search web and generate auto notes"
             className="placeholder:text-muted-foreground border-background resize-none rounded-none border-none bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{
-              minHeight: "0",
-              lineHeight: "normal",
+              minHeight: '0',
+              lineHeight: 'normal',
             }}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
               }
             }}
           />
 
           <div className="flex items-end justify-end space-x-4 align-middle">
-            <Button>
+            <Button onClick={handleGenerateNotes}>
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -69,5 +82,5 @@ export default function NoteGeneratorScrap() {
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

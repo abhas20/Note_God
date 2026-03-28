@@ -1,95 +1,96 @@
-"use client";
+'use client'
 
-import { getCurrentUser } from "@/action/user";
-import CommunityChat from "@/components/ComunityChat";
-import { DeleteMessageDialog } from "@/components/DeleteMessageDialog";
-import { useSocket } from "@/hooks/useSocket";
-import { Loader2 } from "lucide-react";
-import React, { useEffect, useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { getCurrentUser } from '@/action/user'
+import CommunityChat from '@/components/ComunityChat'
+import { DeleteMessageDialog } from '@/components/DeleteMessageDialog'
+import { useSocket } from '@/hooks/useSocket'
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState, useTransition } from 'react'
+import { toast } from 'sonner'
 
 function CommunityPage() {
   type CurrentUser = {
-    id: string;
-    email: string;
-    imgUrl: string | null;
-  };
+    id: string
+    email: string
+    imgUrl: string | null
+  }
 
-  const [user, setUser] = useState<CurrentUser>();
-  const [isFetchingUser, setIsFetchingUser] = useState<boolean>(true);
-  const [isPending, startTransition] = useTransition();
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [user, setUser] = useState<CurrentUser>()
+  const [isFetchingUser, setIsFetchingUser] = useState<boolean>(true)
+  const [isPending, startTransition] = useTransition()
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const { sendMessage, messages, deleteMessage, setMessages } = useSocket();
+  const { sendMessage, messages, deleteMessage, setMessages } = useSocket()
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+      scrollRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages]);
+  }, [messages])
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await getCurrentUser();
-        if ("currUser" in res && res.currUser) {
-          setUser(res.currUser);
-        } else if ("errorMessage" in res) {
-          console.error("Error fetching user:", res.errorMessage);
-          toast.error(res.errorMessage);
+        const res = await getCurrentUser()
+        if ('currUser' in res && res.currUser) {
+          setUser(res.currUser)
+        } else if ('errorMessage' in res) {
+          console.error('Error fetching user:', res.errorMessage)
+          toast.error(res.errorMessage)
         }
       } catch (error) {
-        console.error("Unexpected error:", error);
+        console.error('Unexpected error:', error)
       } finally {
-        setIsFetchingUser(false);
+        setIsFetchingUser(false)
       }
-    };
-    fetchUser();
-  }, []);
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     startTransition(async () => {
       try {
-        const response = await fetch("/api/fetch-prev-messages");
-        if (!response.ok) throw new Error("Failed to fetch");
+        const response = await fetch('/api/fetch-prev-messages')
+        if (!response.ok) throw new Error('Failed to fetch')
 
-        const data = await response.json();
+        const data = await response.json()
         // console.log(data);
 
-        setMessages(data.messages);
+        setMessages(data.messages)
       } catch (error) {
-        console.error("Failed to fetch previous messages", error);
-        toast.error("Could not load chat history");
+        console.error('Failed to fetch previous messages', error)
+        toast.error('Could not load chat history')
       }
-    });
-  }, [setMessages]);
+    })
+  }, [setMessages])
 
   const handleSentMessage = async (msg: string) => {
     if (!user?.id) {
-      toast.error("You must be logged in");
-      return;
+      toast.error('You must be logged in')
+      return
     }
 
-    await sendMessage(msg, user.id);
-  };
+    await sendMessage(msg, user.id)
+  }
 
   const handleDeleteMessage = async (messageId: string, senderId: string) => {
     if (!user?.id || senderId !== user.id) {
-      toast.error("You can only delete your own messages");
-      return;
+      toast.error('You can only delete your own messages')
+      return
     }
     try {
-      setIsDeleting(true);
-      await deleteMessage(messageId, senderId);
+      setIsDeleting(true)
+      await deleteMessage(messageId, senderId)
     } catch (error) {
-      console.error("Error deleting message:", error);
-      toast.error("Failed to delete message");
+      console.error('Error deleting message:', error)
+      toast.error('Failed to delete message')
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  };
+  }
 
   return (
     <div className="flex h-[85vh] flex-col">
@@ -109,37 +110,37 @@ function CommunityPage() {
             )}
 
             {messages.map((msg, index) => {
-              const isCurrentUser = msg.sender.id === user?.id;
+              const isCurrentUser = msg.sender.id === user?.id
               const userImage =
                 msg.sender.imgUrl ||
-                "https://th.bing.com/th/id/OIP.8REM5cu_BoBMq5wF85yYAwHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
-              const userEmail = msg.sender?.email || "Unknown";
+                'https://th.bing.com/th/id/OIP.8REM5cu_BoBMq5wF85yYAwHaHa?w=186&h=186&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'
+              const userEmail = msg.sender?.email || 'Unknown'
 
               return (
                 <div
                   key={msg.id || index}
-                  className={`flex w-full ${isCurrentUser ? "justify-end" : "justify-start"}`}
+                  className={`flex w-full ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`flex max-w-[70%] flex-col gap-1 ${isCurrentUser ? "items-end" : "items-start"}`}
+                    className={`flex max-w-[70%] flex-col gap-1 ${isCurrentUser ? 'items-end' : 'items-start'}`}
                   >
                     <div
                       className={`relative rounded-xl px-4 py-2 text-sm shadow-sm ${
                         isCurrentUser
-                          ? "rounded-tr-none bg-blue-600 text-white"
-                          : "rounded-tl-none bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+                          ? 'rounded-tr-none bg-blue-600 text-white'
+                          : 'rounded-tl-none bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
                       } `}
                     >
                       <div
-                        className={`flex items-center gap-2 ${isCurrentUser ? "flex-row-reverse" : "flex-row"}`}
+                        className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}
                       >
-                        <img
+                        <Image
                           src={userImage}
                           alt="Avatar"
                           className="h-8 w-8 rounded-full border border-gray-200 object-cover"
                         />
                         <span className="text-card-foreground/70 text-xs">
-                          {isCurrentUser ? "You" : userEmail}
+                          {isCurrentUser ? 'You' : userEmail}
                         </span>
                       </div>
                       <p className="leading-relaxed break-words">
@@ -159,7 +160,7 @@ function CommunityPage() {
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
             <div ref={scrollRef} />
           </div>
@@ -170,7 +171,7 @@ function CommunityPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default CommunityPage;
+export default CommunityPage

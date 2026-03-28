@@ -1,4 +1,4 @@
-import "../style/loader.css";
+import '../style/loader.css'
 
 export default function Loading() {
   return (
@@ -176,5 +176,5 @@ export default function Loading() {
         </g>
       </svg>
     </div>
-  );
+  )
 }

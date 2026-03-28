@@ -1,18 +1,18 @@
-import { getUser } from "@/auth/server";
+import { getUser } from '@/auth/server'
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupLabel,
-} from "@/components/ui/sidebar";
-import { prisma } from "@/db/prisma";
-import { Notes } from "@prisma/client";
-import Link from "next/link";
-import SidebarGroupContent from "./SidebarGroupContent";
+} from '@/components/ui/sidebar'
+import { prisma } from '@/db/prisma'
+import { Notes } from '@prisma/client'
+import Link from 'next/link'
+import SidebarGroupContent from './SidebarGroupContent'
 
 export async function AppSidebar() {
-  const user = await getUser();
-  let notes: Notes[] = [];
+  const user = await getUser()
+  let notes: Notes[] = []
 
   if (user) {
     notes = await prisma.notes.findMany({
@@ -20,9 +20,9 @@ export async function AppSidebar() {
         authId: user.id,
       },
       orderBy: {
-        updatedAt: "desc",
+        updatedAt: 'desc',
       },
-    });
+    })
   }
 
   return (
@@ -32,12 +32,12 @@ export async function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="text-center text-lg dark:text-red-200">
             {user ? (
-              "Your Notes"
+              'Your Notes'
             ) : (
               <p>
-                <Link href={"/login"} className="text-blue-500 hover:underline">
+                <Link href={'/login'} className="text-blue-500 hover:underline">
                   Login
-                </Link>{" "}
+                </Link>{' '}
                 to see your notes
               </p>
             )}
@@ -46,5 +46,5 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  );
+  )
 }

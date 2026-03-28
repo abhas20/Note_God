@@ -1,55 +1,55 @@
-"use client";
-import { forgetPassword } from "@/action/user";
-import { Button } from "@/components/ui/button";
+'use client'
+import { forgetPassword } from '@/action/user'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 
 function ForgotPasswordPage() {
-  const [email, setEmail] = useState<string>("");
-  const [isPending, startTransition] = useTransition();
+  const [email, setEmail] = useState<string>('')
+  const [isPending, startTransition] = useTransition()
 
   const handleSubmit = () => {
     startTransition(async () => {
       if (!email.trim()) {
-        toast.error("Error", {
-          description: "Email is required.",
+        toast.error('Error', {
+          description: 'Email is required.',
           duration: 3000,
-        });
-        return;
+        })
+        return
       } else {
-        const res = await forgetPassword(email.toLowerCase());
+        const res = await forgetPassword(email.toLowerCase())
         if (!res) {
-          toast.error("Error", {
-            description: "Something went wrong",
+          toast.error('Error', {
+            description: 'Something went wrong',
             duration: 3000,
-          });
-          return;
+          })
+          return
         }
         if (res.errorMessage) {
-          toast.error("Error", {
+          toast.error('Error', {
             description: res.errorMessage,
             duration: 3000,
-          });
+          })
         } else {
-          toast.success("Email sent successfully", {
-            description: "check your mail to reset password",
+          toast.success('Email sent successfully', {
+            description: 'check your mail to reset password',
             duration: 3000,
-          });
+          })
         }
       }
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center">
@@ -69,7 +69,7 @@ function ForgotPasswordPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setEmail(e.target.value)
               }}
               required
             />
@@ -88,12 +88,12 @@ function ForgotPasswordPage() {
             className="mt-5 w-full gap-4"
             onClick={handleSubmit}
           >
-            {isPending ? <Loader2 className="animate-spin" /> : "Submit"}
+            {isPending ? <Loader2 className="animate-spin" /> : 'Submit'}
           </Button>
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
 
-export default ForgotPasswordPage;
+export default ForgotPasswordPage

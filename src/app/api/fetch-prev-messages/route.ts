@@ -1,11 +1,11 @@
-import { prisma } from "@/db/prisma";
-import { NextResponse } from "next/server";
+import { prisma } from '@/db/prisma'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
     const res = await prisma.messages.findMany({
       orderBy: {
-        updatedAt: "asc",
+        updatedAt: 'asc',
       },
       take: 15,
       include: {
@@ -17,7 +17,7 @@ export async function GET() {
           },
         },
       },
-    });
+    })
 
     const formatMessages = res.map((msg) => ({
       id: msg.id,
@@ -26,14 +26,14 @@ export async function GET() {
       createdAt: msg.createdAt,
       updatedAt: msg.updatedAt,
       sender: msg.sender,
-    }));
+    }))
 
-    return NextResponse.json({ messages: formatMessages }, { status: 200 });
+    return NextResponse.json({ messages: formatMessages }, { status: 200 })
   } catch (error) {
-    console.log("Error in fetching messages", error);
+    console.error('Error in fetching messages', error)
     return NextResponse.json(
-      { error: "Error in fetching messages" },
+      { error: 'Error in fetching messages' },
       { status: 500 },
-    );
+    )
   }
 }

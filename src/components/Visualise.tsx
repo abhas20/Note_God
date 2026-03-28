@@ -1,133 +1,137 @@
-"use client";
-import React, { useEffect, useRef, useState } from "react";
-import { Input } from "./ui/input";
+'use client'
+import React, { useEffect, useRef, useState } from 'react'
+import { Input } from './ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Button } from "./ui/button";
-import { DownloadIcon, Loader2, Sparkles } from "lucide-react";
-import { toast } from "sonner";
-import { InferenceClient } from "@huggingface/inference";
+} from './ui/select'
+import { Button } from './ui/button'
+import { DownloadIcon, Loader2, Sparkles } from 'lucide-react'
+import { toast } from 'sonner'
+import Image from 'next/image'
 
 const HF_MODELS = {
-  "flux-fast": "black-forest-labs/FLUX.1-schnell",
-  "sdxl": "stabilityai/stable-diffusion-xl-base-1.0",
-  "sdxl-turbo": "ByteDance/Hyper-SD",
-  "lightning": "ByteDance/SDXL-Lightning",
-};
+  'flux-fast': 'black-forest-labs/FLUX.1-schnell',
+  sdxl: 'stabilityai/stable-diffusion-xl-base-1.0',
+  'sdxl-turbo': 'ByteDance/Hyper-SD',
+  lightning: ' stabilityai/stable-diffusion-2',
+}
 
-
-type ModelKey = keyof typeof HF_MODELS;
+type ModelKey = keyof typeof HF_MODELS
 
 interface ImgParameter {
-  width: number;
-  height: number;
-  model: ModelKey;
+  width: number
+  height: number
+  model: ModelKey
 }
 
 function sanitizeFilename(name: string) {
-  const s = name.trim().replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-_.]/g, "");
-  return s || "visualisation";
+  const s = name
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9\-_.]/g, '')
+  return s || 'visualisation'
 }
-
 
 export default function Visualise() {
   const [parameter, setParameter] = useState<ImgParameter>({
     width: 512,
     height: 512,
-    model: "sdxl",
-  });
+    model: 'sdxl',
+  })
 
-  const [prompt, setPrompt] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const previousUrlRef = useRef<string | null>(null);
+  const [prompt, setPrompt] = useState<string>('')
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const previousUrlRef = useRef<string | null>(null)
 
   useEffect(() => {
     return () => {
-      if (previousUrlRef.current && previousUrlRef.current.startsWith("blob:")) {
-        URL.revokeObjectURL(previousUrlRef.current);
-        previousUrlRef.current = null;
+      if (
+        previousUrlRef.current &&
+        previousUrlRef.current.startsWith('blob:')
+      ) {
+        URL.revokeObjectURL(previousUrlRef.current)
+        previousUrlRef.current = null
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const handleGenerateImage = async () => {
     if (!prompt.trim()) {
-      toast.error("Please enter a valid prompt");
-      return;
+      toast.error('Please enter a valid prompt')
+      return
     }
 
-    setIsLoading(true);
-    if (previousUrlRef.current && previousUrlRef.current.startsWith("blob:")) {
-      URL.revokeObjectURL(previousUrlRef.current);
-      previousUrlRef.current = null;
+    setIsLoading(true)
+    if (previousUrlRef.current && previousUrlRef.current.startsWith('blob:')) {
+      URL.revokeObjectURL(previousUrlRef.current)
+      previousUrlRef.current = null
     }
-    setImageUrl(null);
+    setImageUrl(null)
 
     try {
       // Send the request to your CUSTOM NEXT.JS BACKEND
-      const response = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: HF_MODELS[parameter.model as keyof typeof HF_MODELS],
           prompt: `Explain ${prompt} in a detailed and visually descriptive manner.`,
           width: parameter.width,
           height: parameter.height,
-          num_inference_steps: parameter.model === "lightning" ? 5 : 25,
+          num_inference_steps: parameter.model === 'lightning' ? 5 : 25,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || "Failed to generate image");
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.error || 'Failed to generate image')
       }
 
       // Automatically convert the server response into an image blob!
-      const blob = await response.blob(); 
-      const objUrl = URL.createObjectURL(blob);
-      
-      previousUrlRef.current = objUrl;
-      setImageUrl(objUrl);
+      const blob = await response.blob()
+      const objUrl = URL.createObjectURL(blob)
 
-      toast.success("Image generated successfully!");
+      previousUrlRef.current = objUrl
+      setImageUrl(objUrl)
+
+      toast.success('Image generated successfully!')
     } catch (error: any) {
-      console.error("Generation error:", error);
-      toast.error(error.message || "Failed to generate image");
+      console.error('Generation error:', error)
+      toast.error(error.message || 'Failed to generate image')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleDownloadImage = () => {
-    if (!imageUrl) return;
+    if (!imageUrl) return
 
     try {
-      const a = document.createElement("a");
-      a.href = imageUrl;
-      a.download = `${sanitizeFilename(prompt)}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const a = document.createElement('a')
+      a.href = imageUrl
+      a.download = `${sanitizeFilename(prompt)}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
 
-      toast.success("Image downloaded successfully!");
+      toast.success('Image downloaded successfully!')
     } catch (error) {
-      console.error("Download error:", error);
-      toast.error("Failed to download image");
+      console.error('Download error:', error)
+      toast.error('Failed to download image')
     }
-  };
+  }
 
   return (
     <div className="flex flex-col space-y-5">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-indigo-500" />
         <h3 className="text-accent-foreground text-sm font-semibold">
-          Generate Image 
+          Generate Image
         </h3>
       </div>
 
@@ -137,9 +141,9 @@ export default function Visualise() {
         value={prompt}
         onChange={(e) => setPrompt((e.target as HTMLInputElement).value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleGenerateImage();
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleGenerateImage()
           }
         }}
       />
@@ -183,14 +187,10 @@ export default function Visualise() {
               <SelectValue placeholder="Select model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="flux-fast">
-                FLUX Schnell 
-              </SelectItem>
+              <SelectItem value="flux-fast">FLUX Schnell</SelectItem>
               <SelectItem value="sdxl">SDXL Base</SelectItem>
               <SelectItem value="sdxl-turbo">SDXL Turbo</SelectItem>
-              <SelectItem value="lightning">
-                SDXL Lightning 
-              </SelectItem>
+              <SelectItem value="lightning">SDXL Lightning</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-muted-foreground mt-2 text-xs">
@@ -207,7 +207,7 @@ export default function Visualise() {
               Generating...
             </>
           ) : (
-            "Generate"
+            'Generate'
           )}
         </Button>
 
@@ -230,7 +230,7 @@ export default function Visualise() {
             <p className="text-sm">Just hold your patience...</p>
           </div>
         ) : imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt="Generated"
             className="h-auto max-w-full rounded-md object-contain shadow-lg"
@@ -240,5 +240,5 @@ export default function Visualise() {
         )}
       </div>
     </div>
-  );
+  )
 }

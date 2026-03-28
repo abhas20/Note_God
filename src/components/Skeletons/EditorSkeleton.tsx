@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function EditorSkeleton() {
   return (
@@ -22,5 +22,5 @@ export default function EditorSkeleton() {
         <Skeleton className="h-4 w-[80%]" />
       </div>
     </div>
-  );
+  )
 }

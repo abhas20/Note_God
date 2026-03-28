@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import "../style/globals.css";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
-import Header from "@/components/Header";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSideBar";
-import NoteProvider from "@/providers/NoteProvider";
-import { SocketProvider } from "@/providers/SocketProvider";
+import type { Metadata } from 'next'
+import '../style/globals.css'
+import { ThemeProvider } from 'next-themes'
+import { Toaster } from 'sonner'
+import Header from '@/components/Header'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/AppSideBar'
+import NoteProvider from '@/providers/NoteProvider'
+import { SocketProvider } from '@/providers/SocketProvider'
 
 export const metadata: Metadata = {
-  title: "Note_God",
-  description: "Full stack notes app ",
-};
+  title: 'Note_God',
+  description: 'Full stack notes app ',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -42,5 +42,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

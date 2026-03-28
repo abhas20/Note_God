@@ -18,18 +18,18 @@ const eslintConfig = [
   {
     rules: {
       "react/no-unescaped-entities": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "prettier/prettier": [
+      "@typescript-eslint/no-unused-vars": [
         "warn",
         {
-          endOfLine: "auto",
-          singleQuote: true,
-          semi: false,
-          trailingComma: "all",
-          printWidth: 80,
-          tabWidth: 2,
-        },
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
       ],
+
+      "eqeqeq": ["error", "always"],
+      "no-console": "off", // ["warn", { allow: ["warn", "error"] }],
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];

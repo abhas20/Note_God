@@ -1,122 +1,122 @@
-"use client";
+'use client'
 
-import { fetchUserFiles, uploadFileToDB } from "@/action/rag";
-import FileLayout from "@/components/FileLayout";
-import { Button } from "@/components/ui/button";
+import { fetchUserFiles, uploadFileToDB } from '@/action/rag'
+import FileLayout from '@/components/FileLayout'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileUploads } from "@prisma/client";
-import { Bot, User } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { FileUploads } from '@prisma/client'
+import { Bot, User } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 interface IMessage {
-  role: "user" | "assistant" | "system";
-  content?: string;
-  documents?: string[];
+  role: 'user' | 'assistant' | 'system'
+  content?: string
+  documents?: string[]
 }
 
 function ChatwithPdfpage() {
-  const [messages, setMessages] = useState<IMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [Pdffiles, setPdffiles] = useState<FileUploads[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([])
+  const [input, setInput] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [Pdffiles, setPdffiles] = useState<FileUploads[]>([])
 
-  const bottomEndRef = useRef<HTMLDivElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    bottomEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  const bottomEndRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    fetchFiles();
-  }, []);
+    bottomEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading])
+
+  useEffect(() => {
+    fetchFiles()
+  }, [])
 
   const fetchFiles = async () => {
     try {
       await fetchUserFiles().then(({ files, errorMessage }) => {
         if (errorMessage) {
-          console.log("Error while fetching files", errorMessage);
-          toast.error("Error fetching files: " + errorMessage);
+          console.log('Error while fetching files', errorMessage)
+          toast.error('Error fetching files: ' + errorMessage)
         } else {
-          setPdffiles(files);
+          setPdffiles(files)
         }
-      });
+      })
     } catch (error) {
-      console.log("An error occured while fetching files", error);
-      toast.error("An error occured while fetching files");
+      console.log('An error occured while fetching files', error)
+      toast.error('An error occured while fetching files')
     }
-  };
+  }
 
   const handleUpload = async () => {
-    if (!file) return;
-    setUploading(true);
+    if (!file) return
+    setUploading(true)
     try {
-      const { errorMessage } = await uploadFileToDB(file);
+      const { errorMessage } = await uploadFileToDB(file)
       if (errorMessage) {
-        console.log("error while uploading file", errorMessage);
-        toast.error("Error uploading file: " + errorMessage);
+        console.log('error while uploading file', errorMessage)
+        toast.error('Error uploading file: ' + errorMessage)
       } else {
-        toast.success("File uploaded successfully");
-        await fetchFiles();
+        toast.success('File uploaded successfully')
+        await fetchFiles()
       }
     } catch (error) {
-      console.log("An Error occured while uploading", error);
-      toast.error("An error occured while uploading the file");
+      console.log('An Error occured while uploading', error)
+      toast.error('An error occured while uploading the file')
     } finally {
-      setUploading(false);
-      setFile(null);
+      setUploading(false)
+      setFile(null)
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = ''
       }
     }
-  };
+  }
 
   const handleSend = async () => {
-    if (!input.trim()) return;
-    const userMessage: IMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setLoading(true);
+    if (!input.trim()) return
+    const userMessage: IMessage = { role: 'user', content: input }
+    setMessages((prev) => [...prev, userMessage])
+    setInput('')
+    setLoading(true)
     try {
-      const response = await fetch("/api/query-rag", {
-        method: "POST",
+      const response = await fetch('/api/query-rag', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ question: input }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok')
       }
 
-      const res = await response.json();
-      console.log(res);
+      const res = await response.json()
+      console.log(res)
       const assistantMessage: IMessage = {
-        role: "assistant",
+        role: 'assistant',
         content: res.answer.data,
         documents: res.answer.source,
-      };
+      }
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage])
     } catch (error) {
-      console.log("Error fetching RAG answer:", error);
-      toast.error("Error getting answer from PDF");
+      console.log('Error fetching RAG answer:', error)
+      toast.error('Error getting answer from PDF')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center p-6">
@@ -135,7 +135,7 @@ function ChatwithPdfpage() {
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
             <Button onClick={handleUpload} disabled={uploading}>
-              {uploading ? "Uploading..." : "Upload"}
+              {uploading ? 'Uploading...' : 'Upload'}
             </Button>
           </div>
 
@@ -149,14 +149,14 @@ function ChatwithPdfpage() {
                 <div
                   key={i}
                   className={`my-2 max-w-[80%] rounded-xl p-4 ${
-                    m.role === "user"
-                      ? "ml-auto bg-blue-200 text-blue-900"
-                      : m.role === "assistant"
-                        ? "bg-gray-200 text-gray-900"
-                        : "text-center text-sm text-gray-400"
+                    m.role === 'user'
+                      ? 'ml-auto bg-blue-200 text-blue-900'
+                      : m.role === 'assistant'
+                        ? 'bg-gray-200 text-gray-900'
+                        : 'text-center text-sm text-gray-400'
                   }`}
                 >
-                  {m.role === "assistant" ? (
+                  {m.role === 'assistant' ? (
                     <Bot className="mb-2" />
                   ) : (
                     <User className="mb-2" />
@@ -192,11 +192,11 @@ function ChatwithPdfpage() {
               placeholder="Ask something about your PDF..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               disabled={loading}
             />
             <Button onClick={handleSend} disabled={loading || !input.trim()}>
-              {loading ? "Thinking..." : "Send"}
+              {loading ? 'Thinking...' : 'Send'}
             </Button>
           </div>
         </CardContent>
@@ -205,7 +205,7 @@ function ChatwithPdfpage() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
 
-export default ChatwithPdfpage;
+export default ChatwithPdfpage

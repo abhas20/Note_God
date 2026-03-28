@@ -1,14 +1,15 @@
-import Link from "next/link";
-import { Button } from "./ui/button";
-import DarkModeToggle from "./ui/Darkmode";
-import Logout from "./Logout";
-import { getUser } from "@/auth/server";
-import { SidebarTrigger } from "./ui/sidebar";
-import MoreOptions from "./MoreOptions";
+import Link from 'next/link'
+import { Button } from './ui/button'
+import DarkModeToggle from './ui/Darkmode'
+import Logout from './Logout'
+import { getUser } from '@/auth/server'
+import { SidebarTrigger } from './ui/sidebar'
+import MoreOptions from './MoreOptions'
+import Image from 'next/image'
 
 export default async function Header() {
-  const user = await getUser();
-  const isUserLogged = user !== null;
+  const user = await getUser()
+  const isUserLogged = user !== null
 
   return (
     <header className="bg-popover text-primary rounded-2xl p-4 shadow-2xl shadow-amber-200 hover:shadow-orange-400">
@@ -16,8 +17,8 @@ export default async function Header() {
         {/* Left: Sidebar Trigger + Logo */}
         <div className="flex items-center gap-4">
           <SidebarTrigger />
-          <Link href={"/"} className="flex items-center gap-4">
-            <img
+          <Link href={'/'} className="flex items-center gap-4">
+            <Image
               src="./image.png"
               alt="notes"
               className="border-red size-10 rounded-full border"
@@ -52,5 +53,5 @@ export default async function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

@@ -1,31 +1,31 @@
-"use server";
-import { prisma } from "@/db/prisma";
-import { queue } from "@/lib/queue";
-import { handleError } from "@/lib/utils";
-import { createClient, getUser } from "@/auth/server";
+'use server'
+import { prisma } from '@/db/prisma'
+import { queue } from '@/lib/queue'
+import { handleError } from '@/lib/utils'
+import { createClient, getUser } from '@/auth/server'
 
 export const uploadFileToDB = async (file: File) => {
-  if (!file) throw new Error("No file provided");
+  if (!file) throw new Error('No file provided')
   try {
-    const { storage } = await createClient();
-    const user = await getUser();
-    if (!user) throw new Error("you must be logged in to upload a file");
-    if (!file) throw new Error("No file provided");
+    const { storage } = await createClient()
+    const user = await getUser()
+    if (!user) throw new Error('you must be logged in to upload a file')
+    if (!file) throw new Error('No file provided')
     if (file.size > 10 * 1024 * 1024)
-      throw new Error("File size exceeds 10MB limit");
-    if (file.type !== "application/pdf")
-      throw new Error("Only PDF files are allowed");
+      throw new Error('File size exceeds 10MB limit')
+    if (file.type !== 'application/pdf')
+      throw new Error('Only PDF files are allowed')
 
-    const timestamp = Date.now();
-    const uniquePath = `${user.id}/${timestamp}-${file.name}`;
+    const timestamp = Date.now()
+    const uniquePath = `${user.id}/${timestamp}-${file.name}`
 
     const { data, error } = await storage
-      .from("User_pdfs")
-      .upload(uniquePath, file);
+      .from('User_pdfs')
+      .upload(uniquePath, file)
 
     if (error) {
-      console.log("Error while uploading");
-      throw error;
+      console.error('Error while uploading')
+      throw error
     }
 
     // console.log(data);
@@ -36,72 +36,72 @@ export const uploadFileToDB = async (file: File) => {
         fileUrl: data?.path,
         uploader: { connect: { id: user.id } },
       },
-    });
+    })
 
     // console.log(created);
 
-    await queue.add("process-file", {
+    await queue.add('process-file', {
       fileName: created.fileName,
       filePath: created.fileUrl,
       userId: user.id,
-    });
+    })
 
-    return { created, errorMessage: null };
+    return { created, errorMessage: null }
   } catch (error) {
-    return handleError(error);
+    return handleError(error)
   }
-};
+}
 
 export const fetchUserFiles = async () => {
   try {
-    const user = await getUser();
-    if (!user) throw new Error("You must be logged in to view your files");
+    const user = await getUser()
+    if (!user) throw new Error('You must be logged in to view your files')
     const files = await prisma.fileUploads.findMany({
       where: {
         uploaderId: user.id,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
-    });
-    return { files, errorMessage: null };
+    })
+    return { files, errorMessage: null }
   } catch (error) {
     return {
       files: [],
       errorMessage:
-        error instanceof Error ? error.message : "Something went wrong",
-    };
+        error instanceof Error ? error.message : 'Something went wrong',
+    }
   }
-};
+}
 
 export const deleteUserFile = async (fileId: string) => {
   try {
-    const user = await getUser();
-    if (!user) throw new Error("You must be logged in to delete a file");
+    const user = await getUser()
+    if (!user) throw new Error('You must be logged in to delete a file')
     const file = await prisma.fileUploads.findUnique({
       where: {
         id: fileId,
       },
-    });
-    if (!file) throw new Error("File not found");
+    })
+    if (!file) throw new Error('File not found')
     if (file.uploaderId !== user.id)
-      throw new Error("You are not authorized to delete this file");
-    const { storage } = await createClient();
-    const { error } = await storage.from("User_pdfs").remove([file.fileName]);
+      throw new Error('You are not authorized to delete this file')
+    const { storage } = await createClient()
+    const { error } = await storage.from('User_pdfs').remove([file.fileName])
 
     if (error) {
-      console.log("Error in deleting from storage", error);
-      throw error;
+      console.error('Error in deleting from storage', error)
+      throw error
     }
 
     await prisma.fileUploads.delete({
       where: {
         id: fileId,
       },
-    });
+    })
 
-    return { success: true, errorMessage: null };
+    return { success: true, errorMessage: null }
   } catch (error) {
-    return handleError(error);
+    return handleError(error)
   }
-};
+}
