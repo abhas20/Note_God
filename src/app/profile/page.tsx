@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { handleError } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -104,13 +103,15 @@ export default function Page() {
         </CardTitle>
       </CardHeader>
 
-      <Image
+      <img
         src={
           user.imgUrl ??
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9pU5Uo_89gxknb72fs5xpyJYH6_cGdC7FnQ&s'
         }
         className="mx-auto mb-4 h-24 w-24 rounded-full border-2 border-amber-400 object-cover shadow-md"
         alt="Profile"
+        width={96}
+        height={96}
       />
 
       {editMode ? (

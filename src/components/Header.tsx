@@ -19,8 +19,10 @@ export default async function Header() {
           <SidebarTrigger />
           <Link href={'/'} className="flex items-center gap-4">
             <Image
-              src="./image.png"
+              src="/image.png"
               alt="notes"
+              width={40}
+              height={40}
               className="border-red size-10 rounded-full border"
             />
             <h1 className="text-primary text-xl leading-6 font-bold sm:text-3xl sm:leading-8">

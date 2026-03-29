@@ -5,7 +5,6 @@ import CommunityChat from '@/components/ComunityChat'
 import { DeleteMessageDialog } from '@/components/DeleteMessageDialog'
 import { useSocket } from '@/hooks/useSocket'
 import { Loader2 } from 'lucide-react'
-import Image from 'next/image'
 import React, { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
@@ -134,7 +133,7 @@ function CommunityPage() {
                       <div
                         className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}
                       >
-                        <Image
+                        <img
                           src={userImage}
                           alt="Avatar"
                           className="h-8 w-8 rounded-full border border-gray-200 object-cover"
