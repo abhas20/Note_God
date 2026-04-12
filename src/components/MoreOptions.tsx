@@ -51,6 +51,13 @@ function MoreOptions() {
           >
             <li className="cursor-pointer hover:underline">Community Chat</li>
           </Link>
+          <Link
+            href="/quiz-mode"
+            className="block no-underline hover:text-amber-400"
+            onClick={handleToggle}
+          >
+            <li className="cursor-pointer hover:underline">Practice Quiz</li>
+          </Link>
         </ul>
       )}
     </div>

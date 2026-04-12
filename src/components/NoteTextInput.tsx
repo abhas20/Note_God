@@ -12,6 +12,7 @@ import { Button } from './ui/button'
 import { Sparkles, ChevronDown, ChevronUp, Eye, Pen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type Props = {
   noteId: string
@@ -93,21 +94,113 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
       </div>
 
       {/* Main Scrollable Content Area */}
-      {/* h-[60vh] sets a fixed height relative to viewport. overflow-y-auto enables scrolling */}
       <div className="bg-background relative h-[60vh] overflow-y-auto rounded-lg border border-gray-200 shadow-sm dark:border-gray-700">
         {mode === 'edit' ? (
           <Textarea
             value={noteText}
             onChange={handleUpdateNote}
             placeholder="Type your note here..."
-            // Removed fixed height (h-100) and added h-full min-h-full to fill the scroll container
             className="h-full min-h-full w-full resize-none border-0 bg-transparent p-6 font-mono text-lg text-gray-800 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 md:text-xl md:leading-8 lg:text-xl lg:leading-10 dark:text-gray-200"
           />
         ) : (
           <div className="prose dark:prose-invert max-w-none p-6">
-            {/* Added logic to show placeholder if empty in preview */}
             {noteText.trim() ? (
-              <ReactMarkdown>{noteText}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // Headings
+                  h1: ({ children }) => (
+                    <h1 className="mb-2 text-lg font-bold">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="mb-2 text-base font-semibold">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="mb-1 text-sm font-semibold">{children}</h3>
+                  ),
+
+                  // Paragraph
+                  p: ({ children }) => (
+                    <p className="mb-2 leading-relaxed last:mb-0">{children}</p>
+                  ),
+
+                  // Bold & italic
+                  strong: ({ children }) => (
+                    <strong className="font-semibold">{children}</strong>
+                  ),
+                  em: ({ children }) => <em className="italic">{children}</em>,
+
+                  // Inline code
+                  code: ({ children, className }) => {
+                    const isBlock = className?.includes('language-')
+                    return isBlock ? (
+                      <pre className="bg-muted my-2 overflow-x-auto rounded-md p-3 text-xs leading-relaxed">
+                        <code>{children}</code>
+                      </pre>
+                    ) : (
+                      <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">
+                        {children}
+                      </code>
+                    )
+                  },
+
+                  // Lists
+                  ul: ({ children }) => (
+                    <ul className="mb-2 ml-4 list-disc space-y-1">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="mb-2 ml-4 list-decimal space-y-1">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
+
+                  // Blockquote
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-muted-foreground/30 my-2 border-l-2 pl-3 italic opacity-80">
+                      {children}
+                    </blockquote>
+                  ),
+
+                  // Horizontal rule
+                  hr: () => <hr className="border-muted my-3" />,
+
+                  // Links
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline underline-offset-2 hover:opacity-80"
+                    >
+                      {children}
+                    </a>
+                  ),
+
+                  // Tables (from remark-gfm)
+                  table: ({ children }) => (
+                    <div className="my-2 overflow-x-auto rounded-md border">
+                      <table className="w-full text-xs">{children}</table>
+                    </div>
+                  ),
+                  th: ({ children }) => (
+                    <th className="bg-muted border-b px-3 py-2 text-left font-semibold">
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border-b px-3 py-2 last:border-0">
+                      {children}
+                    </td>
+                  ),
+                }}
+              >
+                {noteText}
+              </ReactMarkdown>
             ) : (
               <p className="text-gray-400 italic">Nothing to preview yet...</p>
             )}
@@ -127,9 +220,9 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
           <Button
             variant="outline"
             onClick={() => setShowVisualiser((v) => !v)}
-            className="flex items-center gap-2"
+            className="flex w-full items-center gap-2"
           >
-            <Sparkles className="h-4 w-4 text-indigo-500" />
+            <Sparkles className="h-5 w-4 text-indigo-500" />
             {showVisualiser ? 'Hide Visualiser' : 'Visualise Notes'}
             {showVisualiser ? (
               <ChevronUp className="ml-1 h-4 w-4" />

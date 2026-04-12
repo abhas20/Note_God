@@ -1,12 +1,12 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv'
 dotenv.config({
-  path: "./.env",
-});
-import { createServer } from "http";
-import app from "./app.js";
-import SocketServer from "./services/socket-server.js";
+  path: './.env',
+})
+import { createServer } from 'http'
+import app from './app.js'
+import SocketServer from './services/socket-server.js'
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT
 // try {
 //   console.log("DB_URL present?", !!process.env.DB_URL);
 //   await prisma.$connect();
@@ -20,14 +20,14 @@ const PORT = process.env.PORT;
 // }
 
 async function init() {
-  const socketServer = new SocketServer();
-  const httpServer = createServer(app);
+  const socketServer = new SocketServer()
+  const httpServer = createServer(app)
 
-  socketServer.io.attach(httpServer);
-  socketServer.initServer();
+  socketServer.io.attach(httpServer)
+  socketServer.initServer()
   httpServer.listen(PORT, () => {
-    console.log(`Socket server is running on port ${PORT}`);
-  });
+    console.log(`Socket server is running on port ${PORT}`)
+  })
 }
 
-init();
+init()
