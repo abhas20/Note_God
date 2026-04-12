@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   note-god:
@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next 
+      - /app/.next
 
   workers:
     # Switch back to tsx for development

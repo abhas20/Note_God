@@ -3,7 +3,9 @@
 import { getUser } from '@/auth/server'
 import { prisma } from '@/db/prisma'
 import { handleError } from '@/lib/utils'
-import gemini from '../../ai'
+import gemini, { googleAI } from '../../ai'
+import { generateText, Output } from 'ai'
+import z from 'zod'
 
 export const updateNoteAction = async (noteId: string, note: string) => {
   try {
@@ -137,7 +139,6 @@ export const makeNoteAction = async (topic: string) => {
         Create detailed and organized notes on the given topic.
         Use clear headings, subheadings, bullet points, and numbered lists.
         Ensure accuracy and depth in the content.
-        Do NOT use markdown or include scripts, styles, or attributes.
     `.trim()
 
   try {
@@ -207,5 +208,85 @@ export async function generateImagePrompt(noteId: string) {
     console.warn('Image Prompt AI error: ', error)
     handleError(error)
     return 'A beautiful landscape with mountains and a river.'
+  }
+}
+
+export async function generateQuizAction(noteId: string[]) {
+  const user = await getUser()
+  if (!user) throw new Error('you must be logged in to generate quizzes')
+
+  const currNote = await prisma.notes.findMany({
+    where: { id: { in: noteId }, authId: user.id },
+    select: { note: true },
+  })
+
+  if (!currNote || currNote.length === 0) return "You don't have notes yet"
+
+  const combinedNotes = currNote.map((n) => n.note).join('\n')
+  const sumarizedNotesResponse = await gemini.models.generateContent({
+    model: 'gemini-2.5-flash',
+    config: {
+      systemInstruction: `You are an expert summarizer.
+      Summarize the user's notes into a concise format that captures the key points and main ideas so that any LLM can generate a quiz on important points.
+      The summary should be clear and easy to understand, while retaining the essential information from the original notes.
+      Respond ONLY with the summary text, without any additional commentary.`,
+    },
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { text: `Generate a compact summary on my notes ${combinedNotes}` },
+        ],
+      },
+    ],
+  })
+  const sumarizedNotes = sumarizedNotesResponse.text ?? combinedNotes
+
+  const quizSchema = Output.object({
+    schema: z.object({
+      questionTitle: z.string().describe('The quiz question'),
+      questions: z
+        .array(
+          z.object({
+            questionText: z.string().describe('The quiz question'),
+            options: z
+              .array(z.string())
+              .length(4)
+              .describe('The answer options'),
+            correctAnswerIndex: z
+              .number()
+              .describe('The index of the correct answer (0-3)'),
+            correctAnswer: z.string().describe('The correct answer text'),
+            explanation: z
+              .string()
+              .describe('An explanation of the correct answer'),
+          }),
+        )
+        .min(3)
+        .max(5)
+        .describe('A list of quiz questions'),
+    }),
+  })
+
+  try {
+    const { output } = await generateText({
+      model: googleAI('gemini-2.5-flash'),
+      output: quizSchema,
+      temperature: 0.7,
+      prompt: `You are an expert quiz generator.
+            Create a quiz based on the user's notes.
+            The quiz should have a clear title and 3-5 questions.
+            Each question should have 4 answer options, with one correct answer.
+            Provide an explanation for the correct answer.
+            Respond ONLY with the quiz data in the specified JSON format, without any additional commentary.
+            Here are the user's notes:
+            ${sumarizedNotes}`.trim(),
+    })
+
+    return { questionTitle: output.questionTitle, questions: output.questions }
+  } catch (error) {
+    console.warn('Quiz Generation AI error: ', error)
+    handleError(error)
+    return 'Sorry, the AI could not generate the quiz.'
   }
 }
