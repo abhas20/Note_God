@@ -1,8 +1,6 @@
-// src/app/api/generate-image/route.ts
 import { InferenceClient } from '@huggingface/inference'
 import { NextResponse } from 'next/server'
 
-// Initialize the client on the server using your secure, hidden token
 const hfClient = new InferenceClient(process.env.HF_API_TOKEN!)
 
 export async function POST(req: Request) {
@@ -17,7 +15,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Make the secure server-to-server call
     const result = await hfClient.textToImage({
       model: model,
       inputs: prompt,

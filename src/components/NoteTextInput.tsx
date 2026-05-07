@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import useNote from '@/hooks/useNote'
 import { updateNoteAction } from '@/action/note'
 import NoteGenerator from './NoteGenerator'
-import NoteGeneratorScrap from './NoteGenerateScap'
+import AiWithTools from './AiWithTool'
 import VisualiseNotes from './VisualiseNotes'
 import { Button } from './ui/button'
 import { Sparkles, ChevronDown, ChevronUp, Eye, Pen } from 'lucide-react'
@@ -212,7 +212,7 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
       <div className="mt-6 flex flex-col gap-4">
         <div className="flex flex-col gap-4 md:flex-row">
           <NoteGenerator onGenerated={setNoteText} onSaveNote={onSaveNote} />
-          <NoteGeneratorScrap />
+          <AiWithTools />
         </div>
 
         {/* Visualiser Toggle */}

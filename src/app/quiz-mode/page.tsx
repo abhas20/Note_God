@@ -1,21 +1,15 @@
 import { getUser } from '@/auth/server'
-import QuizGenerator from '@/components/QuizGenerator'
+import AiWithTools from '@/components/AiWithTool'
+import AskAIButton from '@/components/AskAIButton'
+import QuizDashboard from '@/components/QuizDashboard'
 import { prisma } from '@/db/prisma'
-import { Notes } from '@prisma/client'
 import { BookOpen, LogIn } from 'lucide-react'
 import Link from 'next/link'
 
-const QuizPage = async () => {
+export default async function QuizPage() {
   const user = await getUser()
-  let notes: Notes[] = []
 
-  if (user) {
-    notes = await prisma.notes.findMany({
-      where: { authId: user.id },
-      orderBy: { createdAt: 'desc' },
-    })
-  }
-
+  // ─── Unauthenticated ───────────────────────────────────────────────────────
   if (!user) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
@@ -42,11 +36,26 @@ const QuizPage = async () => {
     )
   }
 
+  // ─── Fetch notes + quiz history in parallel ────────────────────────────────
+  const [notes, quizHistory] = await Promise.all([
+    prisma.notes.findMany({
+      where: { authId: user.id },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.quiz.findMany({
+      where: { authId: user.id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        questions: true,
+        attempts: { orderBy: { createdAt: 'desc' } },
+      },
+    }),
+  ])
+
   return (
-    <div className="px-4 py-8">
-      <QuizGenerator notes={notes} />
+    <div className="min-h-screen px-4 py-8">
+      <AiWithTools/>
+      <QuizDashboard notes={notes} initialHistory={quizHistory} />
     </div>
   )
 }
-
-export default QuizPage

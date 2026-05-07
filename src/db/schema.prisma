@@ -24,13 +24,15 @@ model User {
   imgUrl   String?
   Notes Notes[]
   Messages Messages[]
+  quizzes Quiz[]
+  attempts Attempt[]
   FileUploads FileUploads[]
 }
 
 model Messages{
   id        String   @id @default(uuid())
   content   String
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())  
@@ -45,4 +47,36 @@ model FileUploads {
   uploaderId String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+}
+
+model Quiz {
+  id        String   @id @default(uuid())
+  authId     String
+  author    User     @relation(fields: [authId], references: [id], onDelete: Cascade)
+  title     String
+  questions Question[]
+  createdAt DateTime @default(now())
+  attempts  Attempt[]
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  quizId    String
+  questionText String
+  options   String[]
+  correctAnswerIndex Int
+  correctAnswer String
+  Explanation String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+model Attempt {
+  id        String   @id @default(uuid())
+  quizId    String
+  userId    String
+  score     Int
+  total     Int
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

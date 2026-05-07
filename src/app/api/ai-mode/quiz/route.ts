@@ -1,4 +1,4 @@
-import { generateQuizAction } from '@/action/note'
+import { generateQuizAction } from '@/action/quiz'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {

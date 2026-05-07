@@ -1,3 +1,4 @@
+'use client'
 import { Button } from './ui/button'
 import {
   Dialog,
@@ -64,7 +65,7 @@ const AVAILABLE_TOOLS = [
 
 type ToolName = (typeof AVAILABLE_TOOLS)[number]['id']
 
-export default function NoteGeneratorScrap() {
+export default function AiWithTools() {
   const [input, setInput] = useState('')
   const [enabledTools, setEnabledTools] = useState<ToolName[]>(['googleSearch'])
 
@@ -330,8 +331,8 @@ export default function NoteGeneratorScrap() {
 
                         const toolName =
                           part.type === 'dynamic-tool'
-                            ? (part as any).toolName // DynamicToolUIPart has .toolName
-                            : part.type.slice(5) // "tool-generate_image" → "generate_image"
+                            ? (part as any).toolName 
+                            : part.type.slice(5) // "generate_image"
 
                         const { state } = toolPart
                         const toolOutput =
