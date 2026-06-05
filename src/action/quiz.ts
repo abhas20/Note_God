@@ -1,13 +1,12 @@
 'use server'
 
-import { getUser } from "@/auth/server"
-import { prisma } from "@/db/prisma"
-import gemini, { googleAI } from "../../ai"
-import { generateText, Output } from "ai"
-import z from "zod"
-import { handleError } from "@/lib/utils"
-import { revalidatePath } from "next/cache"
-
+import { getUser } from '@/auth/server'
+import { prisma } from '@/db/prisma'
+import gemini, { googleAI } from '../../ai'
+import { generateText, Output } from 'ai'
+import z from 'zod'
+import { handleError } from '@/lib/utils'
+import { revalidatePath } from 'next/cache'
 
 type QuizQuestion = {
   questionText: string
@@ -20,7 +19,6 @@ type QuizQuestion = {
 type Quiz = {
   title: string
   questions: QuizQuestion[]
-
 }
 
 const quizSchema = Output.object({
@@ -30,10 +28,7 @@ const quizSchema = Output.object({
       .array(
         z.object({
           questionText: z.string().describe('The quiz question'),
-          options: z
-            .array(z.string())
-            .length(4)
-            .describe('The answer options'),
+          options: z.array(z.string()).length(4).describe('The answer options'),
           correctAnswerIndex: z
             .number()
             .describe('The index of the correct answer (0-3)'),
@@ -48,8 +43,6 @@ const quizSchema = Output.object({
       .describe('A list of quiz questions'),
   }),
 })
-
-
 
 export async function generateQuizAction(noteId: string[]) {
   const user = await getUser()
@@ -82,7 +75,6 @@ export async function generateQuizAction(noteId: string[]) {
   })
   const sumarizedNotes = sumarizedNotesResponse.text ?? combinedNotes
 
-
   try {
     const { output } = await generateText({
       model: googleAI('gemini-2.5-flash'),
@@ -106,12 +98,11 @@ export async function generateQuizAction(noteId: string[]) {
   }
 }
 
-
-export async function saveQuizResult(quiz:Quiz) {
+export async function saveQuizResult(quiz: Quiz) {
   const user = await getUser()
   if (!user) throw new Error('you must be logged in to save quiz results')
 
-    try {
+  try {
     const saved_quiz = await prisma.quiz.create({
       data: {
         title: quiz.title,
@@ -130,9 +121,8 @@ export async function saveQuizResult(quiz:Quiz) {
 
     revalidatePath('/ai-mode/quiz')
 
-    return {quizId: saved_quiz.id, message: 'Quiz saved successfully' }
-  }
-    catch (error) {
+    return { quizId: saved_quiz.id, message: 'Quiz saved successfully' }
+  } catch (error) {
     console.warn('Save Quiz Result error: ', error)
     handleError(error)
     return 'Sorry, there was an error saving your quiz results.'
@@ -146,11 +136,13 @@ export async function getUserQuizzes() {
   try {
     const quizzes = await prisma.quiz.findMany({
       where: { authId: user.id },
-      include: { questions: true,attempts: {orderBy: {createdAt: 'desc'}} },
+      include: {
+        questions: true,
+        attempts: { orderBy: { createdAt: 'desc' } },
+      },
     })
     return quizzes
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('Get User Quizzes error: ', error)
     handleError(error)
     return 'Sorry, there was an error retrieving your quizzes.'
@@ -168,15 +160,18 @@ export async function getQuizById(quizId: string) {
     })
     if (!quiz) throw new Error('Quiz not found')
     return quiz
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('Get Quiz By ID error: ', error)
     handleError(error)
     return 'Sorry, there was an error retrieving the quiz.'
   }
 }
 
-export async function saveQuizAttempt(quizId: string, score: number, totalQuestions: number) {
+export async function saveQuizAttempt(
+  quizId: string,
+  score: number,
+  totalQuestions: number,
+) {
   const user = await getUser()
   if (!user) throw new Error('you must be logged in to save quiz attempts')
 
@@ -192,14 +187,12 @@ export async function saveQuizAttempt(quizId: string, score: number, totalQuesti
 
     revalidatePath('/ai-mode/quiz')
     return attempt
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('Save Quiz Attempt error: ', error)
     handleError(error)
     return 'Sorry, there was an error saving your quiz attempt.'
   }
 }
-
 
 export async function deleteQuiz(quizId: string) {
   const user = await getUser()
@@ -212,8 +205,7 @@ export async function deleteQuiz(quizId: string) {
 
     revalidatePath('/ai-mode/quiz')
     return 'Quiz deleted successfully'
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('Delete Quiz error: ', error)
     handleError(error)
     return 'Sorry, there was an error deleting the quiz.'

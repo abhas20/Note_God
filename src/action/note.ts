@@ -208,5 +208,3 @@ export async function generateImagePrompt(noteId: string) {
     return 'A beautiful landscape with mountains and a river.'
   }
 }
-
-

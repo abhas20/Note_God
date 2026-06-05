@@ -9,6 +9,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    environment:
+      name: Production
+      url: https://note-god.duckdns.org
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

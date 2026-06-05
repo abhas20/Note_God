@@ -10,11 +10,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from './ui/button'
-import { useRef, useState, useTransition, Fragment } from 'react'
+import { useRef, useState, useTransition, Fragment, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowUpIcon } from 'lucide-react'
+import { ArrowUpIcon, Save } from 'lucide-react'
 import { Textarea } from './ui/textarea'
 import { askAINoteAction } from '@/action/note'
+import { createShortNoteAction } from '@/action/shortNote'
+import { toast } from 'sonner'
 import '@/style/ai-response.css'
 
 type Props = {
@@ -33,7 +35,20 @@ export default function AskAIButton({ user }: Props) {
 
   const textRef = useRef<HTMLTextAreaElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-
+  useEffect(() => {
+    const handleOpenAskAI = (e: Event) => {
+      const customEvent = e as CustomEvent
+      const text = customEvent.detail?.selectedText
+      if (text) {
+        setQuestions(`Explain this part of my notes: "${text}"`)
+        setQuestionText([])
+        setResponse([])
+        setOpen(true)
+      }
+    }
+    window.addEventListener('open-ask-ai', handleOpenAskAI)
+    return () => window.removeEventListener('open-ask-ai', handleOpenAskAI)
+  }, [])
   const handleInput = () => {
     const textArea = textRef.current
     if (!textArea) return
@@ -113,10 +128,43 @@ export default function AskAIButton({ user }: Props) {
                 {question}
               </p>
               {response[idx] && (
-                <p
-                  className="bot-response text-muted-foreground text-sm"
-                  dangerouslySetInnerHTML={{ __html: response[idx] }}
-                />
+                <div className="flex flex-col items-start gap-2">
+                  <p
+                    className="bot-response text-muted-foreground text-sm"
+                    dangerouslySetInnerHTML={{ __html: response[idx] }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="hover:bg-indigo-55 h-8 gap-1.5 px-2 text-xs text-indigo-500 hover:text-indigo-600 dark:hover:bg-indigo-950/30"
+                    onClick={async () => {
+                      try {
+                        // Strip HTML tags before saving
+                        const textContent = response[idx]
+                          .replace(/<[^>]*>/g, '')
+                          .trim()
+                        const res = await createShortNoteAction(
+                          noteId,
+                          textContent,
+                        )
+                        if (res.errorMessage) {
+                          toast.error(res.errorMessage)
+                        } else {
+                          toast.success('Response saved to short notes!')
+                          // Trigger custom event to reload short notes in the sidebar
+                          window.dispatchEvent(
+                            new CustomEvent('refresh-short-notes'),
+                          )
+                        }
+                      } catch (err) {
+                        toast.error('Failed to save response to short notes.')
+                      }
+                    }}
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                    Save to short notes
+                  </Button>
+                </div>
               )}
             </Fragment>
           ))}

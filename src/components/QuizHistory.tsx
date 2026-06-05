@@ -11,12 +11,11 @@ import {
   Trophy,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Attempt, Prisma, Quiz } from '@prisma/client'
+import { Attempt, Prisma } from '@prisma/client'
 import { deleteQuiz } from '@/action/quiz'
 
 type QuizHistoryItem = Prisma.QuizGetPayload<{
-    include: { attempts: true, questions: true }
-    
+  include: { attempts: true; questions: true }
 }>
 
 interface QuizHistoryProps {

@@ -5,7 +5,6 @@ import { Notes } from '@prisma/client'
 import QuizGenerator, { QuizHistoryItem } from './QuizGenerator'
 import QuizHistory from './QuizHistory'
 
-
 type View =
   | { type: 'history' }
   | { type: 'generate' }
@@ -43,7 +42,7 @@ export default function QuizDashboard({
     )
   }
 
-  // ─── Default: history ──────────────────────────────────────────────────────
+  // ─── history ──────────────────────────────────────────────────────
   return (
     <QuizHistory
       history={initialHistory}

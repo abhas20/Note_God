@@ -16,7 +16,9 @@ import {
   Loader2,
   Terminal,
   Wrench,
+  Save,
 } from 'lucide-react'
+import { createShortNoteAction } from '@/action/shortNote'
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -65,7 +67,7 @@ const AVAILABLE_TOOLS = [
 
 type ToolName = (typeof AVAILABLE_TOOLS)[number]['id']
 
-export default function AiWithTools() {
+export default function AiWithTools({ noteId }: { noteId?: string }) {
   const [input, setInput] = useState('')
   const [enabledTools, setEnabledTools] = useState<ToolName[]>(['googleSearch'])
 
@@ -195,121 +197,163 @@ export default function AiWithTools() {
                             {m.role === 'user' ? (
                               part.text
                             ) : (
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={{
-                                  // Headings
-                                  h1: ({ children }) => (
-                                    <h1 className="mb-2 text-lg font-bold">
-                                      {children}
-                                    </h1>
-                                  ),
-                                  h2: ({ children }) => (
-                                    <h2 className="mb-2 text-base font-semibold">
-                                      {children}
-                                    </h2>
-                                  ),
-                                  h3: ({ children }) => (
-                                    <h3 className="mb-1 text-sm font-semibold">
-                                      {children}
-                                    </h3>
-                                  ),
-
-                                  // Paragraph
-                                  p: ({ children }) => (
-                                    <p className="mb-2 leading-relaxed last:mb-0">
-                                      {children}
-                                    </p>
-                                  ),
-
-                                  // Bold & italic
-                                  strong: ({ children }) => (
-                                    <strong className="font-semibold">
-                                      {children}
-                                    </strong>
-                                  ),
-                                  em: ({ children }) => (
-                                    <em className="italic">{children}</em>
-                                  ),
-
-                                  // Inline code
-                                  code: ({ children, className }) => {
-                                    const isBlock =
-                                      className?.includes('language-')
-                                    return isBlock ? (
-                                      <pre className="bg-muted my-2 overflow-x-auto rounded-md p-3 text-xs leading-relaxed">
-                                        <code>{children}</code>
-                                      </pre>
-                                    ) : (
-                                      <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">
+                              <div className="flex flex-col items-start gap-2">
+                                <ReactMarkdown
+                                  remarkPlugins={[remarkGfm]}
+                                  components={{
+                                    // Headings
+                                    h1: ({ children }) => (
+                                      <h1 className="mb-2 text-lg font-bold">
                                         {children}
-                                      </code>
-                                    )
-                                  },
-
-                                  // Lists
-                                  ul: ({ children }) => (
-                                    <ul className="mb-2 ml-4 list-disc space-y-1">
-                                      {children}
-                                    </ul>
-                                  ),
-                                  ol: ({ children }) => (
-                                    <ol className="mb-2 ml-4 list-decimal space-y-1">
-                                      {children}
-                                    </ol>
-                                  ),
-                                  li: ({ children }) => (
-                                    <li className="leading-relaxed">
-                                      {children}
-                                    </li>
-                                  ),
-
-                                  // Blockquote
-                                  blockquote: ({ children }) => (
-                                    <blockquote className="border-muted-foreground/30 my-2 border-l-2 pl-3 italic opacity-80">
-                                      {children}
-                                    </blockquote>
-                                  ),
-
-                                  // Horizontal rule
-                                  hr: () => (
-                                    <hr className="border-muted my-3" />
-                                  ),
-
-                                  // Links
-                                  a: ({ href, children }) => (
-                                    <a
-                                      href={href}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-primary underline underline-offset-2 hover:opacity-80"
-                                    >
-                                      {children}
-                                    </a>
-                                  ),
-
-                                  // Tables (from remark-gfm)
-                                  table: ({ children }) => (
-                                    <div className="my-2 overflow-x-auto rounded-md border">
-                                      <table className="w-full text-xs">
+                                      </h1>
+                                    ),
+                                    h2: ({ children }) => (
+                                      <h2 className="mb-2 text-base font-semibold">
                                         {children}
-                                      </table>
-                                    </div>
-                                  ),
-                                  th: ({ children }) => (
-                                    <th className="bg-muted border-b px-3 py-2 text-left font-semibold">
-                                      {children}
-                                    </th>
-                                  ),
-                                  td: ({ children }) => (
-                                    <td className="border-b px-3 py-2 last:border-0">
-                                      {children}
-                                    </td>
-                                  ),
-                                }}
-                              >
-                                {part.text}
-                              </ReactMarkdown>
+                                      </h2>
+                                    ),
+                                    h3: ({ children }) => (
+                                      <h3 className="mb-1 text-sm font-semibold">
+                                        {children}
+                                      </h3>
+                                    ),
+
+                                    // Paragraph
+                                    p: ({ children }) => (
+                                      <p className="mb-2 leading-relaxed last:mb-0">
+                                        {children}
+                                      </p>
+                                    ),
+
+                                    // Bold & italic
+                                    strong: ({ children }) => (
+                                      <strong className="font-semibold">
+                                        {children}
+                                      </strong>
+                                    ),
+                                    em: ({ children }) => (
+                                      <em className="italic">{children}</em>
+                                    ),
+
+                                    // Inline code
+                                    code: ({ children, className }) => {
+                                      const isBlock =
+                                        className?.includes('language-')
+                                      return isBlock ? (
+                                        <pre className="bg-muted my-2 overflow-x-auto rounded-md p-3 text-xs leading-relaxed">
+                                          <code>{children}</code>
+                                        </pre>
+                                      ) : (
+                                        <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">
+                                          {children}
+                                        </code>
+                                      )
+                                    },
+
+                                    // Lists
+                                    ul: ({ children }) => (
+                                      <ul className="mb-2 ml-4 list-disc space-y-1">
+                                        {children}
+                                      </ul>
+                                    ),
+                                    ol: ({ children }) => (
+                                      <ol className="mb-2 ml-4 list-decimal space-y-1">
+                                        {children}
+                                      </ol>
+                                    ),
+                                    li: ({ children }) => (
+                                      <li className="leading-relaxed">
+                                        {children}
+                                      </li>
+                                    ),
+
+                                    // Blockquote
+                                    blockquote: ({ children }) => (
+                                      <blockquote className="border-muted-foreground/30 my-2 border-l-2 pl-3 italic opacity-80">
+                                        {children}
+                                      </blockquote>
+                                    ),
+
+                                    // Horizontal rule
+                                    hr: () => (
+                                      <hr className="border-muted my-3" />
+                                    ),
+
+                                    // Links
+                                    a: ({ href, children }) => (
+                                      <a
+                                        href={href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary underline underline-offset-2 hover:opacity-80"
+                                      >
+                                        {children}
+                                      </a>
+                                    ),
+
+                                    // Tables (from remark-gfm)
+                                    table: ({ children }) => (
+                                      <div className="my-2 overflow-x-auto rounded-md border">
+                                        <table className="w-full text-xs">
+                                          {children}
+                                        </table>
+                                      </div>
+                                    ),
+                                    th: ({ children }) => (
+                                      <th className="bg-muted border-b px-3 py-2 text-left font-semibold">
+                                        {children}
+                                      </th>
+                                    ),
+                                    td: ({ children }) => (
+                                      <td className="border-b px-3 py-2 last:border-0">
+                                        {children}
+                                      </td>
+                                    ),
+                                  }}
+                                >
+                                  {part.text}
+                                </ReactMarkdown>
+                                {noteId && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="hover:bg-indigo-55 h-7 gap-1 px-1.5 text-xs text-indigo-500 hover:text-indigo-600 dark:hover:bg-indigo-950/30"
+                                    onClick={async () => {
+                                      try {
+                                        // Strip markdown syntax / simple HTML tags
+                                        const cleanText = part.text
+                                          .replace(/<[^>]*>/g, '')
+                                          .replace(/[#*`_~]/g, '')
+                                          .trim()
+                                        const res = await createShortNoteAction(
+                                          noteId,
+                                          cleanText,
+                                        )
+                                        if (res.errorMessage) {
+                                          toast.error(res.errorMessage)
+                                        } else {
+                                          toast.success(
+                                            'Response saved to short notes!',
+                                          )
+                                          // Trigger custom event to reload short notes in the sidebar
+                                          window.dispatchEvent(
+                                            new CustomEvent(
+                                              'refresh-short-notes',
+                                            ),
+                                          )
+                                        }
+                                      } catch (err) {
+                                        toast.error(
+                                          'Failed to save response to short notes.',
+                                        )
+                                      }
+                                    }}
+                                  >
+                                    <Save className="h-3 w-3" />
+                                    Save to short notes
+                                  </Button>
+                                )}
+                              </div>
                             )}
                           </div>
                         )
@@ -331,7 +375,7 @@ export default function AiWithTools() {
 
                         const toolName =
                           part.type === 'dynamic-tool'
-                            ? (part as any).toolName 
+                            ? (part as any).toolName
                             : part.type.slice(5) // "generate_image"
 
                         const { state } = toolPart

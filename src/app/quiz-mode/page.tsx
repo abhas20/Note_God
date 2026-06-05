@@ -1,6 +1,5 @@
 import { getUser } from '@/auth/server'
 import AiWithTools from '@/components/AiWithTool'
-import AskAIButton from '@/components/AskAIButton'
 import QuizDashboard from '@/components/QuizDashboard'
 import { prisma } from '@/db/prisma'
 import { BookOpen, LogIn } from 'lucide-react'
@@ -54,7 +53,7 @@ export default async function QuizPage() {
 
   return (
     <div className="min-h-screen px-4 py-8">
-      <AiWithTools/>
+      <AiWithTools />
       <QuizDashboard notes={notes} initialHistory={quizHistory} />
     </div>
   )

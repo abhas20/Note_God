@@ -42,7 +42,7 @@ export type QuizHistoryItem = Prisma.QuizGetPayload<{
 interface QuizGeneratorProps {
   notes: Notes[]
   onBack: () => void
-  initialQuiz?: QuizHistoryItem 
+  initialQuiz?: QuizHistoryItem
 }
 
 export default function QuizGenerator({
