@@ -148,7 +148,7 @@ export default function AiWithTools({ noteId }: { noteId?: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary" className="text-center">
+        <Button variant="secondary3d" className="flex-1 text-center">
           Ask AI with Tools
         </Button>
       </DialogTrigger>

@@ -147,7 +147,8 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
           <Button
             onClick={handleGenerateImage}
             disabled={isGenerating}
-            className="flex-1 bg-indigo-600 text-white shadow-md hover:bg-indigo-700"
+            variant="threeD"
+            className="flex-1"
           >
             {isGenerating ? (
               <>
@@ -165,8 +166,8 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
           <Button
             onClick={handleDownloadImage}
             disabled={!imageUrl}
-            variant="outline"
-            className="flex-1 border-dashed"
+            variant="outline3d"
+            className="flex-1"
           >
             <DownloadIcon className="mr-2 h-4 w-4" />
             Download

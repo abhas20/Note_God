@@ -40,8 +40,8 @@ export default function NewNoteButton({ user }: Props) {
     <div>
       <Button
         onClick={handleNewNote}
-        variant="secondary"
-        className="w-24"
+        variant="secondary3d"
+        className="w-28"
         disabled={loading}
       >
         {loading ? <Loader2 className="animate-spin" /> : 'New Note'}

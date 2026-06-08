@@ -34,7 +34,7 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
   const { noteText, setNoteText } = useNote()
   const updateTime = useRef<NodeJS.Timeout | null>(null)
   const [showVisualiser, setShowVisualiser] = useState(false)
-  const [showShortNotes, setShowShortNotes] = useState(true)
+  const [showShortNotes, setShowShortNotes] = useState(false)
 
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [selectedText, setSelectedText] = useState('')
@@ -100,49 +100,66 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
     <div className="flex h-full w-full max-w-6xl flex-col gap-6 lg:flex-row">
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header & Tabs */}
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Hey, take your notes 📝</h1>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <h1 className="bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-2xl font-black text-transparent dark:from-white dark:to-gray-300">
+            Hey, take your notes 📝
+          </h1>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Toggle Sidenotes Sidebar */}
-            <button
+            <Button
+              variant="outline3d"
               onClick={() => setShowShortNotes(!showShortNotes)}
-              className={`flex items-center gap-2 rounded-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold transition-all dark:border-gray-700 dark:bg-gray-800 ${
+              className={`flex items-center gap-2 transition-all ${
                 showShortNotes
-                  ? 'bg-indigo-50/50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400'
-                  : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'
+                  ? 'border-indigo-600 bg-indigo-50/70 text-indigo-600 dark:border-indigo-400 dark:bg-indigo-950/30 dark:text-indigo-400'
+                  : ''
               }`}
-              title={showShortNotes ? 'Hide Comments' : 'Show Comments'}
+              title={showShortNotes ? 'Hide Sidenotes' : 'Show Sidenotes'}
             >
               <MessageSquare className="h-4 w-4" />
               <span className="hidden sm:inline">
                 {showShortNotes ? 'Hide Sidenotes' : 'Show Sidenotes'}
               </span>
-            </button>
+            </Button>
 
             {/* Toggle Buttons */}
-            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-100 p-1 dark:border-gray-700 dark:bg-gray-800">
+            <div className="relative flex items-center rounded-xl border border-gray-200 bg-gray-100/50 p-1 dark:border-gray-800 dark:bg-zinc-900/40">
               <button
                 onClick={() => setMode('edit')}
-                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                className={`relative z-10 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
                   mode === 'edit'
-                    ? 'bg-white text-black shadow-sm dark:bg-gray-700 dark:text-white'
-                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+                    ? 'text-black dark:text-white'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'
                 }`}
               >
                 <Pen className="h-4 w-4" />
                 Edit
+                {mode === 'edit' && (
+                  <motion.div
+                    layoutId="activeEditorTab"
+                    className="absolute inset-0 -z-10 rounded-lg bg-white shadow-xs dark:bg-zinc-800"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
               <button
                 onClick={() => setMode('preview')}
-                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                className={`relative z-10 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
                   mode === 'preview'
-                    ? 'bg-white text-black shadow-sm dark:bg-gray-700 dark:text-white'
-                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+                    ? 'text-black dark:text-white'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'
                 }`}
               >
                 <Eye className="h-4 w-4" />
                 Preview
+                {mode === 'preview' && (
+                  <motion.div
+                    layoutId="activeEditorTab"
+                    className="absolute inset-0 -z-10 rounded-lg bg-white shadow-xs dark:bg-zinc-800"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
             </div>
           </div>
@@ -312,11 +329,11 @@ export default function NoteTextInput({ noteId, startingNote }: Props) {
           {/* Visualiser Toggle */}
           <div>
             <Button
-              variant="outline"
+              variant="outline3d"
               onClick={() => setShowVisualiser((v) => !v)}
-              className="flex w-full items-center gap-2"
+              className="flex w-full items-center justify-center gap-2"
             >
-              <Sparkles className="h-5 w-4 text-indigo-500" />
+              <Sparkles className="text-indigo-550 h-5 w-4" />
               {showVisualiser ? 'Hide Visualiser' : 'Visualise Notes'}
               {showVisualiser ? (
                 <ChevronUp className="ml-1 h-4 w-4" />

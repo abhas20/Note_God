@@ -63,7 +63,7 @@ export default function NoteGenerator({
   return (
     <Dialog onOpenChange={handleOpen} open={open}>
       <DialogTrigger asChild>
-        <Button variant="secondary" className="text-center">
+        <Button variant="threeD" className="flex-1 text-center">
           Ask AI to generate Notes
         </Button>
       </DialogTrigger>

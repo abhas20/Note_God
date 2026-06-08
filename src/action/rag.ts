@@ -105,3 +105,29 @@ export const deleteUserFile = async (fileId: string) => {
     return handleError(error)
   }
 }
+
+export const getSignedPdfUrlAction = async (fileId: string) => {
+  try {
+    const user = await getUser()
+    if (!user) throw new Error('you must be logged in to access files')
+
+    const file = await prisma.fileUploads.findFirst({
+      where: { id: fileId, uploaderId: user.id },
+    })
+    if (!file) throw new Error('File not found or unauthorized')
+
+    const { storage } = await createClient()
+    const { data, error } = await storage
+      .from('User_pdfs')
+      .createSignedUrl(file.fileName, 30 * 60) // 30 minites
+
+    if (error) {
+      console.error('Error generating signed URL:', error)
+      throw error
+    }
+
+    return { signedUrl: data.signedUrl, errorMessage: null }
+  } catch (error) {
+    return handleError(error)
+  }
+}

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { loginAction, loginWithGoogle, signupAction } from '@/action/user'
+import { Button } from './ui/button'
 
 type Props = {
   type: string
@@ -126,19 +127,20 @@ export default function Form({ type }: Props) {
             )}
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="auth-btn-primary"
+            variant="threeD"
+            className="h-11 w-full text-base font-bold"
           >
             {isPending ? (
-              <Loader2 className="auth-spinner" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : isLogin ? (
               'Login'
             ) : (
               'Sign Up'
             )}
-          </button>
+          </Button>
 
           <p className="auth-switch-text">
             {isLogin ? "Don't have an account? " : 'Already have an account? '}
@@ -160,18 +162,19 @@ export default function Form({ type }: Props) {
 
         {/* Google */}
         <form action={handleGoogleLogin}>
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="auth-btn-google"
+            variant="outline3d"
+            className="flex h-11 w-full items-center justify-center gap-2 font-bold"
           >
             {isPending ? (
-              <Loader2 className="auth-spinner" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <GoogleIcon className="auth-google-icon" />
+              <GoogleIcon className="mr-1 h-5 w-5" />
             )}
             Sign In with Google
-          </button>
+          </Button>
         </form>
       </div>
     </div>

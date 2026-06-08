@@ -214,6 +214,7 @@ export default function QuizGenerator({
           <Button
             onClick={handleGenerateQuiz}
             disabled={isLoading || selectedNoteIds.length === 0}
+            variant="threeD"
             className="w-full"
           >
             {isLoading ? (
@@ -262,7 +263,7 @@ export default function QuizGenerator({
             </span>
             {!quizSaved ? (
               <Button
-                variant="outline"
+                variant="outline3d"
                 size="sm"
                 onClick={handleSaveQuiz}
                 disabled={isSavingQuiz}
@@ -369,6 +370,7 @@ export default function QuizGenerator({
             <Button
               onClick={handleSubmit}
               disabled={!allAnswered}
+              variant="threeD"
               className="w-full"
               size="lg"
             >
@@ -405,7 +407,7 @@ export default function QuizGenerator({
                   {!attemptSaved ? (
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="outline3d"
                       onClick={handleSaveAttempt}
                       disabled={isPending || !quiz.quizId}
                       className="shrink-0 gap-1.5"
@@ -428,7 +430,7 @@ export default function QuizGenerator({
                 {!quiz.quizId && (
                   <Button
                     size="sm"
-                    variant="secondary"
+                    variant="secondary3d"
                     className="w-full gap-1.5"
                     onClick={handleSaveQuiz}
                     disabled={isSavingQuiz}
@@ -454,17 +456,17 @@ export default function QuizGenerator({
                       setQuizSaved(false)
                       setAttemptSaved(false)
                     }}
-                    variant="outline"
+                    variant="outline3d"
                     size="lg"
                   >
                     New Quiz
                   </Button>
                 ) : (
-                  <Button variant="outline" size="lg" onClick={onBack}>
+                  <Button variant="outline3d" size="lg" onClick={onBack}>
                     Back
                   </Button>
                 )}
-                <Button onClick={onBack} size="lg">
+                <Button onClick={onBack} size="lg" variant="threeD">
                   View History
                 </Button>
               </div>

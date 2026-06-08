@@ -59,7 +59,7 @@ export default function QuizHistory({
               : `${history.length} quiz${history.length === 1 ? '' : 'zes'} saved`}
           </p>
         </div>
-        <Button onClick={onGenerateNew}>
+        <Button onClick={onGenerateNew} variant="threeD">
           <PlusCircle className="mr-2 h-4 w-4" />
           New Quiz
         </Button>
@@ -73,7 +73,7 @@ export default function QuizHistory({
           <p className="text-muted-foreground mt-1 mb-5 max-w-xs text-sm">
             Generate a quiz from your notes and your results will appear here.
           </p>
-          <Button onClick={onGenerateNew}>
+          <Button onClick={onGenerateNew} variant="threeD">
             <PlusCircle className="mr-2 h-4 w-4" />
             Generate First Quiz
           </Button>
@@ -167,7 +167,7 @@ export default function QuizHistory({
                 {/* Right: actions */}
                 <div className="flex shrink-0 items-center gap-2 pt-0.5">
                   <Button
-                    variant="outline"
+                    variant="outline3d"
                     size="sm"
                     onClick={() => onRetake(quiz)}
                     className="gap-1.5"
@@ -176,9 +176,8 @@ export default function QuizHistory({
                     Retake
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="destructive3d"
                     size="sm"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => handleDelete(quiz.id)}
                     disabled={isPending && deletingId === quiz.id}
                   >

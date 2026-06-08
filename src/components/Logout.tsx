@@ -31,7 +31,7 @@ export default function Logout() {
   }
 
   return (
-    <Button variant="outline" onClick={handleLogout} disabled={loading}>
+    <Button variant="outline3d" onClick={handleLogout} disabled={loading}>
       {loading ? <Loader2 className="animate-spin" /> : 'LogOut'}
     </Button>
   )

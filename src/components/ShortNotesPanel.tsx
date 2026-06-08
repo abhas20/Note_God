@@ -208,6 +208,7 @@ export default function ShortNotesPanel({ noteId }: Props) {
               {shortNotes.map((sn) => (
                 <motion.div
                   key={sn.id}
+                  layout
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -225,18 +226,19 @@ export default function ShortNotesPanel({ noteId }: Props) {
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline3d"
                           onClick={() => setEditingId(null)}
-                          className="h-8 px-2 py-1 text-xs"
+                          className="h-8 px-2.5 py-1 text-xs"
                         >
-                          <X className="mr-1 h-3 w-3" /> Cancel
+                          <X className="mr-1 h-3.5 w-3.5" /> Cancel
                         </Button>
                         <Button
                           size="sm"
+                          variant="secondary3d"
                           onClick={() => handleUpdateShortNote(sn.id)}
-                          className="h-8 px-2 py-1 text-xs"
+                          className="h-8 px-2.5 py-1 text-xs"
                         >
-                          <Check className="mr-1 h-3 w-3" /> Save
+                          <Check className="mr-1 h-3.5 w-3.5" /> Save
                         </Button>
                       </div>
                     </div>
@@ -309,7 +311,8 @@ export default function ShortNotesPanel({ noteId }: Props) {
           type="submit"
           disabled={isPending || !newContent.trim()}
           size="sm"
-          className="flex w-full items-center justify-center gap-1 bg-indigo-600 hover:bg-indigo-700"
+          variant="threeD"
+          className="flex w-full items-center justify-center gap-1"
         >
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

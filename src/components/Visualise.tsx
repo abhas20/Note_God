@@ -200,7 +200,11 @@ export default function Visualise() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-4">
-        <Button onClick={handleGenerateImage} disabled={isLoading}>
+        <Button
+          onClick={handleGenerateImage}
+          disabled={isLoading}
+          variant="threeD"
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -213,7 +217,7 @@ export default function Visualise() {
 
         <Button
           disabled={!imageUrl}
-          variant="outline"
+          variant="outline3d"
           onClick={handleDownloadImage}
         >
           <DownloadIcon className="mr-2 h-4 w-4" /> Download

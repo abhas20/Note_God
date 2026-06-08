@@ -109,7 +109,7 @@ export default function AskAIButton({ user }: Props) {
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary">Ask AI Help</Button>
+        <Button variant="threeD">Ask AI Help</Button>
       </DialogTrigger>
       <DialogContent
         className="custom-scrollbar flex h-[85vh] max-w-4xl flex-col overflow-y-auto"
@@ -135,8 +135,8 @@ export default function AskAIButton({ user }: Props) {
                   />
                   <Button
                     size="sm"
-                    variant="ghost"
-                    className="hover:bg-indigo-55 h-8 gap-1.5 px-2 text-xs text-indigo-500 hover:text-indigo-600 dark:hover:bg-indigo-950/30"
+                    variant="outline3d"
+                    className="h-8 gap-1.5 px-2.5 text-xs"
                     onClick={async () => {
                       try {
                         // Strip HTML tags before saving
@@ -151,7 +151,6 @@ export default function AskAIButton({ user }: Props) {
                           toast.error(res.errorMessage)
                         } else {
                           toast.success('Response saved to short notes!')
-                          // Trigger custom event to reload short notes in the sidebar
                           window.dispatchEvent(
                             new CustomEvent('refresh-short-notes'),
                           )
