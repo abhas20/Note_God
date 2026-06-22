@@ -71,7 +71,7 @@
 Before setting up Note God, ensure you have the following installed:
 
 - **Node.js** (version 18.0 or higher)
-- **npm** or **yarn** or **pnpm** package manager
+- **npm** package manager
 - **PostgreSQL** database (local or cloud)
 - **Git** for version control
 

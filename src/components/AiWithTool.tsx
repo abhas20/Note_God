@@ -156,7 +156,7 @@ export default function AiWithTools({ noteId }: { noteId?: string }) {
       <DialogContent className="flex h-[85vh] max-w-4xl flex-col">
         <DialogHeader>
           <DialogTitle>
-            Explore the World with power of AI with TOOLs
+            Explore the World of AI with TOOLS!!
           </DialogTitle>
           <DialogDescription>
             Just ENABLE the RIGHT Tools and let the AI do the rest!
