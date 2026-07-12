@@ -5,7 +5,7 @@ import { createAdminClient } from '@/auth/admin'
 import { addToVectorEmbedding, pdfLoader, textSplitter } from '@/lib/rag-utils'
 import 'dotenv/config'
 
-console.log(process.env.REDIS_HOST)
+// console.log(process.env.REDIS_HOST)
 
 const worker = new Worker(
   'file-upload-queue',
@@ -54,7 +54,7 @@ const worker = new Worker(
   },
   {
     connection: {
-      host: process.env.REDIS_HOST,
+      host: process.env.REDIS_HOST || 'redis', // Use 'localhost' (not using Docker )
       port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
       password: process.env.REDIS_PASSWORD || 'psswrd',
     },

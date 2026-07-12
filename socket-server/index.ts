@@ -6,7 +6,7 @@ import { createServer } from 'http'
 import app from './app.js'
 import SocketServer from './services/socket-server.js'
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 4000
 // try {
 //   console.log("DB_URL present?", !!process.env.DB_URL);
 //   await prisma.$connect();

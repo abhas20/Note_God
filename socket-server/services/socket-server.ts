@@ -1,6 +1,9 @@
 import { Server } from 'socket.io'
 import { Redis } from 'ioredis'
 
+import dotenv from 'dotenv'
+dotenv.config()
+
 const RedisConfig = {
   // host: process.env.REDIS_HOST || "localhost", //when not using docker
   host: process.env.REDIS_HOST || 'redis', //when using docker
@@ -11,7 +14,7 @@ const RedisConfig = {
 const pub = new Redis(RedisConfig)
 const sub = new Redis(RedisConfig)
 
-//psswrd
+// console.log(process.env.REDIS_HOST)
 
 pub.on('error', (err) => console.error('Redis Pub error:', err))
 sub.on('error', (err) => console.error('Redis Sub error:', err))
@@ -36,7 +39,7 @@ class SocketServer {
   }
 
   private setupRedisSubscriptions() {
-    sub.subscribe('MESSAGES', 'DELETE_MESSAGES', (err, count) => {
+    sub.subscribe('MESSAGES', 'DELETE_MESSAGES', 'GROUPS', (err, count) => {
       if (err) console.error('Failed to subscribe:', err)
       else console.log(`Subscribed successfully to ${count} channels.`)
     })
@@ -48,11 +51,21 @@ class SocketServer {
         const parsedMessage = JSON.parse(message)
 
         if (channel === 'MESSAGES') {
-          console.log('Broadcasting new message to clients')
-          this._io.emit('message', parsedMessage)
+          const targetRoom = parsedMessage.groupId || 'global'
+          console.log(`Broadcasting new message to room: ${targetRoom}`)
+          this._io.to(targetRoom).emit('message', parsedMessage)
         } else if (channel === 'DELETE_MESSAGES') {
-          console.log('Broadcasting delete event to clients')
-          this._io.emit('delete:message', parsedMessage)
+          const targetRoom = parsedMessage.groupId || 'global'
+          console.log(`Broadcasting delete event to room: ${targetRoom}`)
+          this._io.to(targetRoom).emit('delete:message', parsedMessage)
+        } else if (channel === 'GROUPS') {
+          if (parsedMessage.action === 'DELETE') {
+            console.log(`Broadcasting group deletion for: ${parsedMessage.groupId}`)
+            this._io.emit('group:deleted', { groupId: parsedMessage.groupId })
+          } else if (parsedMessage.action === 'CREATE') {
+            console.log(`Broadcasting group creation for: ${parsedMessage.group.id}`)
+            this._io.emit('group:created', { group: parsedMessage.group })
+          }
         }
       } catch (error) {
         console.error('Socket Server error parsing Redis message:', error)
@@ -63,6 +76,17 @@ class SocketServer {
   public initServer() {
     this._io.on('connection', (socket) => {
       console.log(`New client connected: ${socket.id}`)
+
+      // Handle room joining
+      socket.on('join:room', ({ roomId }) => {
+        socket.rooms.forEach((room) => {
+          if (room !== socket.id) {
+            socket.leave(room)
+          }
+        })
+        socket.join(roomId)
+        console.log(`Socket ${socket.id} joined room ${roomId}`)
+      })
 
       // Handle disconnection
       socket.on('disconnect', () => {

@@ -38,6 +38,22 @@ model User {
   quizzes Quiz[]
   attempts Attempt[]
   FileUploads FileUploads[]
+  
+  // Relations for Group Chat
+  createdGroups Group[]  @relation("GroupCreator")
+  joinedGroups  Group[]  @relation("GroupMembers")
+}
+
+model Group {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  creatorId   String
+  creator     User       @relation("GroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     User[]     @relation("GroupMembers")
+  messages    Messages[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
 }
 
 model Messages{
@@ -45,6 +61,8 @@ model Messages{
   content   String
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId  String
+  groupId   String?
+  group     Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())  
 }

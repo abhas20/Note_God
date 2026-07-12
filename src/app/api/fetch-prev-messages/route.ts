@@ -1,13 +1,19 @@
 import { prisma } from '@/db/prisma'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const groupId = searchParams.get('groupId')
+
     const res = await prisma.messages.findMany({
+      where: {
+        groupId: groupId && groupId !== 'global' ? groupId : null,
+      },
       orderBy: {
         updatedAt: 'asc',
       },
-      take: 15,
+      take: 50,
       include: {
         sender: {
           select: {
@@ -23,6 +29,7 @@ export async function GET() {
       id: msg.id,
       content: msg.content,
       senderId: msg.senderId,
+      groupId: msg.groupId,
       createdAt: msg.createdAt,
       updatedAt: msg.updatedAt,
       sender: msg.sender,

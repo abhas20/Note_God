@@ -120,20 +120,20 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname === '/signup' ||
     request.nextUrl.pathname === '/auth/forgot-password'
 
-  // 1. If logged in and trying to access an auth route, redirect to home
+  // If logged in and trying to access an auth route, redirect to home
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
-  // 2. If NOT logged in, NOT on an auth route, and NOT calling an API, redirect to login
+  // If NOT logged in, NOT on an auth route, and NOT calling an API, redirect to login
   if (!user && !isAuthRoute && !request.nextUrl.pathname.startsWith('/api')) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // 3. Always return the supabaseResponse so cookies are properly set
+  // Always return the supabaseResponse so cookies are properly set
   return supabaseResponse
 }

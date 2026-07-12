@@ -13,12 +13,13 @@ const pub = new Redis(RedisConfig)
 
 export async function POST(req: NextRequest) {
   try {
-    const { content, senderId } = await req.json()
+    const { content, senderId, groupId } = await req.json()
 
     const message = await prisma.messages.create({
       data: {
         content,
         senderId,
+        groupId: groupId && groupId !== 'global' ? groupId : null,
       },
       include: {
         sender: {
@@ -46,13 +47,14 @@ export async function DELETE(request: NextRequest) {
   try {
     const { messageId, senderId } = await request.json()
 
-    const deleteResult = await prisma.messages.deleteMany({
+    const message = await prisma.messages.findFirst({
       where: {
         id: messageId,
         senderId: senderId,
       },
     })
-    if (deleteResult.count === 0) {
+
+    if (!message) {
       return NextResponse.json(
         {
           message: 'No message found to delete or unauthorized',
@@ -62,9 +64,17 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    const groupId = message.groupId
+
+    await prisma.messages.delete({
+      where: {
+        id: messageId,
+      },
+    })
+
     await pub.publish(
       'DELETE_MESSAGES',
-      JSON.stringify({ messageId, senderId }),
+      JSON.stringify({ messageId, senderId, groupId }),
     )
 
     return NextResponse.json(
