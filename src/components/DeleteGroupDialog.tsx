@@ -28,7 +28,7 @@ export function DeleteGroupDialog({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <button
-          className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30"
+          className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
           title="Delete Group"
           onClick={(e) => e.stopPropagation()}
         >
@@ -52,7 +52,7 @@ export function DeleteGroupDialog({
               e.stopPropagation()
               onConfirm()
             }}
-            className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-600"
+            className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-600"
             disabled={isDeleting}
           >
             {isDeleting ? 'Deleting...' : 'Delete Group'}

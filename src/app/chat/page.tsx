@@ -5,7 +5,15 @@ import CommunityChat from '@/components/ComunityChat'
 import { DeleteMessageDialog } from '@/components/DeleteMessageDialog'
 import { DeleteGroupDialog } from '@/components/DeleteGroupDialog'
 import { useSocket } from '@/hooks/useSocket'
-import { Loader2, Plus, Users, MessageSquare, LogIn, Menu, ChevronLeft } from 'lucide-react'
+import {
+  Loader2,
+  Plus,
+  Users,
+  MessageSquare,
+  LogIn,
+  Menu,
+  ChevronLeft,
+} from 'lucide-react'
 import React, { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import {
@@ -58,7 +66,15 @@ function CommunityPage() {
 
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const { socket, sendMessage, messages, deleteMessage, setMessages, activeRoom, joinRoom } = useSocket()
+  const {
+    socket,
+    sendMessage,
+    messages,
+    deleteMessage,
+    setMessages,
+    activeRoom,
+    joinRoom,
+  } = useSocket()
 
   // Handle real-time group events from sockets
   useEffect(() => {
@@ -137,7 +153,9 @@ function CommunityPage() {
       }
 
       // Fetch discoverable groups
-      const discoverRes = await fetch(`/api/groups?userId=${user.id}&type=discover`)
+      const discoverRes = await fetch(
+        `/api/groups?userId=${user.id}&type=discover`,
+      )
       if (discoverRes.ok) {
         const data = await discoverRes.json()
         setDiscoverGroups(data.groups || [])
@@ -167,7 +185,9 @@ function CommunityPage() {
     startTransition(async () => {
       try {
         const roomId = room === 'global' ? 'global' : room.id
-        const response = await fetch(`/api/fetch-prev-messages?groupId=${roomId}`)
+        const response = await fetch(
+          `/api/fetch-prev-messages?groupId=${roomId}`,
+        )
         if (!response.ok) throw new Error('Failed to fetch')
 
         const data = await response.json()
@@ -332,10 +352,10 @@ function CommunityPage() {
 
       {/* Left Sidebar */}
       <div
-        className={`absolute md:relative inset-y-0 left-0 z-30 flex flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-zinc-800 dark:bg-zinc-950 md:bg-gray-50/50 md:dark:bg-zinc-900/30 ${
+        className={`absolute inset-y-0 left-0 z-30 flex flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out md:relative md:bg-gray-50/50 dark:border-zinc-800 dark:bg-zinc-950 md:dark:bg-zinc-900/30 ${
           isSidebarOpen
-            ? 'w-80 translate-x-0 opacity-100 border-r'
-            : 'w-0 -translate-x-full opacity-0 pointer-events-none md:-translate-x-0 md:w-0 md:border-r-0 overflow-hidden'
+            ? 'w-80 translate-x-0 border-r opacity-100'
+            : 'pointer-events-none w-0 -translate-x-full overflow-hidden opacity-0 md:w-0 md:-translate-x-0 md:border-r-0'
         }`}
       >
         <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-zinc-800">
@@ -365,7 +385,10 @@ function CommunityPage() {
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                      <label htmlFor="groupName" className="text-sm font-medium">
+                      <label
+                        htmlFor="groupName"
+                        className="text-sm font-medium"
+                      >
                         Group Name
                       </label>
                       <Input
@@ -377,7 +400,10 @@ function CommunityPage() {
                       />
                     </div>
                     <div className="grid gap-2">
-                      <label htmlFor="groupDesc" className="text-sm font-medium">
+                      <label
+                        htmlFor="groupDesc"
+                        className="text-sm font-medium"
+                      >
                         Description (optional)
                       </label>
                       <Input
@@ -417,7 +443,7 @@ function CommunityPage() {
         </div>
 
         {/* Channels/Groups list */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
+        <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-3">
           {/* Default Community Section */}
           <div className="space-y-1">
             <button
@@ -436,7 +462,7 @@ function CommunityPage() {
           {/* User's Joined Groups */}
           <div className="space-y-1">
             <div className="flex items-center justify-between px-3 py-1">
-              <span className="text-[11px] font-semibold tracking-wider text-gray-400 dark:text-zinc-500 uppercase">
+              <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
                 My Groups
               </span>
             </div>
@@ -456,17 +482,19 @@ function CommunityPage() {
                 >
                   <button
                     onClick={() => handleSelectRoom(group)}
-                    className="flex flex-1 items-center gap-3 min-w-0 text-left"
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <Users className="h-4 w-4 shrink-0" />
                     <span className="truncate">{group.name}</span>
                   </button>
 
                   {user?.id === group.creatorId && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0">
+                    <div className="ml-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
                       <DeleteGroupDialog
                         groupName={group.name}
-                        onConfirm={() => handleDeleteGroup(group.id, group.name)}
+                        onConfirm={() =>
+                          handleDeleteGroup(group.id, group.name)
+                        }
                         isDeleting={isDeletingGroup === group.id}
                       />
                     </div>
@@ -479,7 +507,7 @@ function CommunityPage() {
           {/* Discoverable Groups */}
           <div className="space-y-1">
             <div className="flex items-center justify-between px-3 py-1">
-              <span className="text-[11px] font-semibold tracking-wider text-gray-400 dark:text-zinc-500 uppercase">
+              <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
                 Discover Groups
               </span>
             </div>
@@ -493,12 +521,12 @@ function CommunityPage() {
                   key={group.id}
                   className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all hover:bg-gray-100 dark:hover:bg-zinc-900"
                 >
-                  <div className="flex flex-col min-w-0 pr-2">
-                    <span className="font-medium text-gray-700 dark:text-gray-300 truncate">
+                  <div className="flex min-w-0 flex-col pr-2">
+                    <span className="truncate font-medium text-gray-700 dark:text-gray-300">
                       {group.name}
                     </span>
                     {group.description && (
-                      <span className="text-xs text-gray-400 dark:text-zinc-500 truncate">
+                      <span className="truncate text-xs text-gray-400 dark:text-zinc-500">
                         {group.description}
                       </span>
                     )}
@@ -507,9 +535,9 @@ function CommunityPage() {
                     onClick={() => handleJoinGroup(group)}
                     size="sm"
                     variant="outline"
-                    className="h-7 px-2 text-xs border-blue-500/30 text-blue-600 hover:bg-blue-50 dark:border-blue-500/20 dark:text-blue-400 dark:hover:bg-zinc-800 shrink-0"
+                    className="h-7 shrink-0 border-blue-500/30 px-2 text-xs text-blue-600 hover:bg-blue-50 dark:border-blue-500/20 dark:text-blue-400 dark:hover:bg-zinc-800"
                   >
-                    <LogIn className="h-3 w-3 mr-1" />
+                    <LogIn className="mr-1 h-3 w-3" />
                     Join
                   </Button>
                 </div>
@@ -529,7 +557,7 @@ function CommunityPage() {
               variant="ghost"
               size="icon"
               onClick={() => setIsSidebarOpen(true)}
-              className="h-9 w-9 border border-gray-200 dark:border-zinc-800 shrink-0"
+              className="h-9 w-9 shrink-0 border border-gray-200 dark:border-zinc-800"
               title="Expand Sidebar"
             >
               <Menu className="h-5 w-5" />
@@ -602,7 +630,7 @@ function CommunityPage() {
                         } `}
                       >
                         <div
-                          className={`flex items-center gap-2 mb-1 ${
+                          className={`mb-1 flex items-center gap-2 ${
                             isCurrentUser ? 'flex-row-reverse' : 'flex-row'
                           }`}
                         >
@@ -615,14 +643,16 @@ function CommunityPage() {
                             {isCurrentUser ? 'You' : userEmail}
                           </span>
                         </div>
-                        <p className="leading-relaxed break-words font-light">
+                        <p className="leading-relaxed font-light break-words">
                           {msg.content}
                         </p>
 
                         {isCurrentUser && (
                           <div className="absolute top-2 -left-8">
                             <DeleteMessageDialog
-                              onConfirm={() => handleDeleteMessage(msg.id, msg.senderId)}
+                              onConfirm={() =>
+                                handleDeleteMessage(msg.id, msg.senderId)
+                              }
                               isDeleting={isDeleting}
                             />
                           </div>

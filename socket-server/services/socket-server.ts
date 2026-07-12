@@ -60,10 +60,14 @@ class SocketServer {
           this._io.to(targetRoom).emit('delete:message', parsedMessage)
         } else if (channel === 'GROUPS') {
           if (parsedMessage.action === 'DELETE') {
-            console.log(`Broadcasting group deletion for: ${parsedMessage.groupId}`)
+            console.log(
+              `Broadcasting group deletion for: ${parsedMessage.groupId}`,
+            )
             this._io.emit('group:deleted', { groupId: parsedMessage.groupId })
           } else if (parsedMessage.action === 'CREATE') {
-            console.log(`Broadcasting group creation for: ${parsedMessage.group.id}`)
+            console.log(
+              `Broadcasting group creation for: ${parsedMessage.group.id}`,
+            )
             this._io.emit('group:created', { group: parsedMessage.group })
           }
         }

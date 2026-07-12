@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     }
     await pub.publish(
       'GROUPS',
-      JSON.stringify({ action: 'CREATE', group: publishedGroup })
+      JSON.stringify({ action: 'CREATE', group: publishedGroup }),
     )
 
     return NextResponse.json({ group, success: true }, { status: 201 })
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const userId = searchParams.get('userId')
-    const type = searchParams.get('type')  // 'joined' or 'discover'
+    const type = searchParams.get('type') // 'joined' or 'discover'
 
     let groups
 
@@ -138,7 +138,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-
 // Delete a group created by the user (only the creator can delete)
 export async function DELETE(req: NextRequest) {
   try {
@@ -170,17 +169,13 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
-
     // Delete the group
     await prisma.group.delete({
       where: { id: groupId },
     })
 
     // Publish deletion to Redis
-    await pub.publish(
-      'GROUPS',
-      JSON.stringify({ action: 'DELETE', groupId })
-    )
+    await pub.publish('GROUPS', JSON.stringify({ action: 'DELETE', groupId }))
 
     return NextResponse.json(
       { message: 'Group deleted successfully', success: true },

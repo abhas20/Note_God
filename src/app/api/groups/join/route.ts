@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(
-      { group: updatedGroup, message: 'Joined group successfully', success: true },
+      {
+        group: updatedGroup,
+        message: 'Joined group successfully',
+        success: true,
+      },
       { status: 200 },
     )
   } catch (error) {

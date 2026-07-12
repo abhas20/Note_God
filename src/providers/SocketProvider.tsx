@@ -23,7 +23,11 @@ interface Message {
 
 interface ISocketContextType {
   socket: Socket | undefined
-  sendMessage: (message: string, senderID: string, groupId: string | null) => Promise<void>
+  sendMessage: (
+    message: string,
+    senderID: string,
+    groupId: string | null,
+  ) => Promise<void>
   deleteMessage: (messageId: string, senderID: string) => Promise<void>
   messages: Message[]
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
