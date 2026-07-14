@@ -23,7 +23,7 @@ async function Home({ searchParams }: props) {
   const notesId = Array.isArray(noteIdParam)
     ? noteIdParam![0]
     : noteIdParam || ''
-  console.log(noteIdParam)
+  // console.log(noteIdParam)
 
   if (!notesId) {
     const latestNote = await prisma.notes.findFirst({

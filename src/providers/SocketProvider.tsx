@@ -1,4 +1,5 @@
 'use client'
+import { logger } from '@/lib/logger'
 import React, { createContext, useCallback, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 
@@ -63,7 +64,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 
         if (!response.ok) throw new Error('Failed to send message')
       } catch (error) {
-        console.error('Error sending message:', error)
+        // console.error('Error sending message:', error)
+        logger.error({ error }, 'Error sending message')
       }
     },
     [],
@@ -80,7 +82,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 
         if (!response.ok) throw new Error('Failed to delete message')
       } catch (error) {
-        console.error('Error deleting message:', error)
+        // console.error('Error deleting message:', error)
+        logger.error({ error }, 'Error deleting message')
       }
     },
     [],
@@ -88,12 +91,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 
   // Receive message from socket
   const onMessageReceived = useCallback((message: Message) => {
-    console.log('Real-time message received:', message)
+    // console.log('Real-time message received:', message)
+    logger.info({ message }, 'Real-time message received')
     setMessages((prev) => [...prev, message])
   }, [])
 
   const onDeleteReceived = useCallback((payload: { messageId: string }) => {
-    console.log('Real-time delete received:', payload)
+    // console.log('Real-time delete received:', payload)
+    logger.info({ payload }, 'Real-time delete received')
     setMessages((prev) => prev.filter((msg) => msg.id !== payload.messageId))
   }, [])
 
@@ -112,7 +117,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
     return () => {
       _socket.off('message', onMessageReceived)
       _socket.off('delete:message', onDeleteReceived)
-      console.log('Socket disconnected')
+      // console.log('Socket disconnected')
+      logger.info('Socket disconnected')
       setSocket(undefined)
       _socket.disconnect()
     }
@@ -122,7 +128,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   useEffect(() => {
     if (_socketInstance) {
       _socketInstance.emit('join:room', { roomId: activeRoom })
-      console.log(`Emitted join:room for room: ${activeRoom}`)
+      // console.log(`Emitted join:room for room: ${activeRoom}`)
+      logger.info({ roomId: activeRoom }, 'Emitted join:room')
     }
   }, [_socketInstance, activeRoom])
 

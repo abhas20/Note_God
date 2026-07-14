@@ -28,7 +28,7 @@ const eslintConfig = [
       ],
 
       eqeqeq: ['error', 'always'],
-      'no-console': 'off', // ["warn", { allow: ["warn", "error"] }],
+      'no-console': ['warn', { allow: ['warn', 'error'] }], //off
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },

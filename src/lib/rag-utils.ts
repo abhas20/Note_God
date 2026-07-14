@@ -12,6 +12,7 @@ import { HumanMessage, SystemMessage } from '@langchain/core/messages'
 import dotenv from 'dotenv'
 import path from 'path'
 import { TaskType } from '@google/generative-ai'
+import { logger } from './logger'
 
 dotenv.config()
 
@@ -27,11 +28,13 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
 })
 
 export const pdfLoader = async (filePath: string, userId: string) => {
-  console.log('📄 Reading file from disk...')
+  // console.log('📄 Reading file from disk...')
+  logger.info({ filePath, userId }, 'Reading PDF file from disk...')
   const dataBuffer = fs.readFileSync(filePath)
   const parser: PDFParse = new PDFParse({ data: dataBuffer })
 
-  console.log('🧩 Parsing PDF structure...')
+  // console.log('🧩 Parsing PDF structure...')
+  logger.info({ filePath }, 'Parsing PDF structure...')
 
   const info = await parser.getInfo()
   const totalPages = info.total
@@ -80,16 +83,25 @@ export const textSplitter = async (
 
 export const addToVectorEmbedding = async (docs: Document[]) => {
   try {
-    console.log(`Attempting to add ${docs.length} chunks to Qdrant...`)
+    // console.log(`Attempting to add ${docs.length} chunks to Qdrant...`)
+    logger.info(
+      { chunkCount: docs.length },
+      'Attempting to add chunks to Qdrant...',
+    )
 
     if (!docs || docs.length === 0) {
-      console.error('❌ No documents provided to insert!')
+      // console.error('❌ No documents provided to insert!')
+      logger.error('No documents provided to insert!')
       return
     }
 
     // ✅ Filter out empty or whitespace-only chunks
     const cleanDocs = docs.filter((doc) => doc.pageContent.trim().length > 20)
-    console.log(`📦 Clean chunks after filtering: ${cleanDocs.length}`)
+    // console.log(`📦 Clean chunks after filtering: ${cleanDocs.length}`)
+    logger.info(
+      { cleanChunkCount: cleanDocs.length },
+      'Clean chunks after filtering',
+    )
 
     const BATCH_SIZE = 10
     let vectorStore: QdrantVectorStore | null = null
@@ -117,17 +129,29 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
             await vectorStore.addDocuments(batch)
           }
 
-          console.log(`✅ Batch ${batchNum}/${totalBatches} added`)
+          // console.log(`✅ Batch ${batchNum}/${totalBatches} added`)
+          logger.info(
+            { batchNum, totalBatches },
+            `✅ Batch ${batchNum}/${totalBatches} added successfully`,
+          )
           break // success, exit retry loop
         } catch {
           retries--
-          console.warn(
-            `⚠️ Batch ${batchNum} failed, retrying... (${retries} left)`,
+          // console.warn(
+          //   `⚠️ Batch ${batchNum} failed, retrying... (${retries} left)`,
+          // )
+          logger.warn(
+            { batchNum, retries },
+            `Batch ${batchNum} failed, retrying... (${retries} left)`,
           )
           await new Promise((res) => setTimeout(res, 1000))
 
           if (retries === 0) {
-            console.error(
+            // console.error(
+            //   `❌ Skipping batch ${batchNum} after 3 failed attempts`,
+            // )
+            logger.error(
+              { batchNum },
               `❌ Skipping batch ${batchNum} after 3 failed attempts`,
             )
           }
@@ -137,9 +161,11 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
       await new Promise((res) => setTimeout(res, 700))
     }
 
-    console.log('✅ All documents added successfully!')
+    // console.log('✅ All documents added successfully!')
+    logger.info('All documents added successfully to Qdrant!')
   } catch (error) {
-    console.error('❌ Failed to add documents to Qdrant:', error)
+    // console.error('❌ Failed to add documents to Qdrant:', error)
+    logger.error({ error }, 'Failed to add documents to Qdrant')
     throw error
   }
 }
@@ -158,7 +184,8 @@ export const queryVectorStore = async (query: string, userId: string) => {
     },
   )
 
-  console.log(`Searching for: "${query}" for ${userId}...`)
+  // console.log(`Searching for: "${query}" for ${userId}...`)
+  logger.info({ query, userId }, `Searching for query in vector store...`)
 
   const results = await vectorStore
     .asRetriever({
@@ -209,7 +236,7 @@ export const askQuestion = async (question: string, userId: string) => {
     new SystemMessage(SYSTEM_PROMPT),
     new HumanMessage(`Context:\n${context}\n\nQuestion: ${question}`),
   ]
-  console.log('🤖 Asking Gemini...')
+  // console.log('🤖 Asking Gemini...')
 
   const response = await gemini.invoke(messages)
   return {
@@ -222,7 +249,8 @@ export const askQuestion = async (question: string, userId: string) => {
 }
 
 export const deleteVectorData = async (fileName: string, userId: string) => {
-  console.log('Deleting vectors for file:', fileName)
+  // console.log('Deleting vectors for file:', fileName)
+  logger.info({ fileName, userId }, 'Deleting vectors for file...')
 
   try {
     const collectionName = 'note_god_collection'
@@ -246,9 +274,11 @@ export const deleteVectorData = async (fileName: string, userId: string) => {
       },
     })
 
-    console.log('✅ Vectors deleted successfully!')
+    // console.log('✅ Vectors deleted successfully!')
+    logger.info({ fileName, userId }, 'Vectors deleted successfully!')
     return { status }
   } catch (error) {
-    console.log('Error in deleting:', error)
+    // console.log('Error in deleting:', error)
+    logger.error({ error, fileName, userId }, 'Error in deleting vectors')
   }
 }

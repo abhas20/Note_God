@@ -1,5 +1,6 @@
 import { prisma } from '@/db/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // Join a group
 export async function POST(req: NextRequest) {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    console.error('Error joining group:', error)
+    logger.error({ error }, 'Error joining group')
     return NextResponse.json(
       { message: 'Error in joining group', success: false },
       { status: 500 },

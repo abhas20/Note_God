@@ -1,4 +1,5 @@
 import { prisma } from '@/db/prisma'
+import { logger } from '@/lib/logger'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -14,7 +15,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message, success: true }, { status: 200 })
   } catch (error) {
-    console.log('Error in saving message', error)
+    // console.log('Error in saving message', error)
+    logger.error({ error }, 'Error in saving message')
     return NextResponse.json(
       { message: 'Error in saving message', success: false },
       { status: 500 },

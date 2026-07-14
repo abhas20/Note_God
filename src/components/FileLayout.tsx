@@ -8,6 +8,7 @@ import { FileUploads } from '@prisma/client'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { getSignedPdfUrlAction } from '@/action/rag'
+import { logger } from '@/lib/logger'
 
 type Props = {
   files: FileUploads[]
@@ -40,19 +41,28 @@ const FileLayout = ({
       })
 
       if (response.ok) {
-        console.log(
-          'File and vectors deleted successfully for file:',
-          file.fileName,
+        // console.log(
+        //   'File and vectors deleted successfully for file:',
+        //   file.fileName,
+        // )
+        logger.info(
+          { fileName: file.fileName, fileId: file.id },
+          'File and vectors deleted successfully',
         )
         toast.success('File deleted successfully')
         await fetchFiles?.()
       } else {
         const data = await response.json()
-        console.log('Error in deleting file:', data.errorMessage)
+        // console.log('Error in deleting file:', data.errorMessage)
+        logger.error(
+          { errorMessage: data.errorMessage, fileName: file.fileName },
+          'Error in deleting file',
+        )
         toast.error('Error in deleting file: ' + data.errorMessage)
       }
     } catch (error) {
-      console.log('File Cannot be deleted', error)
+      // console.log('File Cannot be deleted', error)
+      logger.error({ error }, 'File cannot be deleted')
       toast.error('Error in deleting file')
     } finally {
       setLoading(false)
@@ -79,7 +89,8 @@ const FileLayout = ({
         toast.success('Download started')
       }
     } catch (err) {
-      console.error(err)
+      // console.error(err)
+      logger.error({ err }, 'Failed to download file')
       toast.error('Failed to download file')
     } finally {
       setDownloadingId(null)

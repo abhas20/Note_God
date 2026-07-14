@@ -1,5 +1,4 @@
-// components/Typewriter.js
-'use client' // if using in a Next.js 13+ app inside /app directory
+'use client'
 
 import { useState, useEffect } from 'react'
 

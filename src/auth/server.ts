@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
+import { logger } from '@/lib/logger'
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -19,7 +20,8 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             )
           } catch (error) {
-            console.error(`Failed to set cookie :`, error)
+            // console.error(`Failed to set cookie :`, error)
+            logger.error({ error }, 'Failed to set cookie')
           }
         },
       },
@@ -32,7 +34,8 @@ export async function _getUser() {
   const { auth } = await createClient()
   const userObject = await auth.getUser()
   if (userObject.error) {
-    console.log(userObject.error)
+    // console.log(userObject.error)
+    logger.error({ error: userObject.error }, 'Failed to get user')
   }
   return userObject.data.user
 }

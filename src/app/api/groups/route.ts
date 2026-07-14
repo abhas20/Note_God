@@ -1,6 +1,7 @@
 import { prisma } from '@/db/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import Redis from 'ioredis'
+import { logger } from '@/lib/logger'
 
 const RedisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ group, success: true }, { status: 201 })
   } catch (error) {
-    console.error('Error creating group:', error)
+    logger.error({ error }, 'Error creating group')
     return NextResponse.json(
       { message: 'Error in creating group', success: false },
       { status: 500 },
@@ -130,7 +131,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ groups, success: true }, { status: 200 })
   } catch (error) {
-    console.error('Error fetching groups:', error)
+    logger.error({ error }, 'Error fetching groups')
     return NextResponse.json(
       { message: 'Error fetching groups', success: false },
       { status: 500 },
@@ -182,7 +183,7 @@ export async function DELETE(req: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    console.error('Error deleting group:', error)
+    logger.error({ error }, 'Error deleting group')
     return NextResponse.json(
       { message: 'Error deleting group', success: false },
       { status: 500 },

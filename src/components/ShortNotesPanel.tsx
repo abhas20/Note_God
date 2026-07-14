@@ -17,10 +17,10 @@ import {
   Plus,
   Loader2,
   MessageSquare,
-  Sparkles,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import { logger } from '@/lib/logger'
 
 type ShortNote = {
   id: string
@@ -53,6 +53,10 @@ export default function ShortNotesPanel({ noteId }: Props) {
     try {
       const res = await getShortNotesAction(noteId)
       if (res.errorMessage) {
+        logger.error(
+          { errorMessage: res.errorMessage, noteId },
+          'Error fetching short notes',
+        )
         toast.error(res.errorMessage)
       } else {
         // Convert database response dates back to Date objects
@@ -64,6 +68,7 @@ export default function ShortNotesPanel({ noteId }: Props) {
         setShortNotes(notesWithDates)
       }
     } catch (err) {
+      logger.error({ err, noteId }, 'Failed to load short notes/comments.')
       toast.error('Failed to load short notes/comments.')
     } finally {
       setLoading(false)
@@ -115,6 +120,7 @@ export default function ShortNotesPanel({ noteId }: Props) {
           toast.success('Short note saved!')
         }
       } catch (err) {
+        logger.error({ err }, 'Failed to save short note.')
         toast.error('Failed to save short note.')
       }
     })
@@ -134,6 +140,7 @@ export default function ShortNotesPanel({ noteId }: Props) {
         toast.success('Short note deleted!')
       }
     } catch (err) {
+      logger.error({ err }, 'Failed to delete short note.')
       toast.error('Failed to delete short note.')
       setShortNotes(originalNotes)
     }
@@ -167,6 +174,7 @@ export default function ShortNotesPanel({ noteId }: Props) {
         toast.success('Short note updated!')
       }
     } catch (err) {
+      logger.error({ err }, 'Failed to update short note.')
       toast.error('Failed to update short note.')
     }
   }

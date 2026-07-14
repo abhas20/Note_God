@@ -1,6 +1,7 @@
 import { prisma } from '@/db/prisma'
 import Redis from 'ioredis'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 const RedisConfig = {
   host: process.env.REDIS_HOST || 'localhost', //when not using docker
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message, success: true }, { status: 200 })
   } catch (error) {
-    console.log('Error in saving message', error)
+    logger.error({ error }, 'Error in saving message')
     return NextResponse.json(
       { message: 'Error in saving message', success: false },
       { status: 500 },
@@ -82,7 +83,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    console.log('Error in deleting message', error)
+    logger.error({ error }, 'Error in deleting message')
     return NextResponse.json(
       { message: 'Error in deleting message', success: false },
       { status: 500 },

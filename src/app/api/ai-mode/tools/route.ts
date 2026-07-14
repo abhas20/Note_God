@@ -7,6 +7,7 @@ import {
 } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 const googleAI = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -56,7 +57,8 @@ export async function POST(req: Request) {
 
             return { imageUrl: `data:image/jpeg;base64,${image.base64}` }
           } catch (error) {
-            console.error('generate_image tool failed:', error)
+            // console.error('generate_image tool failed:', error)
+            logger.error({ error }, 'generate_image tool failed')
             throw error
           }
         },
@@ -76,7 +78,11 @@ export async function POST(req: Request) {
       tools: Object.keys(activeTools).length > 0 ? activeTools : undefined,
       onStepFinish: (event) => {
         if (event.toolCalls?.length) {
-          console.log(`🛠️  Executing ${event.toolCalls.length} tool(s)...`)
+          // console.log(`🛠️  Executing ${event.toolCalls.length} tool(s)...`)
+          logger.info(
+            { toolCalls: event.toolCalls },
+            `🛠️  Executing ${event.toolCalls.length} tool(s)...`,
+          )
         }
       },
       maxRetries: 0,
@@ -85,7 +91,8 @@ export async function POST(req: Request) {
     // console.log(activeTools);
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error('Error in AI response generation:', error)
+    // console.error('Error in AI response generation:', error)
+    logger.error({ error }, 'Error in AI response generation')
     return new Response('Error generating AI response', { status: 500 })
   }
 }

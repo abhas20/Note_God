@@ -1,4 +1,5 @@
 import { getUser } from '@/auth/server'
+import { logger } from '@/lib/logger'
 import { askQuestion } from '@/lib/rag-utils'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -19,11 +20,12 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       )
     }
-    console.log('Received RAG query:', question)
+    // console.log('Received RAG query:', question)
     const answer = await askQuestion(question, userId)
     return NextResponse.json({ answer })
   } catch (error) {
-    console.log('Error in RAG query', error)
+    // console.log('Error in RAG query', error)
+    logger.error({ error }, 'Error in RAG query')
     return NextResponse.json(
       { message: 'Error in RAG query', success: false },
       { status: 500 },

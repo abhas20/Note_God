@@ -37,6 +37,7 @@ import { Textarea } from './ui/textarea'
 import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { logger } from '@/lib/logger'
 
 const AVAILABLE_TOOLS = [
   {
@@ -110,10 +111,12 @@ export default function AiWithTools({ noteId }: { noteId?: string }) {
     transport,
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     onToolCall: (toolCall) => {
-      console.log('Tool called:', toolCall)
+      // console.log('Tool called:', toolCall)
+      logger.info({ toolCall }, 'Tool called')
     },
     onError: (error) => {
-      console.error('Error in chat transport:', error)
+      // console.error('Error in chat transport:', error)
+      logger.error({ error }, 'Error in chat transport')
       toast.error('Error generating AI response. Please try again.', {
         description: error instanceof Error ? error.message : String(error),
         position: 'top-center',
@@ -129,7 +132,8 @@ export default function AiWithTools({ noteId }: { noteId?: string }) {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1]
       if (lastMessage.role === 'assistant') {
-        console.log('RAW AI OUTPUT PARTS:', lastMessage.parts)
+        // console.log('RAW AI OUTPUT PARTS:', lastMessage.parts)
+        logger.info({ lastMessage }, 'RAW AI OUTPUT PARTS')
       }
     }
   }, [messages])
@@ -341,6 +345,10 @@ export default function AiWithTools({ noteId }: { noteId?: string }) {
                                           )
                                         }
                                       } catch (err) {
+                                        logger.error(
+                                          { err },
+                                          'Failed to save response to short notes.',
+                                        )
                                         toast.error(
                                           'Failed to save response to short notes.',
                                         )

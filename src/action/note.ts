@@ -4,6 +4,7 @@ import { getUser } from '@/auth/server'
 import { prisma } from '@/db/prisma'
 import { handleError } from '@/lib/utils'
 import gemini from '../../ai'
+import { logger } from '@/lib/logger'
 
 export const updateNoteAction = async (noteId: string, note: string) => {
   try {
@@ -123,7 +124,8 @@ export const askAINoteAction = async (
 
     return completion.text ?? '<p>Sorry, something went wrong.</p>'
   } catch (error) {
-    console.warn('AI Response error: ', error)
+    // console.warn('AI Response error: ', error)
+    logger.error({ error }, 'AI Response error')
     return '<p>Sorry, the AI could not generate a response.</p>'
   }
 }
@@ -160,7 +162,8 @@ export const makeNoteAction = async (topic: string) => {
 
     return aiGeneratedNote
   } catch (error) {
-    console.warn('Make Note AI error: ', error)
+    // console.warn('Make Note AI error: ', error)
+    logger.error({ error }, 'Make Note AI error')
     handleError(error)
     return '<p>Sorry, the AI could not generate the notes.</p>'
   }
@@ -197,13 +200,14 @@ export async function generateImagePrompt(noteId: string) {
         },
       ],
     })
-    console.log(completion.text)
+    // console.log(completion.text)
 
     return (
       completion.text ?? 'A beautiful landscape with mountains and a river.'
     )
   } catch (error) {
-    console.warn('Image Prompt AI error: ', error)
+    // console.warn('Image Prompt AI error: ', error)
+    logger.warn({ error }, 'Image Prompt AI error')
     handleError(error)
     return 'A beautiful landscape with mountains and a river.'
   }

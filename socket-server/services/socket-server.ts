@@ -1,7 +1,8 @@
 import { Server } from 'socket.io'
 import { Redis } from 'ioredis'
-
 import dotenv from 'dotenv'
+import { logger } from './logger.js'
+
 dotenv.config()
 
 const RedisConfig = {
@@ -14,16 +15,14 @@ const RedisConfig = {
 const pub = new Redis(RedisConfig)
 const sub = new Redis(RedisConfig)
 
-// console.log(process.env.REDIS_HOST)
-
-pub.on('error', (err) => console.error('Redis Pub error:', err))
-sub.on('error', (err) => console.error('Redis Sub error:', err))
+pub.on('error', (err) => logger.error({ err }, 'Redis Pub error'))
+sub.on('error', (err) => logger.error({ err }, 'Redis Sub error'))
 
 class SocketServer {
   private _io: Server // Socket.IO server instance
   // private prisma: any;
   constructor() {
-    console.log('Socket server is initializing...')
+    logger.info('Socket server is initializing...')
     this._io = new Server({
       cors: {
         origin: process.env.FRONTEND_URL
@@ -35,13 +34,13 @@ class SocketServer {
 
     this.setupRedisSubscriptions()
 
-    console.log('Socket server initialized.')
+    logger.info('Socket server initialized.')
   }
 
   private setupRedisSubscriptions() {
     sub.subscribe('MESSAGES', 'DELETE_MESSAGES', 'GROUPS', (err, count) => {
-      if (err) console.error('Failed to subscribe:', err)
-      else console.log(`Subscribed successfully to ${count} channels.`)
+      if (err) logger.error({ err }, 'Failed to subscribe to Redis channels')
+      else logger.info(`Subscribed successfully to ${count} channels.`)
     })
 
     sub.on('message', (channel, message) => {
@@ -52,34 +51,36 @@ class SocketServer {
 
         if (channel === 'MESSAGES') {
           const targetRoom = parsedMessage.groupId || 'global'
-          console.log(`Broadcasting new message to room: ${targetRoom}`)
+          logger.info({ targetRoom }, 'Broadcasting new message to room')
           this._io.to(targetRoom).emit('message', parsedMessage)
         } else if (channel === 'DELETE_MESSAGES') {
           const targetRoom = parsedMessage.groupId || 'global'
-          console.log(`Broadcasting delete event to room: ${targetRoom}`)
+          logger.info({ targetRoom }, 'Broadcasting delete event to room')
           this._io.to(targetRoom).emit('delete:message', parsedMessage)
         } else if (channel === 'GROUPS') {
           if (parsedMessage.action === 'DELETE') {
-            console.log(
-              `Broadcasting group deletion for: ${parsedMessage.groupId}`,
+            logger.info(
+              { groupId: parsedMessage.groupId },
+              'Broadcasting group deletion',
             )
             this._io.emit('group:deleted', { groupId: parsedMessage.groupId })
           } else if (parsedMessage.action === 'CREATE') {
-            console.log(
-              `Broadcasting group creation for: ${parsedMessage.group.id}`,
+            logger.info(
+              { groupId: parsedMessage.group.id },
+              'Broadcasting group creation',
             )
             this._io.emit('group:created', { group: parsedMessage.group })
           }
         }
       } catch (error) {
-        console.error('Socket Server error parsing Redis message:', error)
+        logger.error({ error }, 'Socket Server error parsing Redis message')
       }
     })
   }
 
   public initServer() {
     this._io.on('connection', (socket) => {
-      console.log(`New client connected: ${socket.id}`)
+      logger.info({ socketId: socket.id }, 'New client connected')
 
       // Handle room joining
       socket.on('join:room', ({ roomId }) => {
@@ -89,12 +90,12 @@ class SocketServer {
           }
         })
         socket.join(roomId)
-        console.log(`Socket ${socket.id} joined room ${roomId}`)
+        logger.info({ socketId: socket.id, roomId }, 'Socket joined room')
       })
 
       // Handle disconnection
       socket.on('disconnect', () => {
-        console.log(`Client disconnected: ${socket.id}`)
+        logger.info({ socketId: socket.id }, 'Client disconnected')
       })
     })
   }

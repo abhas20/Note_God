@@ -1,5 +1,6 @@
 import { prisma } from '@/db/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ messages: formatMessages }, { status: 200 })
   } catch (error) {
-    console.error('Error in fetching messages', error)
+    logger.error({ error }, 'Error in fetching messages')
     return NextResponse.json(
       { error: 'Error in fetching messages' },
       { status: 500 },

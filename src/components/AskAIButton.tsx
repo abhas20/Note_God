@@ -18,6 +18,7 @@ import { askAINoteAction } from '@/action/note'
 import { createShortNoteAction } from '@/action/shortNote'
 import { toast } from 'sonner'
 import '@/style/ai-response.css'
+import { logger } from '@/lib/logger'
 
 type Props = {
   user: User | null
@@ -156,6 +157,10 @@ export default function AskAIButton({ user }: Props) {
                           )
                         }
                       } catch (err) {
+                        logger.error(
+                          { err },
+                          'Failed to save response to short notes.',
+                        )
                         toast.error('Failed to save response to short notes.')
                       }
                     }}

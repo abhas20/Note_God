@@ -21,6 +21,7 @@ import { Bot, User, Download, Loader2 } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { logger } from '@/lib/logger'
 
 interface IMessage {
   role: 'user' | 'assistant' | 'system'
@@ -60,6 +61,7 @@ function ChatwithPdfpage() {
             setPdfUrl(res.signedUrl)
           }
         } catch (error) {
+          logger.error({ error }, 'Failed to load PDF preview')
           toast.error('Failed to load PDF preview')
           setActiveFile(null)
         } finally {
@@ -80,7 +82,8 @@ function ChatwithPdfpage() {
     try {
       await fetchUserFiles().then(({ files, errorMessage }) => {
         if (errorMessage) {
-          console.log('Error while fetching files', errorMessage)
+          // console.log('Error while fetching files', errorMessage)
+          logger.error({ errorMessage }, 'Error while fetching files')
           toast.error('Error fetching files: ' + errorMessage)
         } else {
           setPdffiles(files)
@@ -93,7 +96,8 @@ function ChatwithPdfpage() {
         }
       })
     } catch (error) {
-      console.log('An error occured while fetching files', error)
+      // console.log('An error occured while fetching files', error)
+      logger.error({ error }, 'An error occured while fetching files')
       toast.error('An error occured while fetching files')
     }
   }
@@ -104,14 +108,16 @@ function ChatwithPdfpage() {
     try {
       const { errorMessage } = await uploadFileToDB(file)
       if (errorMessage) {
-        console.log('error while uploading file', errorMessage)
+        // console.log('error while uploading file', errorMessage)
+        logger.error({ errorMessage }, 'Error while uploading file')
         toast.error('Error uploading file: ' + errorMessage)
       } else {
         toast.success('File uploaded successfully')
         await fetchFiles()
       }
     } catch (error) {
-      console.log('An Error occured while uploading', error)
+      // console.log('An Error occured while uploading', error)
+      logger.error({ error }, 'An error occured while uploading the file')
       toast.error('An error occured while uploading the file')
     } finally {
       setUploading(false)
@@ -142,7 +148,7 @@ function ChatwithPdfpage() {
       }
 
       const res = await response.json()
-      console.log(res)
+      // console.log(res)
       const assistantMessage: IMessage = {
         role: 'assistant',
         content: res.answer.data,
@@ -151,7 +157,8 @@ function ChatwithPdfpage() {
 
       setMessages((prev) => [...prev, assistantMessage])
     } catch (error) {
-      console.log('Error fetching RAG answer:', error)
+      // console.log('Error fetching RAG answer:', error)
+      logger.error({ error }, 'Error fetching RAG answer')
       toast.error('Error getting answer from PDF')
     } finally {
       setLoading(false)

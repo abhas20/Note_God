@@ -3,22 +3,20 @@ import fs from 'fs'
 import path from 'path'
 import { createAdminClient } from '@/auth/admin'
 import { addToVectorEmbedding, pdfLoader, textSplitter } from '@/lib/rag-utils'
+import { logger } from '@/lib/logger'
 import 'dotenv/config'
-
-// console.log(process.env.REDIS_HOST)
 
 const worker = new Worker(
   'file-upload-queue',
   async (job) => {
-    console.log('Processing file:', job.data)
+    logger.info({ jobData: job.data }, 'Processing file')
     const { fileName, filePath, userId } = job.data
     const client = await createAdminClient()
     const { storage } = client
 
     const { data, error } = await storage.from('User_pdfs').download(filePath)
-    console.log(data)
     if (error) {
-      console.log('Error downloading file in worker:', error)
+      logger.error({ error }, 'Error downloading file in worker')
       throw error
     }
 
@@ -29,27 +27,27 @@ const worker = new Worker(
     const fileBuffer = Buffer.from(await data.arrayBuffer())
     fs.writeFileSync(tempFilePath, fileBuffer)
 
-    console.log(`✅ File downloaded to ${tempFilePath}`)
+    logger.info(`✅ File downloaded to ${tempFilePath}`)
 
     try {
       // Load the PDF document
       const documents = await pdfLoader(tempFilePath, userId)
-      console.log(`Loaded ${documents.length} document pages`)
+      logger.info(`Loaded ${documents.length} document pages`)
 
       // Split the document into text chunks
       const chunks = await textSplitter(documents)
-      console.log(`Created ${chunks.length} text chunks`)
+      logger.info(`Created ${chunks.length} text chunks`)
 
       // Add chunks to vector embedding store
-      console.log('---ADDING to VecDB---')
+      logger.info('---ADDING to VecDB---')
       await addToVectorEmbedding(chunks)
-      console.log('✅ Chunks added to vector embedding store')
+      logger.info('✅ Chunks added to vector embedding store')
     } catch (error) {
-      console.log(error)
+      logger.error({ error }, 'Error in processing vector embeddings')
     } finally {
       // Clean up the temporary file
       fs.unlinkSync(tempFilePath)
-      console.log(`🧹 Temporary file ${tempFilePath} deleted`)
+      logger.info(`🧹 Temporary file ${tempFilePath} deleted`)
     }
   },
   {
