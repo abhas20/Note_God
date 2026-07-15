@@ -7,6 +7,7 @@ import { generateText, Output } from 'ai'
 import z from 'zod'
 import { handleError } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 
 type QuizQuestion = {
   questionText: string
@@ -92,7 +93,14 @@ export async function generateQuizAction(noteId: string[]) {
 
     return { questionTitle: output.questionTitle, questions: output.questions }
   } catch (error) {
-    console.warn('Quiz Generation AI error: ', error)
+    // console.warn('Quiz Generation AI error: ', error)
+    logger.error(
+      {
+        event: 'QUIZ_GENERATION_FAILED',
+        error,
+      },
+      'Quiz Generation AI error'
+    )
     handleError(error)
     return 'Sorry, the AI could not generate the quiz.'
   }
@@ -123,7 +131,14 @@ export async function saveQuizResult(quiz: Quiz) {
 
     return { quizId: saved_quiz.id, message: 'Quiz saved successfully' }
   } catch (error) {
-    console.warn('Save Quiz Result error: ', error)
+    // console.warn('Save Quiz Result error: ', error)
+    logger.error(
+      {
+        event: 'SAVE_QUIZ_RESULT_FAILED',
+        error,
+      },
+      'Save Quiz Result error'
+    )
     handleError(error)
     return 'Sorry, there was an error saving your quiz results.'
   }
@@ -143,7 +158,14 @@ export async function getUserQuizzes() {
     })
     return quizzes
   } catch (error) {
-    console.warn('Get User Quizzes error: ', error)
+    // console.warn('Get User Quizzes error: ', error)
+    logger.error(
+      {
+        event: 'GET_USER_QUIZZES_FAILED',
+        error,
+      },
+      'Get User Quizzes error'
+    )
     handleError(error)
     return 'Sorry, there was an error retrieving your quizzes.'
   }
@@ -161,7 +183,15 @@ export async function getQuizById(quizId: string) {
     if (!quiz) throw new Error('Quiz not found')
     return quiz
   } catch (error) {
-    console.warn('Get Quiz By ID error: ', error)
+    // console.warn('Get Quiz By ID error: ', error)
+    logger.error(
+      {
+        event: 'GET_QUIZ_BY_ID_FAILED',
+        quizId,
+        error,
+      },
+      'Get Quiz By ID error'
+    )
     handleError(error)
     return 'Sorry, there was an error retrieving the quiz.'
   }
@@ -188,7 +218,17 @@ export async function saveQuizAttempt(
     revalidatePath('/ai-mode/quiz')
     return attempt
   } catch (error) {
-    console.warn('Save Quiz Attempt error: ', error)
+    // console.warn('Save Quiz Attempt error: ', error)
+    logger.error(
+      {
+        event: 'SAVE_QUIZ_ATTEMPT_FAILED',
+        quizId,
+        score,
+        totalQuestions,
+        error,
+      },
+      'Save Quiz Attempt error'
+    )
     handleError(error)
     return 'Sorry, there was an error saving your quiz attempt.'
   }
@@ -206,7 +246,15 @@ export async function deleteQuiz(quizId: string) {
     revalidatePath('/ai-mode/quiz')
     return 'Quiz deleted successfully'
   } catch (error) {
-    console.warn('Delete Quiz error: ', error)
+    // console.warn('Delete Quiz error: ', error)
+    logger.error(
+      {
+        event: 'DELETE_QUIZ_FAILED',
+        quizId,
+        error,
+      },
+      'Delete Quiz error'
+    )
     handleError(error)
     return 'Sorry, there was an error deleting the quiz.'
   }

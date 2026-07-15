@@ -21,7 +21,14 @@ export async function createClient() {
             )
           } catch (error) {
             // console.error(`Failed to set cookie :`, error)
-            logger.error({ error }, 'Failed to set cookie')
+            logger.error(
+              {
+                event: 'SET_COOKIE_FAILED',
+                cookiesToSet,
+                error,
+              },
+              'Failed to set cookie'
+            )
           }
         },
       },
@@ -35,7 +42,14 @@ export async function _getUser() {
   const userObject = await auth.getUser()
   if (userObject.error) {
     // console.log(userObject.error)
-    logger.error({ error: userObject.error }, 'Failed to get user')
+    logger.error(
+      {
+        event: 'GET_USER_FAILED',
+        error: userObject.error,
+      },
+      'Failed to get user'
+    )
+    return null
   }
   return userObject.data.user
 }

@@ -13,8 +13,13 @@ const pub = new Redis(RedisConfig)
 
 // Create a new group
 export async function POST(req: NextRequest) {
+  let name: string | undefined
+  let creatorId: string | undefined
   try {
-    const { name, description, creatorId } = await req.json()
+    const body = await req.json()
+    name = body.name
+    creatorId = body.creatorId
+    const description = body.description
 
     if (!name || !creatorId) {
       return NextResponse.json(
@@ -69,7 +74,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ group, success: true }, { status: 201 })
   } catch (error) {
-    logger.error({ error }, 'Error creating group')
+    logger.error(
+      {
+        event: 'GROUP_CREATE_FAILED',
+        name,
+        creatorId,
+        error,
+      },
+      'Error creating group'
+    )
     return NextResponse.json(
       { message: 'Error in creating group', success: false },
       { status: 500 },
@@ -79,10 +92,12 @@ export async function POST(req: NextRequest) {
 
 // Get all groups or filter by user membership
 export async function GET(req: NextRequest) {
+  let userId: string | null = null
+  let type: string | null = null
   try {
     const { searchParams } = new URL(req.url)
-    const userId = searchParams.get('userId')
-    const type = searchParams.get('type') // 'joined' or 'discover'
+    userId = searchParams.get('userId')
+    type = searchParams.get('type') // 'joined' or 'discover'
 
     let groups
 
@@ -131,7 +146,15 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ groups, success: true }, { status: 200 })
   } catch (error) {
-    logger.error({ error }, 'Error fetching groups')
+    logger.error(
+      {
+        event: 'GROUPS_FETCH_FAILED',
+        userId,
+        type,
+        error,
+      },
+      'Error fetching groups'
+    )
     return NextResponse.json(
       { message: 'Error fetching groups', success: false },
       { status: 500 },
@@ -141,8 +164,12 @@ export async function GET(req: NextRequest) {
 
 // Delete a group created by the user (only the creator can delete)
 export async function DELETE(req: NextRequest) {
+  let groupId: string | undefined
+  let userId: string | undefined
   try {
-    const { groupId, userId } = await req.json()
+    const body = await req.json()
+    groupId = body.groupId
+    userId = body.userId
 
     if (!groupId || !userId) {
       return NextResponse.json(
@@ -183,7 +210,15 @@ export async function DELETE(req: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    logger.error({ error }, 'Error deleting group')
+    logger.error(
+      {
+        event: 'GROUP_DELETE_FAILED',
+        groupId,
+        userId,
+        error,
+      },
+      'Error deleting group'
+    )
     return NextResponse.json(
       { message: 'Error deleting group', success: false },
       { status: 500 },

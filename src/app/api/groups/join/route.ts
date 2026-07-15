@@ -4,8 +4,12 @@ import { logger } from '@/lib/logger'
 
 // Join a group
 export async function POST(req: NextRequest) {
+  let groupId: string | undefined
+  let userId: string | undefined
   try {
-    const { groupId, userId } = await req.json()
+    const body = await req.json()
+    groupId = body.groupId
+    userId = body.userId
 
     if (!groupId || !userId) {
       return NextResponse.json(
@@ -38,7 +42,15 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    logger.error({ error }, 'Error joining group')
+    logger.error(
+      {
+        event: 'GROUP_JOIN_FAILED',
+        groupId,
+        userId,
+        error,
+      },
+      'Error joining group'
+    )
     return NextResponse.json(
       { message: 'Error in joining group', success: false },
       { status: 500 },

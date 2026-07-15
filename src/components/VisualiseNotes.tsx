@@ -16,8 +16,8 @@ import Image from 'next/image'
 const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',
   sdxl: 'stabilityai/stable-diffusion-xl-base-1.0',
-  'sdxl-turbo': 'ByteDance/Hyper-SD',
-  lightning: ' stabilityai/stable-diffusion-2',
+  'sdxl-turbo': 'black-forest-labs/FLUX.1-dev',
+  lightning: 'stabilityai/stable-diffusion-2',
 }
 
 type ModelKey = keyof typeof HF_MODELS
@@ -194,7 +194,7 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
             </div>
 
             <div className="group relative overflow-hidden rounded-xl border bg-white shadow-lg dark:bg-neutral-950">
-              <Image
+              <img
                 src={imageUrl}
                 alt="Generated Visualisation"
                 className="h-auto w-full object-contain transition-transform duration-300 group-hover:scale-[1.01]"

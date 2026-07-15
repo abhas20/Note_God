@@ -58,7 +58,14 @@ export async function POST(req: Request) {
             return { imageUrl: `data:image/jpeg;base64,${image.base64}` }
           } catch (error) {
             // console.error('generate_image tool failed:', error)
-            logger.error({ error }, 'generate_image tool failed')
+            logger.error(
+              {
+                event: 'GENERATE_IMAGE_TOOL_FAILED',
+                prompt,
+                error,
+              },
+              'generate_image tool failed'
+            )
             throw error
           }
         },
@@ -80,9 +87,16 @@ export async function POST(req: Request) {
         if (event.toolCalls?.length) {
           // console.log(`🛠️  Executing ${event.toolCalls.length} tool(s)...`)
           logger.info(
-            { toolCalls: event.toolCalls },
-            `🛠️  Executing ${event.toolCalls.length} tool(s)...`,
+            {
+              event: 'TOOL_EXECUTION',
+              toolCalls: event.toolCalls.map((call) => ({
+                name: call.toolName,
+                input: call.input,
+              })),
+            },
+            `Executing ${event.toolCalls.length} tool(s)...`
           )
+          
         }
       },
       maxRetries: 0,
@@ -92,7 +106,15 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse()
   } catch (error) {
     // console.error('Error in AI response generation:', error)
-    logger.error({ error }, 'Error in AI response generation')
+    logger.error(
+      {
+        event: 'AI_RESPONSE_GENERATION_FAILED',
+        messages,
+        enabledTools,
+        error,
+      },
+      'Error in AI response generation'
+    )
     return new Response('Error generating AI response', { status: 500 })
   }
 }

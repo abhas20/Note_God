@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger'
 import { InferenceClient } from '@huggingface/inference'
 import { NextResponse } from 'next/server'
 
@@ -25,6 +26,8 @@ export async function POST(req: Request) {
         negative_prompt: 'blurry, low quality, deformed, distorted, disfigured',
       },
       provider: 'hf-inference',
+    },{
+      outputType: 'blob',
     })
 
     if (!result) throw new Error('Empty response from Hugging Face')
@@ -41,7 +44,14 @@ export async function POST(req: Request) {
       },
     })
   } catch (error: any) {
-    console.error('HF API Route Error:', error)
+    // console.error('HF API Route Error:', error)
+    logger.error(
+      {
+        event: 'HF_API_ROUTE_ERROR',
+        error,
+      },
+      'Error in /api/generate-image route'
+    )
     return NextResponse.json(
       { error: error.message || 'Failed to generate image on server' },
       { status: 500 },

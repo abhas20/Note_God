@@ -13,8 +13,20 @@ const RedisConfig = {
 const pub = new Redis(RedisConfig)
 
 export async function POST(req: NextRequest) {
+  let senderId: string | undefined
+  let groupId: string | undefined
   try {
-    const { content, senderId, groupId } = await req.json()
+    const body = await req.json()
+    senderId = body.senderId
+    groupId = body.groupId
+    const content = body.content
+
+    if(!senderId || !content) {
+      return NextResponse.json(
+        { message: 'Missing required fields', success: false },
+        { status: 400 },
+      )
+    }
 
     const message = await prisma.messages.create({
       data: {
@@ -36,7 +48,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message, success: true }, { status: 200 })
   } catch (error) {
-    logger.error({ error }, 'Error in saving message')
+    logger.error(
+      {
+        event: 'MESSAGE_SAVE_FAILED',
+        senderId,
+        groupId: groupId || null,
+        error,
+      },
+      'Error in saving message'
+    )
     return NextResponse.json(
       { message: 'Error in saving message', success: false },
       { status: 500 },
@@ -45,8 +65,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  let messageId: string | undefined
+  let senderId: string | undefined
   try {
-    const { messageId, senderId } = await request.json()
+    const body = await request.json()
+    messageId = body.messageId
+    senderId = body.senderId
 
     const message = await prisma.messages.findFirst({
       where: {
@@ -83,7 +107,15 @@ export async function DELETE(request: NextRequest) {
       { status: 200 },
     )
   } catch (error) {
-    logger.error({ error }, 'Error in deleting message')
+    logger.error(
+      {
+        event: 'MESSAGE_DELETE_FAILED',
+        messageId,
+        senderId,
+        error,
+      },
+      'Error in deleting message'
+    )
     return NextResponse.json(
       { message: 'Error in deleting message', success: false },
       { status: 500 },

@@ -3,6 +3,7 @@ import { prisma } from '@/db/prisma'
 import { queue } from '@/lib/queue'
 import { handleError } from '@/lib/utils'
 import { createClient, getUser } from '@/auth/server'
+import { logger } from '@/lib/logger'
 
 export const uploadFileToDB = async (file: File) => {
   if (!file) throw new Error('No file provided')
@@ -24,7 +25,14 @@ export const uploadFileToDB = async (file: File) => {
       .upload(uniquePath, file)
 
     if (error) {
-      console.error('Error while uploading')
+      // console.error('Error while uploading')
+      logger.error(
+        {
+          event: 'FILE_UPLOAD_FAILED',
+          error,
+        },
+        'Error while uploading'
+      )
       throw error
     }
 
@@ -90,7 +98,15 @@ export const deleteUserFile = async (fileId: string) => {
     const { error } = await storage.from('User_pdfs').remove([file.fileName])
 
     if (error) {
-      console.error('Error in deleting from storage', error)
+      // console.error('Error in deleting from storage', error)
+      logger.error(
+        {
+          event: 'STORAGE_DELETION_FAILED',
+          fileId,
+          error,
+        },
+        'Error in deleting from storage'
+      )
       throw error
     }
 
@@ -122,7 +138,15 @@ export const getSignedPdfUrlAction = async (fileId: string) => {
       .createSignedUrl(file.fileName, 30 * 60) // 30 minites
 
     if (error) {
-      console.error('Error generating signed URL:', error)
+      // console.error('Error generating signed URL:', error)
+      logger.error(
+        {
+          event: 'SIGNED_URL_GENERATION_FAILED',
+          fileId,
+          error,
+        },
+        'Error generating signed URL'
+      )
       throw error
     }
 

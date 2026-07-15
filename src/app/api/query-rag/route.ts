@@ -25,7 +25,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ answer })
   } catch (error) {
     // console.log('Error in RAG query', error)
-    logger.error({ error }, 'Error in RAG query')
+    logger.error(
+      {
+        event: 'RAG_QUERY_FAILED',
+        error,
+      },
+      'Error in RAG query'
+    )
     return NextResponse.json(
       { message: 'Error in RAG query', success: false },
       { status: 500 },

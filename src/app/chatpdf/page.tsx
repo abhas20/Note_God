@@ -61,7 +61,11 @@ function ChatwithPdfpage() {
             setPdfUrl(res.signedUrl)
           }
         } catch (error) {
-          logger.error({ error }, 'Failed to load PDF preview')
+          logger.error({
+            event: 'FETCH_SIGNED_URL_FAILED',
+            fileId,
+            error,
+          }, 'Failed to fetch signed URL for PDF preview')
           toast.error('Failed to load PDF preview')
           setActiveFile(null)
         } finally {
@@ -83,7 +87,11 @@ function ChatwithPdfpage() {
       await fetchUserFiles().then(({ files, errorMessage }) => {
         if (errorMessage) {
           // console.log('Error while fetching files', errorMessage)
-          logger.error({ errorMessage }, 'Error while fetching files')
+          logger.error({
+            event: 'FETCH_FILES_FAILED',
+            errorMessage,
+          }, 'Error while fetching files')
+          
           toast.error('Error fetching files: ' + errorMessage)
         } else {
           setPdffiles(files)
@@ -97,7 +105,10 @@ function ChatwithPdfpage() {
       })
     } catch (error) {
       // console.log('An error occured while fetching files', error)
-      logger.error({ error }, 'An error occured while fetching files')
+      logger.error({
+        event: 'FETCH_FILES_FAILED',
+        error,
+      }, 'An error occured while fetching files')
       toast.error('An error occured while fetching files')
     }
   }
@@ -109,7 +120,10 @@ function ChatwithPdfpage() {
       const { errorMessage } = await uploadFileToDB(file)
       if (errorMessage) {
         // console.log('error while uploading file', errorMessage)
-        logger.error({ errorMessage }, 'Error while uploading file')
+        logger.error({
+          event: 'UPLOAD_FILE_FAILED',
+          errorMessage,
+        }, 'Error while uploading file')
         toast.error('Error uploading file: ' + errorMessage)
       } else {
         toast.success('File uploaded successfully')
@@ -117,7 +131,10 @@ function ChatwithPdfpage() {
       }
     } catch (error) {
       // console.log('An Error occured while uploading', error)
-      logger.error({ error }, 'An error occured while uploading the file')
+      logger.error({
+        event: 'UPLOAD_FILE_FAILED',
+        error,
+      }, 'An Error occured while uploading')
       toast.error('An error occured while uploading the file')
     } finally {
       setUploading(false)
@@ -158,7 +175,10 @@ function ChatwithPdfpage() {
       setMessages((prev) => [...prev, assistantMessage])
     } catch (error) {
       // console.log('Error fetching RAG answer:', error)
-      logger.error({ error }, 'Error fetching RAG answer')
+      logger.error({
+        event: 'RAG_QUERY_FAILED',
+        error,
+      }, 'Error fetching RAG answer')
       toast.error('Error getting answer from PDF')
     } finally {
       setLoading(false)

@@ -12,12 +12,13 @@ import { Button } from './ui/button'
 import { DownloadIcon, Loader2, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { logger } from '@/lib/logger'
 
 const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',
-  sdxl: 'stabilityai/stable-diffusion-xl-base-1.0',
-  'sdxl-turbo': 'ByteDance/Hyper-SD',
-  lightning: ' stabilityai/stable-diffusion-2',
+  sdxl: 'stabilityai/stable-diffusion-xl-base-1.0', // !NOT WORKINg
+  'sdxl-turbo': 'black-forest-labs/FLUX.1-dev', // !NOT WORKING
+  lightning: 'stabilityai/stable-diffusion-xl-base-1.0', // !NOT WORKING
 }
 
 type ModelKey = keyof typeof HF_MODELS
@@ -92,7 +93,6 @@ export default function Visualise() {
         throw new Error(errData.error || 'Failed to generate image')
       }
 
-      // Automatically convert the server response into an image blob!
       const blob = await response.blob()
       const objUrl = URL.createObjectURL(blob)
 
@@ -101,7 +101,16 @@ export default function Visualise() {
 
       toast.success('Image generated successfully!')
     } catch (error: any) {
-      console.error('Generation error:', error)
+      // console.error('Generation error:', error)
+      logger.error(
+        {
+          event: 'IMAGE_GENERATION_FAILED',
+          prompt,
+          parameter,
+          error,
+        },
+        'Image generation failed'
+      )
       toast.error(error.message || 'Failed to generate image')
     } finally {
       setIsLoading(false)
@@ -121,7 +130,15 @@ export default function Visualise() {
 
       toast.success('Image downloaded successfully!')
     } catch (error) {
-      console.error('Download error:', error)
+      // console.error('Download error:', error)
+      logger.error(
+        {
+          event: 'IMAGE_DOWNLOAD_FAILED',
+          prompt,
+          error,
+        },
+        'Image download failed'
+      )
       toast.error('Failed to download image')
     }
   }
@@ -234,7 +251,7 @@ export default function Visualise() {
             <p className="text-sm">Just hold your patience...</p>
           </div>
         ) : imageUrl ? (
-          <Image
+          <img
             src={imageUrl}
             alt="Generated"
             className="h-auto max-w-full rounded-md object-contain shadow-lg"

@@ -125,7 +125,14 @@ export const askAINoteAction = async (
     return completion.text ?? '<p>Sorry, something went wrong.</p>'
   } catch (error) {
     // console.warn('AI Response error: ', error)
-    logger.error({ error }, 'AI Response error')
+    logger.error(
+      {
+        event: 'AI_RESPONSE_GENERATION_FAILED',
+        error,
+      },
+      'AI Response error'
+    )
+    handleError(error)
     return '<p>Sorry, the AI could not generate a response.</p>'
   }
 }
@@ -163,7 +170,14 @@ export const makeNoteAction = async (topic: string) => {
     return aiGeneratedNote
   } catch (error) {
     // console.warn('Make Note AI error: ', error)
-    logger.error({ error }, 'Make Note AI error')
+    logger.error(
+      {
+        event: 'MAKE_NOTE_GENERATION_FAILED',
+        topic,
+        error,
+      },
+      'Make Note AI error'
+    )
     handleError(error)
     return '<p>Sorry, the AI could not generate the notes.</p>'
   }

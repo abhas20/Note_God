@@ -9,14 +9,31 @@ import 'dotenv/config'
 const worker = new Worker(
   'file-upload-queue',
   async (job) => {
-    logger.info({ jobData: job.data }, 'Processing file')
+    logger.info(
+      {
+        event: 'FILE_PROCESS_START',
+        jobId: job.id,
+        fileName: job.data.fileName,
+        filePath: job.data.filePath,
+        userId: job.data.userId,
+      },
+      'Processing file upload job'
+    )
     const { fileName, filePath, userId } = job.data
     const client = await createAdminClient()
     const { storage } = client
 
     const { data, error } = await storage.from('User_pdfs').download(filePath)
     if (error) {
-      logger.error({ error }, 'Error downloading file in worker')
+      logger.error(
+        {
+          event: 'FILE_DOWNLOAD_FAILED',
+          jobId: job.id,
+          filePath,
+          error,
+        },
+        'Error downloading file in worker'
+      )
       throw error
     }
 
@@ -27,27 +44,74 @@ const worker = new Worker(
     const fileBuffer = Buffer.from(await data.arrayBuffer())
     fs.writeFileSync(tempFilePath, fileBuffer)
 
-    logger.info(`✅ File downloaded to ${tempFilePath}`)
+    logger.info(
+      {
+        event: 'FILE_DOWNLOAD_SUCCESS',
+        jobId: job.id,
+        tempFilePath,
+      },
+      `File downloaded to temporary path: ${tempFilePath}`
+    )
 
     try {
       // Load the PDF document
       const documents = await pdfLoader(tempFilePath, userId)
-      logger.info(`Loaded ${documents.length} document pages`)
+      logger.info(
+        {
+          event: 'PDF_LOAD_SUCCESS',
+          jobId: job.id,
+          pageCount: documents.length,
+        },
+        `Loaded ${documents.length} document pages`
+      )
 
       // Split the document into text chunks
       const chunks = await textSplitter(documents)
-      logger.info(`Created ${chunks.length} text chunks`)
+      logger.info(
+        {
+          event: 'TEXT_SPLIT_SUCCESS',
+          jobId: job.id,
+          chunkCount: chunks.length,
+        },
+        `Created ${chunks.length} text chunks`
+      )
 
       // Add chunks to vector embedding store
-      logger.info('---ADDING to VecDB---')
+      logger.info(
+        {
+          event: 'VECDB_ADD_START',
+          jobId: job.id,
+        },
+        'Adding chunks to vector embedding store'
+      )
       await addToVectorEmbedding(chunks)
-      logger.info('✅ Chunks added to vector embedding store')
+      logger.info(
+        {
+          event: 'VECDB_ADD_SUCCESS',
+          jobId: job.id,
+        },
+        'Chunks added to vector embedding store'
+      )
     } catch (error) {
-      logger.error({ error }, 'Error in processing vector embeddings')
+      logger.error(
+        {
+          event: 'VECDB_ADD_FAILED',
+          jobId: job.id,
+          error,
+        },
+        'Error in processing vector embeddings'
+      )
     } finally {
       // Clean up the temporary file
       fs.unlinkSync(tempFilePath)
-      logger.info(`🧹 Temporary file ${tempFilePath} deleted`)
+      logger.info(
+        {
+          event: 'TEMP_FILE_CLEANUP',
+          jobId: job.id,
+          tempFilePath,
+        },
+        `Temporary file deleted: ${tempFilePath}`
+      )
     }
   },
   {

@@ -16,7 +16,13 @@ async function init() {
   socketServer.io.attach(httpServer)
   socketServer.initServer()
   httpServer.listen(PORT, () => {
-    logger.info(`Socket server is running on port ${PORT}`)
+    logger.info(
+      {
+        event: 'SOCKET_SERVER_STARTED',
+        port: PORT,
+      },
+      `Socket server is running on port ${PORT}`
+    )
   })
 }
 

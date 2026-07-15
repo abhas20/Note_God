@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
+  let groupId: string | null = null
   try {
     const { searchParams } = new URL(request.url)
-    const groupId = searchParams.get('groupId')
+    groupId = searchParams.get('groupId')
 
     const res = await prisma.messages.findMany({
       where: {
@@ -38,7 +39,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ messages: formatMessages }, { status: 200 })
   } catch (error) {
-    logger.error({ error }, 'Error in fetching messages')
+    logger.error(
+      {
+        event: 'FETCH_PREV_MESSAGES_FAILED',
+        groupId,
+        error,
+      },
+      'Error in fetching messages'
+    )
     return NextResponse.json(
       { error: 'Error in fetching messages' },
       { status: 500 },
