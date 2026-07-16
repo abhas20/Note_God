@@ -16,19 +16,23 @@ export async function POST(req: Request) {
       )
     }
 
-    const result = await hfClient.textToImage({
-      model: model,
-      inputs: prompt,
-      parameters: {
-        width: width,
-        height: height,
-        num_inference_steps: num_inference_steps,
-        negative_prompt: 'blurry, low quality, deformed, distorted, disfigured',
+    const result = await hfClient.textToImage(
+      {
+        model: model,
+        inputs: prompt,
+        parameters: {
+          width: width,
+          height: height,
+          num_inference_steps: num_inference_steps,
+          negative_prompt:
+            'blurry, low quality, deformed, distorted, disfigured',
+        },
+        provider: 'hf-inference',
       },
-      provider: 'hf-inference',
-    },{
-      outputType: 'blob',
-    })
+      {
+        outputType: 'blob',
+      },
+    )
 
     if (!result) throw new Error('Empty response from Hugging Face')
 
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
         event: 'HF_API_ROUTE_ERROR',
         error,
       },
-      'Error in /api/generate-image route'
+      'Error in /api/generate-image route',
     )
     return NextResponse.json(
       { error: error.message || 'Failed to generate image on server' },

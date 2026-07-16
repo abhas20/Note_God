@@ -31,7 +31,7 @@ export const uploadFileToDB = async (file: File) => {
           event: 'FILE_UPLOAD_FAILED',
           error,
         },
-        'Error while uploading'
+        'Error while uploading',
       )
       throw error
     }
@@ -105,7 +105,7 @@ export const deleteUserFile = async (fileId: string) => {
           fileId,
           error,
         },
-        'Error in deleting from storage'
+        'Error in deleting from storage',
       )
       throw error
     }
@@ -145,7 +145,7 @@ export const getSignedPdfUrlAction = async (fileId: string) => {
           fileId,
           error,
         },
-        'Error generating signed URL'
+        'Error generating signed URL',
       )
       throw error
     }

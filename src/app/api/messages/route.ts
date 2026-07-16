@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     groupId = body.groupId
     const content = body.content
 
-    if(!senderId || !content) {
+    if (!senderId || !content) {
       return NextResponse.json(
         { message: 'Missing required fields', success: false },
         { status: 400 },
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         groupId: groupId || null,
         error,
       },
-      'Error in saving message'
+      'Error in saving message',
     )
     return NextResponse.json(
       { message: 'Error in saving message', success: false },
@@ -114,7 +114,7 @@ export async function DELETE(request: NextRequest) {
         senderId,
         error,
       },
-      'Error in deleting message'
+      'Error in deleting message',
     )
     return NextResponse.json(
       { message: 'Error in deleting message', success: false },

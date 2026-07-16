@@ -27,7 +27,7 @@ export async function createClient() {
                 cookiesToSet,
                 error,
               },
-              'Failed to set cookie'
+              'Failed to set cookie',
             )
           }
         },
@@ -47,7 +47,7 @@ export async function _getUser() {
         event: 'GET_USER_FAILED',
         error: userObject.error,
       },
-      'Failed to get user'
+      'Failed to get user',
     )
     return null
   }

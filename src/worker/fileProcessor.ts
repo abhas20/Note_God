@@ -17,7 +17,7 @@ const worker = new Worker(
         filePath: job.data.filePath,
         userId: job.data.userId,
       },
-      'Processing file upload job'
+      'Processing file upload job',
     )
     const { fileName, filePath, userId } = job.data
     const client = await createAdminClient()
@@ -32,7 +32,7 @@ const worker = new Worker(
           filePath,
           error,
         },
-        'Error downloading file in worker'
+        'Error downloading file in worker',
       )
       throw error
     }
@@ -50,7 +50,7 @@ const worker = new Worker(
         jobId: job.id,
         tempFilePath,
       },
-      `File downloaded to temporary path: ${tempFilePath}`
+      `File downloaded to temporary path: ${tempFilePath}`,
     )
 
     try {
@@ -62,7 +62,7 @@ const worker = new Worker(
           jobId: job.id,
           pageCount: documents.length,
         },
-        `Loaded ${documents.length} document pages`
+        `Loaded ${documents.length} document pages`,
       )
 
       // Split the document into text chunks
@@ -73,7 +73,7 @@ const worker = new Worker(
           jobId: job.id,
           chunkCount: chunks.length,
         },
-        `Created ${chunks.length} text chunks`
+        `Created ${chunks.length} text chunks`,
       )
 
       // Add chunks to vector embedding store
@@ -82,7 +82,7 @@ const worker = new Worker(
           event: 'VECDB_ADD_START',
           jobId: job.id,
         },
-        'Adding chunks to vector embedding store'
+        'Adding chunks to vector embedding store',
       )
       await addToVectorEmbedding(chunks)
       logger.info(
@@ -90,7 +90,7 @@ const worker = new Worker(
           event: 'VECDB_ADD_SUCCESS',
           jobId: job.id,
         },
-        'Chunks added to vector embedding store'
+        'Chunks added to vector embedding store',
       )
     } catch (error) {
       logger.error(
@@ -99,7 +99,7 @@ const worker = new Worker(
           jobId: job.id,
           error,
         },
-        'Error in processing vector embeddings'
+        'Error in processing vector embeddings',
       )
     } finally {
       // Clean up the temporary file
@@ -110,7 +110,7 @@ const worker = new Worker(
           jobId: job.id,
           tempFilePath,
         },
-        `Temporary file deleted: ${tempFilePath}`
+        `Temporary file deleted: ${tempFilePath}`,
       )
     }
   },

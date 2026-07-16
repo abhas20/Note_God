@@ -65,13 +65,16 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
         if (!response.ok) throw new Error('Failed to send message')
       } catch (error) {
         // console.error('Error sending message:', error)
-        logger.error({
-          event: 'SEND_MESSAGE_FAILED',
-          content,
-          senderID,
-          groupId,
-          error,
-        }, 'Error sending message')
+        logger.error(
+          {
+            event: 'SEND_MESSAGE_FAILED',
+            content,
+            senderID,
+            groupId,
+            error,
+          },
+          'Error sending message',
+        )
       }
     },
     [],
@@ -89,12 +92,15 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
         if (!response.ok) throw new Error('Failed to delete message')
       } catch (error) {
         // console.error('Error deleting message:', error)
-        logger.error({
-          event: 'DELETE_MESSAGE_FAILED',
-          messageId,
-          senderID,
-          error,
-        }, 'Error deleting message')
+        logger.error(
+          {
+            event: 'DELETE_MESSAGE_FAILED',
+            messageId,
+            senderID,
+            error,
+          },
+          'Error deleting message',
+        )
       }
     },
     [],
@@ -140,7 +146,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
     if (_socketInstance) {
       _socketInstance.emit('join:room', { roomId: activeRoom })
       // console.log(`Emitted join:room for room: ${activeRoom}`)
-      logger.info({ event: "JOIN_ROOM_EVENT", roomId: activeRoom }, 'Emitted join:room')
+      logger.info(
+        { event: 'JOIN_ROOM_EVENT', roomId: activeRoom },
+        'Emitted join:room',
+      )
     }
   }, [_socketInstance, activeRoom])
 

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         event: 'MESSAGE_SAVE_FAILED',
         error,
       },
-      'Error in saving message'
+      'Error in saving message',
     )
     return NextResponse.json(
       { message: 'Error in saving message', success: false },

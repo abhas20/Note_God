@@ -21,7 +21,7 @@ async function init() {
         event: 'SOCKET_SERVER_STARTED',
         port: PORT,
       },
-      `Socket server is running on port ${PORT}`
+      `Socket server is running on port ${PORT}`,
     )
   })
 }

@@ -130,7 +130,7 @@ export const askAINoteAction = async (
         event: 'AI_RESPONSE_GENERATION_FAILED',
         error,
       },
-      'AI Response error'
+      'AI Response error',
     )
     handleError(error)
     return '<p>Sorry, the AI could not generate a response.</p>'
@@ -176,7 +176,7 @@ export const makeNoteAction = async (topic: string) => {
         topic,
         error,
       },
-      'Make Note AI error'
+      'Make Note AI error',
     )
     handleError(error)
     return '<p>Sorry, the AI could not generate the notes.</p>'

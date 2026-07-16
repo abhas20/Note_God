@@ -11,7 +11,6 @@ import {
 import { Button } from './ui/button'
 import { DownloadIcon, Loader2, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
-import Image from 'next/image'
 import { logger } from '@/lib/logger'
 
 const HF_MODELS = {
@@ -109,7 +108,7 @@ export default function Visualise() {
           parameter,
           error,
         },
-        'Image generation failed'
+        'Image generation failed',
       )
       toast.error(error.message || 'Failed to generate image')
     } finally {
@@ -137,7 +136,7 @@ export default function Visualise() {
           prompt,
           error,
         },
-        'Image download failed'
+        'Image download failed',
       )
       toast.error('Failed to download image')
     }

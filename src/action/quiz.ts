@@ -99,7 +99,7 @@ export async function generateQuizAction(noteId: string[]) {
         event: 'QUIZ_GENERATION_FAILED',
         error,
       },
-      'Quiz Generation AI error'
+      'Quiz Generation AI error',
     )
     handleError(error)
     return 'Sorry, the AI could not generate the quiz.'
@@ -137,7 +137,7 @@ export async function saveQuizResult(quiz: Quiz) {
         event: 'SAVE_QUIZ_RESULT_FAILED',
         error,
       },
-      'Save Quiz Result error'
+      'Save Quiz Result error',
     )
     handleError(error)
     return 'Sorry, there was an error saving your quiz results.'
@@ -164,7 +164,7 @@ export async function getUserQuizzes() {
         event: 'GET_USER_QUIZZES_FAILED',
         error,
       },
-      'Get User Quizzes error'
+      'Get User Quizzes error',
     )
     handleError(error)
     return 'Sorry, there was an error retrieving your quizzes.'
@@ -190,7 +190,7 @@ export async function getQuizById(quizId: string) {
         quizId,
         error,
       },
-      'Get Quiz By ID error'
+      'Get Quiz By ID error',
     )
     handleError(error)
     return 'Sorry, there was an error retrieving the quiz.'
@@ -227,7 +227,7 @@ export async function saveQuizAttempt(
         totalQuestions,
         error,
       },
-      'Save Quiz Attempt error'
+      'Save Quiz Attempt error',
     )
     handleError(error)
     return 'Sorry, there was an error saving your quiz attempt.'
@@ -253,7 +253,7 @@ export async function deleteQuiz(quizId: string) {
         quizId,
         error,
       },
-      'Delete Quiz error'
+      'Delete Quiz error',
     )
     handleError(error)
     return 'Sorry, there was an error deleting the quiz.'

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         groupId,
         error,
       },
-      'Error in fetching messages'
+      'Error in fetching messages',
     )
     return NextResponse.json(
       { error: 'Error in fetching messages' },

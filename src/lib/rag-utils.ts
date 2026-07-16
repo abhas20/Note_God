@@ -134,7 +134,7 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
             { batchNum, totalBatches },
             `✅ Batch ${batchNum}/${totalBatches} added successfully`,
           )
-          break 
+          break
         } catch {
           retries--
           // console.warn(
@@ -162,11 +162,12 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
     }
 
     // console.log('✅ All documents added successfully!')
-    logger.info({
-      event: 'ALL_DOCUMENTS_ADDED_SUCCESSFULLY',
-    },
-    'All documents added successfully!'
-  )
+    logger.info(
+      {
+        event: 'ALL_DOCUMENTS_ADDED_SUCCESSFULLY',
+      },
+      'All documents added successfully!',
+    )
   } catch (error) {
     // console.error('❌ Failed to add documents to Qdrant:', error)
     logger.error(
@@ -174,7 +175,7 @@ export const addToVectorEmbedding = async (docs: Document[]) => {
         event: 'ADD_DOCUMENTS_TO_QDRANT_FAILED',
         error,
       },
-      'Failed to add documents to Qdrant'
+      'Failed to add documents to Qdrant',
     )
     throw error
   }
@@ -201,9 +202,9 @@ export const queryVectorStore = async (query: string, userId: string) => {
       query,
       userId,
     },
-    `Searching for: "${query}" for user ${userId}...`
+    `Searching for: "${query}" for user ${userId}...`,
   )
-    
+
   const results = await vectorStore
     .asRetriever({
       k: 4,
@@ -296,13 +297,15 @@ export const deleteVectorData = async (fileName: string, userId: string) => {
     return { status }
   } catch (error) {
     // console.log('Error in deleting:', error)
-    logger.error({
-      event: 'DELETE_VECTORS_FAILED',
-      fileName,
-      userId,
-      error,
-    }, 'Error in deleting vectors')
+    logger.error(
+      {
+        event: 'DELETE_VECTORS_FAILED',
+        fileName,
+        userId,
+        error,
+      },
+      'Error in deleting vectors',
+    )
     throw error
-  
   }
 }

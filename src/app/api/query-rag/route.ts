@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         event: 'RAG_QUERY_FAILED',
         error,
       },
-      'Error in RAG query'
+      'Error in RAG query',
     )
     return NextResponse.json(
       { message: 'Error in RAG query', success: false },

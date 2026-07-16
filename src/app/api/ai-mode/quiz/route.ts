@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         noteIds: (await req.json()).noteIds,
         error,
       },
-      'Error in quiz generation'
+      'Error in quiz generation',
     )
     return NextResponse.json(
       { errorMessage: 'Failed to generate quiz' },

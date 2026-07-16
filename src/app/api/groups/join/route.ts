@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         userId,
         error,
       },
-      'Error joining group'
+      'Error joining group',
     )
     return NextResponse.json(
       { message: 'Error in joining group', success: false },

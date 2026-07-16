@@ -11,7 +11,6 @@ import { Button } from './ui/button'
 import { DownloadIcon, Loader2, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateImagePrompt } from '@/action/note'
-import Image from 'next/image'
 
 const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',

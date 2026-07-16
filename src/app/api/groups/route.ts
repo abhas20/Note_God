@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         creatorId,
         error,
       },
-      'Error creating group'
+      'Error creating group',
     )
     return NextResponse.json(
       { message: 'Error in creating group', success: false },
@@ -153,7 +153,7 @@ export async function GET(req: NextRequest) {
         type,
         error,
       },
-      'Error fetching groups'
+      'Error fetching groups',
     )
     return NextResponse.json(
       { message: 'Error fetching groups', success: false },
@@ -217,7 +217,7 @@ export async function DELETE(req: NextRequest) {
         userId,
         error,
       },
-      'Error deleting group'
+      'Error deleting group',
     )
     return NextResponse.json(
       { message: 'Error deleting group', success: false },

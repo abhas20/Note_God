@@ -64,7 +64,7 @@ export async function POST(req: Request) {
                 prompt,
                 error,
               },
-              'generate_image tool failed'
+              'generate_image tool failed',
             )
             throw error
           }
@@ -94,9 +94,8 @@ export async function POST(req: Request) {
                 input: call.input,
               })),
             },
-            `Executing ${event.toolCalls.length} tool(s)...`
+            `Executing ${event.toolCalls.length} tool(s)...`,
           )
-          
         }
       },
       maxRetries: 0,
@@ -113,7 +112,7 @@ export async function POST(req: Request) {
         enabledTools,
         error,
       },
-      'Error in AI response generation'
+      'Error in AI response generation',
     )
     return new Response('Error generating AI response', { status: 500 })
   }
