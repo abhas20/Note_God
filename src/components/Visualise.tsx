@@ -15,9 +15,9 @@ import { logger } from '@/lib/logger'
 
 const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',
-  'ostris': 'ostris/krea2_turbo_style_reference',
-  'sdxl-turbo': 'black-forest-labs/FLUX.1-dev', // !NOT WORKING
-  lightning: 'stabilityai/stable-diffusion-xl-base-1.0', // !NOT WORKING
+  ostris: 'ostris/krea2_turbo_style_reference',
+  'sdxl-turbo': 'black-forest-labs/FLUX.1-dev',
+  lightning: 'stabilityai/stable-diffusion-xl-base-1.0',
 }
 
 type ModelKey = keyof typeof HF_MODELS

@@ -136,9 +136,7 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
             <SelectItem value="flux-fast">FLUX Fast (Best)</SelectItem>
             <SelectItem value="sdxl">Stable Diffusion XL</SelectItem>
             <SelectItem value="sdxl-turbo">SDXL Turbo (Fast)</SelectItem>
-            <SelectItem value="lightning">
-              SDXL Lightning
-            </SelectItem>
+            <SelectItem value="lightning">SDXL Lightning</SelectItem>
           </SelectContent>
         </Select>
 
