@@ -15,7 +15,7 @@ import { logger } from '@/lib/logger'
 
 const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',
-  sdxl: 'stabilityai/stable-diffusion-xl-base-1.0', // !NOT WORKINg
+  'ostris': 'ostris/krea2_turbo_style_reference',
   'sdxl-turbo': 'black-forest-labs/FLUX.1-dev', // !NOT WORKING
   lightning: 'stabilityai/stable-diffusion-xl-base-1.0', // !NOT WORKING
 }
@@ -40,7 +40,7 @@ export default function Visualise() {
   const [parameter, setParameter] = useState<ImgParameter>({
     width: 512,
     height: 512,
-    model: 'sdxl',
+    model: 'flux-fast',
   })
 
   const [prompt, setPrompt] = useState<string>('')
@@ -83,7 +83,6 @@ export default function Visualise() {
           prompt: `Explain ${prompt} in a detailed and visually descriptive manner.`,
           width: parameter.width,
           height: parameter.height,
-          num_inference_steps: parameter.model === 'lightning' ? 5 : 25,
         }),
       })
 
@@ -204,7 +203,7 @@ export default function Visualise() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="flux-fast">FLUX Schnell</SelectItem>
-              <SelectItem value="sdxl">SDXL Base</SelectItem>
+              <SelectItem value="ostris">Krea 2</SelectItem>
               <SelectItem value="sdxl-turbo">SDXL Turbo</SelectItem>
               <SelectItem value="lightning">SDXL Lightning</SelectItem>
             </SelectContent>

@@ -7,7 +7,7 @@ const hfClient = new InferenceClient(process.env.HF_API_TOKEN!)
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { model, prompt, width, height, num_inference_steps } = body
+    const { model, prompt, width, height } = body
 
     if (!prompt || !model) {
       return NextResponse.json(
@@ -23,11 +23,10 @@ export async function POST(req: Request) {
         parameters: {
           width: width,
           height: height,
-          num_inference_steps: num_inference_steps,
           negative_prompt:
             'blurry, low quality, deformed, distorted, disfigured',
         },
-        provider: 'hf-inference',
+        provider: 'fal-ai',
       },
       {
         outputType: 'blob',

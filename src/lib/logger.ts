@@ -5,11 +5,21 @@ const isBrowser = typeof window !== 'undefined'
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || (isDev ? 'debug' : 'info'),
+
+  formatters: {
+    level: (label) => ({ level: label }),
+  },
+
+  serializers: {
+    error: pino.stdSerializers.err,
+  },
+
   browser: isBrowser
     ? {
         asObject: true,
       }
     : undefined,
+
   transport:
     isDev && !isBrowser
       ? {

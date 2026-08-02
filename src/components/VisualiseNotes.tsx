@@ -16,7 +16,7 @@ const HF_MODELS = {
   'flux-fast': 'black-forest-labs/FLUX.1-schnell',
   sdxl: 'stabilityai/stable-diffusion-xl-base-1.0',
   'sdxl-turbo': 'black-forest-labs/FLUX.1-dev',
-  lightning: 'stabilityai/stable-diffusion-2',
+  lightning: 'stabilityai/stable-diffusion-xl-base-1.0',
 }
 
 type ModelKey = keyof typeof HF_MODELS
@@ -137,7 +137,7 @@ export default function VisualiseNotes({ noteId }: VisualiseNotesProps) {
             <SelectItem value="sdxl">Stable Diffusion XL</SelectItem>
             <SelectItem value="sdxl-turbo">SDXL Turbo (Fast)</SelectItem>
             <SelectItem value="lightning">
-              SDXL Lightning (Ultra Fast)
+              SDXL Lightning
             </SelectItem>
           </SelectContent>
         </Select>
