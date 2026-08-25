@@ -2,11 +2,7 @@ version: '3.8'
 
 services:
   note-god:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - NEXT_PUBLIC_SOCKET_SERVER_URL=${NEXT_PUBLIC_SOCKET_SERVER_URL}
+    image: ghcr.io/abhas20/note-god:latest
     container_name: note-god
     ports:
       - '3000:3000'
@@ -21,9 +17,7 @@ services:
     command: sh -c "npx prisma migrate deploy && npm start"
 
   workers:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/abhas20/note-god:latest
     container_name: note-god-workers
     env_file:
       - .env
@@ -34,9 +28,7 @@ services:
     command: npm run start:worker
 
   socket-server:
-    build:
-      context: .
-      dockerfile: socket-server/Dockerfile
+    image: ghcr.io/abhas20/note-god-socket-server:latest
     container_name: socket-server
     ports:
       - '4000:4000'

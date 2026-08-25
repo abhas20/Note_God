@@ -22,6 +22,7 @@ ENV NEXT_PUBLIC_SOCKET_SERVER_URL=$NEXT_PUBLIC_SOCKET_SERVER_URL
 # 1. Generate Prisma Client
 RUN npx prisma generate
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 # 2.Next.js build  
 RUN npx next build
 
