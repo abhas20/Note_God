@@ -22,7 +22,7 @@ const client = new QdrantClient({
 
 const embeddings = new GoogleGenerativeAIEmbeddings({
   // model: "text-embedding-004",
-  model: 'gemini-embedding-001',
+  model: 'gemini-embedding-2',
   apiKey: process.env.GEMINI_API_KEY!,
   taskType: TaskType.RETRIEVAL_DOCUMENT,
 })
@@ -68,8 +68,8 @@ export const pdfLoader = async (filePath: string, userId: string) => {
 
 export const textSplitter = async (
   documents: Document[],
-  chunkSize: number = 500,
-  chunkOverlap: number = 200,
+  chunkSize: number = 1000,
+  chunkOverlap: number = 300,
 ) => {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: chunkSize,
@@ -83,98 +83,37 @@ export const textSplitter = async (
 
 export const addToVectorEmbedding = async (docs: Document[]) => {
   try {
-    // console.log(`Attempting to add ${docs.length} chunks to Qdrant...`)
     logger.info(
       { chunkCount: docs.length },
       'Attempting to add chunks to Qdrant...',
     )
 
     if (!docs || docs.length === 0) {
-      // console.error('❌ No documents provided to insert!')
       logger.error('No documents provided to insert!')
       return
     }
 
-    // ✅ Filter out empty or whitespace-only chunks
+    // Filter out empty or whitespace-only chunks to prevent embedding crashes
     const cleanDocs = docs.filter((doc) => doc.pageContent.trim().length > 20)
-    // console.log(`📦 Clean chunks after filtering: ${cleanDocs.length}`)
+
     logger.info(
       { cleanChunkCount: cleanDocs.length },
       'Clean chunks after filtering',
     )
 
-    const BATCH_SIZE = 10
-    let vectorStore: QdrantVectorStore | null = null
+    await QdrantVectorStore.fromDocuments(cleanDocs, embeddings, {
+      collectionName: 'note_god_collection',
+      url: process.env.QDRANT_URL || 'http://localhost:6333',
+      client: client,
+    })
 
-    for (let i = 0; i < cleanDocs.length; i += BATCH_SIZE) {
-      const batch = cleanDocs.slice(i, i + BATCH_SIZE)
-      const batchNum = Math.floor(i / BATCH_SIZE) + 1
-      const totalBatches = Math.ceil(cleanDocs.length / BATCH_SIZE)
-
-      let retries = 3
-      while (retries > 0) {
-        try {
-          if (!vectorStore) {
-            // Create collection on first batch
-            vectorStore = await QdrantVectorStore.fromDocuments(
-              batch,
-              embeddings,
-              {
-                collectionName: 'note_god_collection',
-                url: process.env.QDRANT_URL || 'http://localhost:6333',
-                client: client,
-              },
-            )
-          } else {
-            await vectorStore.addDocuments(batch)
-          }
-
-          // console.log(`✅ Batch ${batchNum}/${totalBatches} added`)
-          logger.info(
-            { batchNum, totalBatches },
-            `✅ Batch ${batchNum}/${totalBatches} added successfully`,
-          )
-          break
-        } catch {
-          retries--
-          // console.warn(
-          //   `⚠️ Batch ${batchNum} failed, retrying... (${retries} left)`,
-          // )
-          logger.warn(
-            { batchNum, retries },
-            `Batch ${batchNum} failed, retrying... (${retries} left)`,
-          )
-          await new Promise((res) => setTimeout(res, 1000))
-
-          if (retries === 0) {
-            // console.error(
-            //   `❌ Skipping batch ${batchNum} after 3 failed attempts`,
-            // )
-            logger.error(
-              { batchNum },
-              `❌ Skipping batch ${batchNum} after 3 failed attempts`,
-            )
-          }
-        }
-      }
-
-      await new Promise((res) => setTimeout(res, 700))
-    }
-
-    // console.log('✅ All documents added successfully!')
     logger.info(
-      {
-        event: 'ALL_DOCUMENTS_ADDED_SUCCESSFULLY',
-      },
+      { event: 'ALL_DOCUMENTS_ADDED_SUCCESSFULLY' },
       'All documents added successfully!',
     )
   } catch (error) {
-    // console.error('❌ Failed to add documents to Qdrant:', error)
     logger.error(
-      {
-        event: 'ADD_DOCUMENTS_TO_QDRANT_FAILED',
-        error,
-      },
+      { event: 'ADD_DOCUMENTS_TO_QDRANT_FAILED', error },
       'Failed to add documents to Qdrant',
     )
     throw error
@@ -236,33 +175,56 @@ export const askQuestion = async (question: string, userId: string) => {
     temperature: 0.4,
   })
 
-  const results = await queryVectorStore(question, userId)
-
-  if (!results.length) {
-    return {
-      data: "I am sorry, I couldn't find any relevant notes.",
-      source: [],
-    }
+  let results: any[] = []
+  try {
+    results = await queryVectorStore(question, userId)
+  } catch (err) {
+    logger.warn(
+      { err, userId, question },
+      'Vector store query encountered an error or collection is empty, falling back to general knowledge.',
+    )
+    results = []
   }
 
-  const context = results
-    .map((doc, index) => `Context ${index + 1}:\n${doc.pageContent}`)
-    .join('\n\n')
-  const SYSTEM_PROMPT = `You are an AI assistant that helps users by answering questions based on the provided context from their personal notes. Use the context to provide accurate and relevant answers. If the context does not contain the answer, respond with "I'm sorry, I don't have that information."`
+  const hasContext = results && results.length > 0
+
+  const context = hasContext
+    ? results
+        .map((doc, index) => `Context ${index + 1}:\n${doc.pageContent}`)
+        .join('\n\n')
+    : 'No relevant context found in uploaded notes.'
+
+  const SYSTEM_PROMPT = `You are an intelligent, helpful AI assistant designed to answer user questions using their personal notes and uploaded documents as the primary source of truth, enriched with your own extensive knowledge.
+
+Guidelines:
+1. **Primary Source**: Always inspect the provided context first. If relevant information is present in the context, make sure to base your core answer on it.
+2. **Supplement with General Knowledge**: You are encouraged to use your own knowledge to give a deeper, clearer, more comprehensive, and well-explained answer.
+3. **Transparency**:
+   - If NO relevant information is found in the provided context (or context is absent), clearly state upfront:
+     "I couldn't find anything related to this in your uploaded notes, but based on my general knowledge:"
+     and then provide a thorough, accurate answer.
+   - If the context only partially answers the question or you are expanding on it, clearly distinguish between what comes from their notes and what additional insights or explanations you are providing from your own knowledge.
+4. **Formatting**: Always format your response using clean, structured GitHub-flavored Markdown (use bold text, bullet points, headers (#, ##, ###), and code blocks where applicable) to ensure high readability.`
 
   const messages = [
     new SystemMessage(SYSTEM_PROMPT),
     new HumanMessage(`Context:\n${context}\n\nQuestion: ${question}`),
   ]
-  // console.log('🤖 Asking Gemini...')
 
   const response = await gemini.invoke(messages)
+  const responseText =
+    typeof response.content === 'string'
+      ? response.content
+      : JSON.stringify(response.content)
+
   return {
-    data: response.content,
-    source: results.map((doc) => ({
-      pageContent: doc.pageContent,
-      metadata: doc.metadata,
-    })),
+    data: responseText,
+    source: hasContext
+      ? results.map((doc) => ({
+          pageContent: doc.pageContent,
+          metadata: doc.metadata,
+        }))
+      : [],
   }
 }
 

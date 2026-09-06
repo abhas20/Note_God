@@ -22,6 +22,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { logger } from '@/lib/logger'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface IMessage {
   role: 'user' | 'assistant' | 'system'
@@ -379,13 +381,117 @@ function ChatwithPdfpage() {
                       }`}
                     >
                       {m.role === 'assistant' ? (
-                        <Bot className="mb-2" />
+                        <>
+                          <Bot className="mb-2 h-5 w-5 text-indigo-500" />
+                          <div className="text-sm leading-relaxed">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                h1: ({ children }) => (
+                                  <h1 className="mb-2 text-base font-bold">
+                                    {children}
+                                  </h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="mb-2 text-sm font-semibold">
+                                    {children}
+                                  </h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="mb-1 text-xs font-semibold">
+                                    {children}
+                                  </h3>
+                                ),
+                                p: ({ children }) => (
+                                  <p className="mb-2 leading-relaxed last:mb-0">
+                                    {children}
+                                  </p>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong className="font-semibold">
+                                    {children}
+                                  </strong>
+                                ),
+                                em: ({ children }) => (
+                                  <em className="italic">{children}</em>
+                                ),
+                                code: ({ children, className }) => {
+                                  const isBlock =
+                                    className?.includes('language-')
+                                  return isBlock ? (
+                                    <pre className="my-2 overflow-x-auto rounded-md bg-black/10 p-2.5 font-mono text-xs leading-relaxed dark:bg-black/40">
+                                      <code>{children}</code>
+                                    </pre>
+                                  ) : (
+                                    <code className="rounded bg-black/10 px-1 py-0.5 font-mono text-xs dark:bg-black/40">
+                                      {children}
+                                    </code>
+                                  )
+                                },
+                                ul: ({ children }) => (
+                                  <ul className="mb-2 ml-4 list-disc space-y-1">
+                                    {children}
+                                  </ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="mb-2 ml-4 list-decimal space-y-1">
+                                    {children}
+                                  </ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="leading-relaxed">
+                                    {children}
+                                  </li>
+                                ),
+                                blockquote: ({ children }) => (
+                                  <blockquote className="my-2 border-l-2 border-gray-400 pl-3 italic opacity-90 dark:border-zinc-500">
+                                    {children}
+                                  </blockquote>
+                                ),
+                                hr: () => (
+                                  <hr className="my-3 border-gray-300 dark:border-zinc-700" />
+                                ),
+                                a: ({ href, children }) => (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline underline-offset-2 hover:opacity-80 dark:text-blue-400"
+                                  >
+                                    {children}
+                                  </a>
+                                ),
+                                table: ({ children }) => (
+                                  <div className="my-2 overflow-x-auto rounded-md border border-gray-300 dark:border-zinc-700">
+                                    <table className="w-full text-xs">
+                                      {children}
+                                    </table>
+                                  </div>
+                                ),
+                                th: ({ children }) => (
+                                  <th className="border-b border-gray-300 bg-black/5 px-2.5 py-1.5 text-left font-semibold dark:border-zinc-700 dark:bg-black/30">
+                                    {children}
+                                  </th>
+                                ),
+                                td: ({ children }) => (
+                                  <td className="border-b border-gray-200 px-2.5 py-1.5 last:border-0 dark:border-zinc-800">
+                                    {children}
+                                  </td>
+                                ),
+                              }}
+                            >
+                              {m.content || ''}
+                            </ReactMarkdown>
+                          </div>
+                        </>
                       ) : (
-                        <User className="mb-2" />
+                        <>
+                          <User className="mb-2 h-5 w-5" />
+                          <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {m.content}
+                          </div>
+                        </>
                       )}
-                      <div className="leading-relaxed whitespace-pre-wrap">
-                        {m.content}
-                      </div>
                       {m.documents && m.documents.length > 0 && (
                         <div className="mt-4 border-t border-gray-300/50 pt-3 dark:border-zinc-700">
                           <p className="mb-1 text-xs font-semibold text-gray-500">
@@ -405,6 +511,15 @@ function ChatwithPdfpage() {
                       )}
                     </div>
                   ))
+                )}
+                {loading && (
+                  <div className="my-2 flex max-w-[80%] items-center gap-2 rounded-xl bg-gray-200 p-4 text-gray-900 dark:bg-zinc-800 dark:text-zinc-200">
+                    <Bot className="h-5 w-5 text-indigo-500" />
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                      <span>Searching notes and generating answer...</span>
+                    </div>
+                  </div>
                 )}
                 <div ref={bottomEndRef} />
               </ScrollArea>

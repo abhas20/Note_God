@@ -41,7 +41,11 @@ export async function _getUser() {
   const { auth } = await createClient()
   const userObject = await auth.getUser()
   if (userObject.error) {
-    // console.log(userObject.error)
+    // Normal guest visitor with no session token - not a real server error
+    if (userObject.error.name === 'AuthSessionMissingError') {
+      return null
+    }
+
     logger.error(
       {
         event: 'GET_USER_FAILED',

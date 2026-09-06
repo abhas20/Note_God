@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "migrate": "npx prisma generate && npx prisma migrate dev"
+    "migrate": "npx prisma generate && npx prisma migrate dev",
+    "reindex": "npx tsx scripts/reindex.ts"
   },
   "prisma": {
     "schema": "src/db/schema.prisma"
