@@ -26,11 +26,21 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-
       eqeqeq: ['error', 'always'],
       'no-console': ['warn', { allow: ['warn', 'error'] }], //off
       '@typescript-eslint/no-explicit-any': 'warn',
     },
+  },
+  {
+    ignores: [
+      'node_modules/**',
+      '.next/**',
+      'out/**',
+      'build/**',
+      'next-env.d.ts',
+      'socket-server/dist/**',
+      'socket-server/tests/**',
+    ],
   },
 ]
 

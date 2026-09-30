@@ -31,7 +31,9 @@ async function reindex() {
   }
 
   console.log('\n🎉 All files successfully queued!')
-  console.log('⚡ The worker service will process each file and generate new gemini-embedding-2 embeddings.')
+  console.log(
+    '⚡ The worker service will process each file and generate new gemini-embedding-2 embeddings.',
+  )
   process.exit(0)
 }
 
